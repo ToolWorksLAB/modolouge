@@ -32,3 +32,11 @@ The new app and manager code has not been deployed to production. Existing produ
 6. Owner signs into the manager; authenticated dashboard and live shutdown/restart inspection remain pending. Earlier IAM simulation proved access only to the designated Linux instance, but a real stop/start cycle has not been performed.
 
 Historical deployment checks are in `VERIFICATION.md`; they do not establish verification of this Supabase release. Cost figures remain estimates, and stopping EC2 retains storage and other possible charges.
+
+## Onboarding design revision
+
+- Replaced the single form card with a graphite/cream split layout, a deformable wireframe study, three-stage progress, email-code verification, personal introduction, first-experiment choices, and a personalized welcome.
+- The same visual system serves manager sign-in. Returning accounts go straight back to the workspace; completing onboarding adds a relevant first-step prompt. Closing the overlay after verification updates the account state, while the current geometry remains mounted.
+- Desktop browser preview exercised every screen, code entry, profile selection, starter selection, the final handoff, and the interactive sculpture. Production builds and all 24 existing tests pass after the revision. A browser viewport override did not take effect, so the phone breakpoint remains visually unverified.
+- `/design/onboarding` is a development-only interactive design review: it sends no email and creates no account. The production build returns HTTP 404 for this route. The actual `/signin` page uses the live authenticated API flow.
+- The local development console reports React's development-only `eval`/CSP warning. Production CSP was not weakened. Email delivery and live publication still have the prerequisites listed above.
