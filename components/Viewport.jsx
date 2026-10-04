@@ -57,15 +57,24 @@ export default function Viewport({ objects = [] }) {
       grid.position.set(center.x, center.y, box.min.z - radius * 0.005);
       controls.update();
     };
+    let visible = false,
+      initializedSize = false;
     const resize = new ResizeObserver(() => {
       if (!host.current) return;
       const { width, height } = host.current.getBoundingClientRect();
+      visible = width > 0 && height > 0;
+      if (!visible) return;
       r.setSize(width, height, false);
       camera.aspect = width / Math.max(height, 1);
       camera.updateProjectionMatrix();
+      if (!initializedSize) {
+        initializedSize = true;
+        fit();
+      }
     });
     resize.observe(host.current);
     r.setAnimationLoop(() => {
+      if (!visible) return;
       controls.update();
       r.render(scene, camera);
     });

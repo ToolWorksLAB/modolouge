@@ -2,6 +2,8 @@
 
 ToolWorksLab's public Grasshopper workspace. A Next.js frontend on Vercel submits asynchronous jobs to an Ubuntu EC2 Rhino.Compute 9 worker. Drag in a supported `.gh` or `.ghx`, adjust sliders, and update the Three.js viewport.
 
+Switch between 3D geometry, the Grasshopper canvas and a split view. Inspect components, follow wires, search the graph and adjust the same sliders from the canvas. Canvas navigation does not trigger a solve. See [canvas implementation and NodePen research](docs/grasshopper-canvas.md).
+
 ## Production
 
 - GitHub: `ToolWorksLAB/modolouge`, production branch `main`.

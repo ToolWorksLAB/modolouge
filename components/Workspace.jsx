@@ -1,8 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import dynamic from "next/dynamic";
 import AuthJourney from "./AuthJourney.jsx";
-const Viewport = dynamic(() => import("./Viewport.jsx"), { ssr: false });
+import DefinitionView from "./DefinitionView.jsx";
 import { api } from "../lib/client-api.js";
 export { api } from "../lib/client-api.js";
 export default function Workspace() {
@@ -412,23 +411,16 @@ export default function Workspace() {
                 : "Preparing your workspace…"}
           </p>
         </aside>
-        <section className="view-panel">
-          <div className="view-heading">
-            <span>{definition?.filename || "Untitled exploration"}</span>
-            <span>
-              {duration === null
-                ? "LIVE GEOMETRY"
-                : `${(duration / 1000).toFixed(2)} S / LAST SOLVE`}
-            </span>
-          </div>
-          <Viewport objects={objects} />
-          {busy && (
-            <div className="busy" role="status">
-              <span className="spinner" />
-              {busy}
-            </div>
-          )}
-        </section>
+        <DefinitionView
+          definition={definition}
+          objects={objects}
+          values={values}
+          onValueChange={(name, value) =>
+            setValues((previous) => ({ ...previous, [name]: value }))
+          }
+          busy={busy}
+          duration={duration}
+        />
       </div>
       {error && (
         <div role="alert" className="notice error">

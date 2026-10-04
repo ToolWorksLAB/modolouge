@@ -2,6 +2,7 @@ import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/500.css";
 import "./globals.css";
 import "./onboarding.css";
+import "./canvas.css";
 import { manager } from "../lib/config.js";
 export const metadata = {
   title: manager

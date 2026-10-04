@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "nodes": [
+    {
+      "id": "9d1efd96-ef69-4f0b-97a1-25eeebbc79d4",
+      "componentId": "57da07bd-ecab-415d-9d86-af36d7073abc",
+      "name": "Number Slider",
+      "label": "Radius",
+      "description": "Numeric slider for single values",
+      "kind": "slider",
+      "bounds": {
+        "x": 80,
+        "y": 100,
+        "width": 219,
+        "height": 20
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "id": "9d1efd96-ef69-4f0b-97a1-25eeebbc79d4",
+          "label": "",
+          "name": "Number Slider",
+          "description": ""
+        }
+      ],
+      "text": "",
+      "locked": false,
+      "hidden": false
+    },
+    {
+      "id": "795fd692-6af4-4c14-a2a5-89acef1a09ff",
+      "componentId": "57da07bd-ecab-415d-9d86-af36d7073abc",
+      "name": "Number Slider",
+      "label": "Longitude",
+      "description": "Numeric slider for single values",
+      "kind": "slider",
+      "bounds": {
+        "x": 80,
+        "y": 170,
+        "width": 219,
+        "height": 20
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "id": "795fd692-6af4-4c14-a2a5-89acef1a09ff",
+          "label": "",
+          "name": "Number Slider",
+          "description": ""
+        }
+      ],
+      "text": "",
+      "locked": false,
+      "hidden": false
+    },
+    {
+      "id": "86815e1f-4393-44b5-aa7f-55d56a17512e",
+      "componentId": "57da07bd-ecab-415d-9d86-af36d7073abc",
+      "name": "Number Slider",
+      "label": "Latitude",
+      "description": "Numeric slider for single values",
+      "kind": "slider",
+      "bounds": {
+        "x": 80,
+        "y": 240,
+        "width": 219,
+        "height": 20
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "id": "86815e1f-4393-44b5-aa7f-55d56a17512e",
+          "label": "",
+          "name": "Number Slider",
+          "description": ""
+        }
+      ],
+      "text": "",
+      "locked": false,
+      "hidden": false
+    },
+    {
+      "id": "558a4841-ef12-4f11-8af6-fbac8702e3a7",
+      "componentId": "0a391eac-5048-443c-9c1b-f592299b6dd6",
+      "name": "Mesh Sphere",
+      "label": "Sphere",
+      "description": "Create a mesh sphere.",
+      "kind": "component",
+      "bounds": {
+        "x": 460,
+        "y": 143,
+        "width": 69,
+        "height": 84
+      },
+      "inputs": [
+        {
+          "id": "40a63a7a-b6f6-475d-b934-63a0ba1679ee",
+          "label": "B",
+          "name": "Base",
+          "description": "Base plane"
+        },
+        {
+          "id": "c98e3a8e-3cfc-44de-98f9-23ce7d49bb29",
+          "label": "R",
+          "name": "Radius",
+          "description": "Radius of mesh sphere"
+        },
+        {
+          "id": "14a1ff17-a369-4039-9433-f66a8d6c1b40",
+          "label": "U",
+          "name": "U Count",
+          "description": "Number of faces around sphere"
+        },
+        {
+          "id": "cbe72348-eeee-47e9-886e-c00419c20d44",
+          "label": "V",
+          "name": "V Count",
+          "description": "Number of faces from pole to pole"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "f7c8cc09-51df-4c5e-9675-881c3f14f299",
+          "label": "M",
+          "name": "Mesh",
+          "description": "Mesh sphere"
+        }
+      ],
+      "text": "",
+      "locked": false,
+      "hidden": false
+    }
+  ],
+  "wires": [
+    {
+      "sourceNode": "9d1efd96-ef69-4f0b-97a1-25eeebbc79d4",
+      "sourcePort": "9d1efd96-ef69-4f0b-97a1-25eeebbc79d4",
+      "targetNode": "558a4841-ef12-4f11-8af6-fbac8702e3a7",
+      "targetPort": "c98e3a8e-3cfc-44de-98f9-23ce7d49bb29"
+    },
+    {
+      "sourceNode": "795fd692-6af4-4c14-a2a5-89acef1a09ff",
+      "sourcePort": "795fd692-6af4-4c14-a2a5-89acef1a09ff",
+      "targetNode": "558a4841-ef12-4f11-8af6-fbac8702e3a7",
+      "targetPort": "14a1ff17-a369-4039-9433-f66a8d6c1b40"
+    },
+    {
+      "sourceNode": "86815e1f-4393-44b5-aa7f-55d56a17512e",
+      "sourcePort": "86815e1f-4393-44b5-aa7f-55d56a17512e",
+      "targetNode": "558a4841-ef12-4f11-8af6-fbac8702e3a7",
+      "targetPort": "cbe72348-eeee-47e9-886e-c00419c20d44"
+    }
+  ],
+  "groups": [
+    {
+      "id": "f0df73f2-d92f-4f24-9179-ea8a6357c32f",
+      "label": "01 / Shape your input",
+      "color": "#829e68",
+      "members": [
+        "9d1efd96-ef69-4f0b-97a1-25eeebbc79d4",
+        "795fd692-6af4-4c14-a2a5-89acef1a09ff",
+        "86815e1f-4393-44b5-aa7f-55d56a17512e"
+      ]
+    },
+    {
+      "id": "9d43f7ee-fd8b-4f42-8e45-25020a1bd9a0",
+      "label": "02 / Build the geometry",
+      "color": "#c790af",
+      "members": [
+        "558a4841-ef12-4f11-8af6-fbac8702e3a7"
+      ]
+    }
+  ],
+  "notes": []
+}

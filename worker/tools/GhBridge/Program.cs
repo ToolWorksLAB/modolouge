@@ -27,6 +27,7 @@ try
     // Preserve only the definition structure consumed by the reviewed components.
     foreach (var chunk in definition.Element("chunks")!.Elements("chunk").ToArray())
         if (!new[] { "DefinitionObjects", "DocumentHeader", "DefinitionProperties" }.Contains((string?)chunk.Attribute("name"))) chunk.Remove();
+    var graph = GraphReader.Read(originalObjects);
     var controls = new List<object>();
     var outputs = new List<object>();
     var warnings = new List<string>();
@@ -59,13 +60,13 @@ try
             var interval = (int)Number(slider, "Interval", 0);
             var digits = (int)Number(slider, "Digits", 3);
             if (!double.IsFinite(Number(slider,"Min",0)) || !double.IsFinite(Number(slider,"Max",100)) || Number(slider,"Min",0)>Number(slider,"Max",100)) throw new Exception("Invalid slider range.");
-            controls.Add(new { name = inputName, label, kind = "number", min = Number(slider, "Min", 0), max = Number(slider, "Max", 100), value = Number(slider, "Value", 0), step = interval >= 2 ? 2 : interval == 1 ? 1 : Math.Pow(10, -digits), interval });
+            controls.Add(new { name = inputName, instanceId = id, label, kind = "number", min = Number(slider, "Min", 0), max = Number(slider, "Max", 100), value = Number(slider, "Value", 0), step = interval >= 2 ? 2 : interval == 1 ? 1 : Math.Pow(10, -digits), interval });
         }
         else if (name == "Boolean Toggle")
         {
             var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id[..8]}";
             if (!groupedInputs.ContainsKey(id)) AddGroup(inputName, id);
-            controls.Add(new { name = inputName, label, kind = "boolean", value = Value(c, "Value") == "true" });
+            controls.Add(new { name = inputName, instanceId = id, label, kind = "boolean", value = Value(c, "Value") == "true" });
         }
         else if (!explicitOutputs && Value(c, "Hidden") != "true" && Guid.TryParse(id, out _) &&
                  !new[] { "Group", "Panel", "Scribble", "Value List", "Number Slider", "Relay", "Timer", "Button", "Data Dam", "Boolean Toggle" }.Contains(name))
@@ -83,7 +84,7 @@ try
     var libraries = Chunk(definition, "GHALibraries")?.Descendants("item").Where(x => (string?)x.Attribute("name") == "Name").Select(x => x.Value).Distinct().ToArray() ?? [];
     if (libraries.Length > 0) warnings.Add("Required libraries: " + string.Join(", ", libraries) + ". They must be installed on the Compute server.");
     if (controls.Count == 0) warnings.Add("No top-level sliders or toggles found. Sliders inside clusters are not exposed automatically.");
-    Console.Write(JsonSerializer.Serialize(new { algo = Convert.ToBase64String(prepared.Serialize_Binary()), controls, outputs, libraries, warnings }));
+    Console.Write(JsonSerializer.Serialize(new { algo = Convert.ToBase64String(prepared.Serialize_Binary()), controls, outputs, libraries, warnings, graph }));
 
     void AddGroup(string name, string id)
     {

@@ -1,0 +1,568 @@
+.studio {
+  grid-template-columns: 280px minmax(0, 1fr);
+}
+.definition-view {
+  min-width: 0;
+}
+.definition-toolbar {
+  min-height: 62px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: #111619;
+  color: var(--paper);
+  border-bottom: 1px solid #2b3335;
+}
+.definition-filename {
+  font: 10px var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  color: #bac1bd;
+}
+.definition-modes {
+  display: flex;
+  flex-shrink: 0;
+  border: 1px solid #414742;
+  border-radius: 30px;
+  padding: 4px;
+  gap: 2px;
+}
+.definition-modes button {
+  padding: 9px 12px;
+  color: #aab2af;
+  font: 10px var(--mono);
+  border-radius: 24px;
+  white-space: nowrap;
+}
+.definition-modes button[aria-pressed="true"] {
+  color: #101619;
+  background: #fffff8;
+}
+.definition-modes button:hover {
+  color: #fff;
+}
+.definition-modes button[aria-pressed="true"]:hover {
+  color: #101619;
+}
+.parameter input[type="range"] {
+  margin: 0;
+  min-width: 0;
+}
+.definition-modes button:focus-visible,
+.gh-tools button:focus-visible,
+.gh-inspector button:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+.definition-panes {
+  display: grid;
+  flex: 1;
+  min-height: 568px;
+}
+.definition-panes.mode-split {
+  grid-template-columns: 1.2fr 1fr;
+}
+.definition-canvas-pane,
+.definition-geometry-pane {
+  min-width: 0;
+  min-height: 568px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.definition-panes > [hidden] {
+  display: none;
+}
+.mode-split .definition-geometry-pane {
+  border-left: 1px solid #c9cbbf;
+}
+.definition-geometry-pane .viewport-wrap {
+  min-height: 500px;
+}
+.geometry-label {
+  position: absolute;
+  inset: 22px 20px auto;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #777d73;
+  font: 8px var(--mono);
+  letter-spacing: 1px;
+  pointer-events: none;
+}
+.gh-canvas {
+  flex: 1;
+  position: relative;
+  min-height: 568px;
+  overflow: hidden;
+  background: #e9ece0;
+  color: #27332c;
+  isolation: isolate;
+}
+.gh-surface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+  outline-offset: -3px;
+}
+.gh-surface:active {
+  cursor: grabbing;
+}
+.gh-surface:focus-visible {
+  outline: 2px solid #6c9469;
+}
+.gh-heading {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  pointer-events: none;
+}
+.gh-mark {
+  color: #69805a;
+  display: flex;
+}
+.gh-heading strong {
+  font: 16px var(--mono);
+  letter-spacing: -0.6px;
+  display: block;
+}
+.gh-heading > div > span {
+  font: 7px var(--mono);
+  letter-spacing: 1.8px;
+  color: #69745f;
+  display: block;
+  margin-top: 5px;
+}
+.gh-readonly {
+  font: 8px var(--mono);
+  color: #75816d;
+  border: 1px solid #b4bda7;
+  padding: 5px 8px;
+  border-radius: 12px;
+  margin-left: 4px;
+}
+.gh-search {
+  position: absolute;
+  top: 82px;
+  left: 22px;
+  width: 185px;
+}
+.gh-search label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #c9cfbe;
+  border-radius: 7px;
+  padding: 8px 10px;
+  background: #f7f8f0ed;
+}
+.gh-search label > span {
+  font-size: 19px;
+  line-height: 12px;
+  color: #727c64;
+}
+.gh-search input {
+  width: 100%;
+  min-width: 0;
+  background: none;
+  border: 0;
+  outline: 0;
+  font: 9px var(--mono);
+  color: #364130;
+}
+.gh-search label:focus-within {
+  outline: 2px solid #6c9469;
+}
+.gh-search-results {
+  background: #fffff8;
+  border: 1px solid #c0c6b7;
+  border-radius: 8px;
+  margin-top: 6px;
+  max-height: 230px;
+  overflow: auto;
+  box-shadow: 0 12px 25px #293b2320;
+}
+.gh-search-results button {
+  display: block;
+  text-align: left;
+  padding: 12px;
+  width: 100%;
+  border-bottom: 1px solid #e6e8dc;
+}
+.gh-search-results button:hover {
+  background: #e8eedf;
+}
+.gh-search-results strong {
+  display: block;
+  font: 10px var(--mono);
+}
+.gh-search-results span,
+.gh-search-results p {
+  font-size: 9px;
+  color: #747f6a;
+  margin: 4px 12px;
+}
+.gh-search-results span {
+  margin: 4px 0 0;
+  display: block;
+}
+.gh-node {
+  cursor: pointer;
+  outline: none;
+}
+.gh-node-body {
+  fill: #f9faf4;
+  stroke: #70786a;
+  stroke-width: 1;
+  filter: drop-shadow(0 2px 1px #29351f14);
+}
+.gh-node:hover .gh-node-body,
+.gh-node:focus-visible .gh-node-body {
+  stroke: #426d39;
+  stroke-width: 2;
+}
+.gh-node.is-selected .gh-node-body {
+  fill: #d4ebbd;
+  stroke: #517a3e;
+  stroke-width: 2;
+}
+.gh-node.is-locked .gh-node-body {
+  fill: #d3d4cc;
+  stroke-dasharray: 3 2;
+}
+.gh-node-label {
+  font: 11px var(--mono);
+  fill: #384232;
+  pointer-events: none;
+}
+.gh-port-label {
+  font: 9px var(--mono);
+  fill: #64705d;
+  pointer-events: none;
+}
+.gh-port {
+  fill: #f9faf4;
+  stroke: #68775d;
+  stroke-width: 1.2;
+}
+.gh-wire {
+  fill: none;
+  stroke: #65745b;
+  stroke-width: 1.6;
+}
+.gh-wire.is-active {
+  stroke: #739b53;
+  stroke-width: 2.5;
+}
+.gh-slider .gh-node-body,
+.gh-toggle .gh-node-body {
+  fill: #f3f5eb;
+}
+.gh-value {
+  font: 11px var(--mono);
+  fill: #b32270;
+  pointer-events: none;
+}
+.gh-slider-fill {
+  stroke: #d43b88;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.gh-panel .gh-node-body {
+  fill: #fff2bc;
+  stroke: #b6a76e;
+}
+.gh-scribble .gh-node-body {
+  fill: transparent;
+  stroke: transparent;
+}
+.gh-panel-text {
+  font: 10px var(--mono);
+  fill: #625d42;
+}
+.gh-group text {
+  font: 10px var(--mono);
+  fill: #53664a;
+}
+.gh-empty {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(330px, 85%);
+  text-align: center;
+  pointer-events: none;
+}
+.gh-empty > svg {
+  width: 44px;
+  height: 44px;
+  color: #849974;
+  opacity: 0.8;
+}
+.gh-empty h2 {
+  font-size: 20px;
+  letter-spacing: -1px;
+  line-height: 1.4;
+}
+.gh-empty h2 span {
+  color: var(--pink);
+}
+.gh-empty p {
+  color: #6f7866;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.gh-empty > span {
+  display: block;
+  margin-top: 25px;
+  color: #839078;
+  font: 7px var(--mono);
+  letter-spacing: 1px;
+}
+.gh-tools {
+  position: absolute;
+  bottom: 47px;
+  left: 22px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid #c0c8b7;
+  border-radius: 30px;
+  background: #fffff3ed;
+  box-shadow: 0 5px 20px #29351f0a;
+}
+.gh-tools button {
+  font: 13px var(--mono);
+  padding: 7px 11px;
+  border-radius: 20px;
+  color: #47593b;
+}
+.gh-tools button:last-child {
+  font-size: 10px;
+}
+.gh-tools button:hover {
+  background: #dde9d1;
+}
+.gh-tools output {
+  font: 9px var(--mono);
+  min-width: 34px;
+  text-align: center;
+}
+.gh-tools > span {
+  width: 1px;
+  height: 16px;
+  background: #d5dccb;
+  margin: 0 3px;
+}
+.gh-footer {
+  position: absolute;
+  bottom: 18px;
+  left: 22px;
+  right: 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font: 8px var(--mono);
+  color: #6d7b61;
+  pointer-events: none;
+}
+.mode-split .gh-hint {
+  display: none;
+}
+.gh-inspector {
+  position: absolute;
+  right: 16px;
+  bottom: 46px;
+  width: min(235px, calc(100% - 32px));
+  padding: 14px 16px;
+  border: 1px solid #b9c8a9;
+  background: #fbfcf5f5;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px #29351f14;
+  max-height: 55%;
+  overflow: auto;
+}
+.gh-inspector-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: 7px var(--mono);
+  letter-spacing: 1px;
+  color: #718b5d;
+}
+.gh-inspector-title button {
+  font-size: 20px;
+  line-height: 16px;
+  color: #526047;
+  padding: 4px;
+}
+.gh-inspector h3 {
+  font: 15px var(--mono);
+  margin: 10px 0 7px;
+  overflow-wrap: anywhere;
+}
+.gh-inspector p {
+  font-size: 9px;
+  line-height: 1.7;
+  margin: 5px 0;
+  color: #6d7763;
+}
+.gh-inspector pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 10px/1.6 var(--mono);
+  max-height: 130px;
+  overflow: auto;
+}
+.gh-port-details {
+  display: flex;
+  gap: 22px;
+  border-top: 1px solid #dfe4d5;
+  margin-top: 12px;
+  padding-top: 10px;
+}
+.gh-port-details > div {
+  min-width: 0;
+}
+.gh-port-details > div > span {
+  font: 7px var(--mono);
+  color: #829473;
+}
+.gh-port-details p {
+  overflow-wrap: anywhere;
+}
+.gh-port-details b {
+  display: inline-block;
+  font: 9px var(--mono);
+  color: #42633a;
+  margin-right: 8px;
+}
+.gh-control {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #dfe4d5;
+}
+.gh-control label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font: 10px var(--mono);
+}
+.gh-control output {
+  color: #b32270;
+}
+.gh-control input[type="range"] {
+  width: 100%;
+  accent-color: var(--pink);
+  margin: 12px 0 4px;
+  height: 4px;
+}
+.gh-control input[type="checkbox"] {
+  accent-color: var(--pink);
+  margin-top: 10px;
+}
+.gh-control small {
+  font-size: 8px;
+  color: #7d876f;
+}
+.gh-notes {
+  position: absolute;
+  left: 22px;
+  top: 124px;
+  max-width: 280px;
+  padding: 9px 12px;
+  font-size: 9px;
+  background: #fff8dc;
+  border: 1px solid #d0c38d;
+  border-radius: 6px;
+}
+.gh-notes summary {
+  cursor: pointer;
+}
+.gh-notes p {
+  margin: 6px 0;
+}
+@media (min-width: 1500px) {
+  .mode-canvas .gh-search {
+    top: 24px;
+    left: auto;
+    right: 22px;
+  }
+}
+@media (max-width: 1200px) {
+  .definition-panes.mode-split {
+    grid-template-columns: 1fr;
+    grid-template-rows: 470px 410px;
+  }
+  .mode-split .definition-canvas-pane,
+  .mode-split .gh-canvas {
+    min-height: 470px;
+  }
+  .mode-split .definition-geometry-pane,
+  .mode-split .definition-geometry-pane .viewport-wrap {
+    min-height: 410px;
+  }
+  .mode-split .definition-geometry-pane {
+    border-left: 0;
+    border-top: 1px solid #c9cbbf;
+  }
+  .definition-toolbar {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 760px) {
+  .studio {
+    display: flex;
+  }
+  .definition-toolbar {
+    padding: 12px;
+    gap: 10px;
+  }
+  .definition-filename {
+    width: 100%;
+  }
+  .definition-modes {
+    width: 100%;
+    justify-content: center;
+  }
+  .definition-modes button {
+    flex: 1;
+  }
+  .gh-heading {
+    top: 20px;
+    left: 16px;
+  }
+  .gh-search {
+    left: 16px;
+  }
+  .gh-hint {
+    display: none;
+  }
+  .gh-inspector {
+    max-height: 45%;
+    bottom: 94px;
+  }
+  .definition-panes:not(.mode-split),
+  .definition-canvas-pane,
+  .gh-canvas {
+    min-height: 500px;
+  }
+  .gh-footer {
+    left: 16px;
+  }
+  .gh-tools {
+    left: 16px;
+  }
+}

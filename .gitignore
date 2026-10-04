@@ -8,5 +8,7 @@ node_modules/
 worker/tools/GhBridge/bin/
 worker/tools/GhBridge/obj/
 worker/tools/GhBridge/publish/
+tests/GraphReader/bin/
+tests/GraphReader/obj/
 
 supabase/.temp/

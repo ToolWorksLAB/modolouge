@@ -78,6 +78,7 @@ export async function execute(job) {
       id: def.id,
       filename: def.filename,
       controls: parsed.controls,
+      graph: parsed.graph,
       outputs: io.Outputs || [],
       warnings: [...parsed.warnings, ...(io.Warnings || [])],
     };
