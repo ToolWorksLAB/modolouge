@@ -1,14 +1,21 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import dynamic from "next/dynamic";
 import AuthJourney from "./AuthJourney.jsx";
 import DefinitionView from "./DefinitionView.jsx";
 import { api } from "../lib/client-api.js";
 export { api } from "../lib/client-api.js";
+const AppDesigner = dynamic(() => import("./AppDesigner.jsx"), {
+  loading: () => <div className="notice">Opening application studio…</div>,
+});
 export default function Workspace() {
   const [status, setStatus] = useState(null),
     [definition, setDefinition] = useState(null),
     [values, setValues] = useState({}),
     [objects, setObjects] = useState([]),
+    [dataOutputs, setDataOutputs] = useState([]),
+    [mode, setMode] = useState("explore"),
+    [designerOpened, setDesignerOpened] = useState(false),
     [busy, setBusy] = useState(""),
     [error, setError] = useState(""),
     [warnings, setWarnings] = useState([]),
@@ -80,6 +87,7 @@ export default function Workspace() {
       values: v,
     });
     setObjects(result.objects || []);
+    setDataOutputs(result.dataOutputs || []);
     setDuration(result.duration);
     setWarnings([
       ...(def.warnings || []),
@@ -146,6 +154,7 @@ export default function Workspace() {
       setDefinition(d);
       setValues(v);
       setObjects([]);
+      setDataOutputs([]);
       setWarnings(d.warnings || []);
       await solve(d, v);
     } catch (e) {
@@ -165,9 +174,11 @@ export default function Workspace() {
         <div>
           <div className="eyebrow">MOD O LO GUE / WORKSPACE</div>
           <h1>
-            {definition
-              ? "Form follows your input"
-              : "Drop it. Shape it. Make it yours"}
+            {mode === "design"
+              ? "From a definition to an experience"
+              : definition
+                ? "Form follows your input"
+                : "Drop it. Shape it. Make it yours"}
             <span className="pink">.</span>
           </h1>
           <p className="workspace-intro">
@@ -185,45 +196,47 @@ export default function Workspace() {
               : "Compute offline"}
         </span>
       </div>
-      <div className="trial-strip">
-        <div>
-          <span className="eyebrow">
-            {usage?.kind === "member"
-              ? "YOUR DAILY ALLOWANCE"
-              : "A LITTLE ROOM TO EXPLORE"}
-          </span>
-          <strong>
-            {usage?.kind === "member"
-              ? `${usage.remaining} jobs left today`
-              : `${usage?.remaining ?? 5} of 5 free geometry runs left`}
-          </strong>
+      <div hidden={mode !== "explore"}>
+        <div className="trial-strip">
+          <div>
+            <span className="eyebrow">
+              {usage?.kind === "member"
+                ? "YOUR DAILY ALLOWANCE"
+                : "A LITTLE ROOM TO EXPLORE"}
+            </span>
+            <strong>
+              {usage?.kind === "member"
+                ? `${usage.remaining} jobs left today`
+                : `${usage?.remaining ?? 5} of 5 free geometry runs left`}
+            </strong>
+          </div>
+          {usage?.kind !== "member" && (
+            <>
+              <div className="trial-dots" aria-hidden="true">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <i
+                    key={i}
+                    className={i < (usage?.remaining ?? 5) ? "available" : ""}
+                  />
+                ))}
+              </div>
+              <button className="text-link" onClick={() => setShowAuth(true)}>
+                Make a free account ↗
+              </button>
+            </>
+          )}
         </div>
-        {usage?.kind !== "member" && (
-          <>
-            <div className="trial-dots" aria-hidden="true">
-              {Array.from({ length: 5 }, (_, i) => (
-                <i
-                  key={i}
-                  className={i < (usage?.remaining ?? 5) ? "available" : ""}
-                />
-              ))}
-            </div>
-            <button className="text-link" onClick={() => setShowAuth(true)}>
-              Make a free account ↗
-            </button>
-          </>
-        )}
-      </div>
-      <div className="workspace-steps">
-        <span className={!definition ? "active" : ""}>
-          01 <b>Drop a definition</b>
-        </span>
-        <span className={definition ? "active" : ""}>
-          02 <b>Adjust the sliders</b>
-        </span>
-        <span className={objects.length ? "active" : ""}>
-          03 <b>Explore your geometry</b>
-        </span>
+        <div className="workspace-steps">
+          <span className={!definition ? "active" : ""}>
+            01 <b>Drop a definition</b>
+          </span>
+          <span className={definition ? "active" : ""}>
+            02 <b>Adjust the sliders</b>
+          </span>
+          <span className={objects.length ? "active" : ""}>
+            03 <b>Explore your geometry</b>
+          </span>
+        </div>
       </div>
       {usage?.kind === "member" && usage.intent && !definition && (
         <div className="workspace-welcome">
@@ -253,175 +266,215 @@ export default function Workspace() {
           </button>
         </div>
       )}
-      <div className="studio">
-        <aside className="control-panel">
-          <div className="panel-heading">
-            <span className="eyebrow">01 / DEFINITION</span>
-            <span>.GH / .GHX</span>
-          </div>
-          <button
-            className={"dropzone " + (drag ? "dragging" : "")}
-            disabled={!!busy || !status?.online || !usage}
-            onClick={() => input.current.click()}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDrag(true);
-            }}
-            onDragLeave={() => setDrag(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDrag(false);
-              if (usage && status?.online && e.dataTransfer.files[0])
-                load(e.dataTransfer.files[0]);
-            }}
-          >
-            <span className="drop-icon">↥</span>
-            <strong>Drop your definition</strong>
-            <span>or click to browse · up to 20 MB</span>
-          </button>
-          <input
-            ref={input}
-            type="file"
-            accept=".gh,.ghx"
-            hidden
-            onChange={(e) => {
-              if (e.target.files[0]) load(e.target.files[0]);
-              e.target.value = "";
-            }}
-          />
-          <button
-            className="example"
-            disabled={!!busy || !status?.online || !usage}
-            onClick={() => load(null, true)}
-          >
-            Start with a parametric sphere <span>↗</span>
-          </button>
-          {definition && (
-            <div className="file-chip">
-              <span>◈</span>
-              <div>
-                <strong>{definition.filename}</strong>
-                <small>{definition.controls.length} exposed controls</small>
-              </div>
+      <div className="workspace-modes" aria-label="Workspace mode">
+        <button
+          aria-pressed={mode === "explore"}
+          onClick={() => setMode("explore")}
+        >
+          Explore definition
+        </button>
+        <button
+          aria-pressed={mode === "design"}
+          onClick={() => {
+            setDesignerOpened(true);
+            setMode("design");
+          }}
+        >
+          Design an app ↗
+        </button>
+        <span>YOUR LOGIC. YOUR INTERFACE.</span>
+      </div>
+      <div hidden={mode !== "explore"}>
+        <div className="studio">
+          <aside className="control-panel">
+            <div className="panel-heading">
+              <span className="eyebrow">01 / DEFINITION</span>
+              <span>.GH / .GHX</span>
             </div>
-          )}
-          <div className="panel-heading parameters-title">
-            <span className="eyebrow">02 / PARAMETERS</span>
             <button
-              className="quiet"
-              disabled={!definition || !!busy}
-              onClick={() =>
-                setValues(
-                  Object.fromEntries(
-                    definition.controls.map((c) => [c.name, c.value]),
-                  ),
-                )
-              }
+              className={"dropzone " + (drag ? "dragging" : "")}
+              disabled={!!busy || !status?.online || !usage}
+              onClick={() => input.current.click()}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDrag(true);
+              }}
+              onDragLeave={() => setDrag(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDrag(false);
+                if (usage && status?.online && e.dataTransfer.files[0])
+                  load(e.dataTransfer.files[0]);
+              }}
             >
-              Reset
+              <span className="drop-icon">↥</span>
+              <strong>Drop your definition</strong>
+              <span>or click to browse · up to 20 MB</span>
             </button>
-          </div>
-          <div className="parameters">
-            {!definition && (
-              <p className="muted">
-                Your sliders and toggles will appear here. Bring a definition to
-                begin.
-              </p>
+            <input
+              ref={input}
+              type="file"
+              accept=".gh,.ghx"
+              hidden
+              onChange={(e) => {
+                if (e.target.files[0]) load(e.target.files[0]);
+                e.target.value = "";
+              }}
+            />
+            <button
+              className="example"
+              disabled={!!busy || !status?.online || !usage}
+              onClick={() => load(null, true)}
+            >
+              Start with a parametric sphere <span>↗</span>
+            </button>
+            {definition && (
+              <div className="file-chip">
+                <span>◈</span>
+                <div>
+                  <strong>{definition.filename}</strong>
+                  <small>{definition.controls.length} exposed controls</small>
+                </div>
+              </div>
             )}
-            {definition?.controls.map((c) => (
-              <div className="parameter" key={c.name}>
-                <label htmlFor={c.name}>{c.label}</label>
-                {c.kind === "number" ? (
-                  <>
-                    <input
-                      aria-label={c.label + " value"}
-                      type="number"
-                      min={c.min}
-                      max={c.max}
-                      step={c.step}
-                      value={values[c.name]}
-                      disabled={!!busy}
-                      onChange={(e) => {
-                        if (Number.isFinite(e.target.valueAsNumber))
-                          setValues({
-                            ...values,
-                            [c.name]: Math.max(
-                              c.min,
-                              Math.min(c.max, e.target.valueAsNumber),
-                            ),
-                          });
-                      }}
-                    />
+            <div className="panel-heading parameters-title">
+              <span className="eyebrow">02 / PARAMETERS</span>
+              <button
+                className="quiet"
+                disabled={!definition || !!busy}
+                onClick={() =>
+                  setValues(
+                    Object.fromEntries(
+                      definition.controls.map((c) => [c.name, c.value]),
+                    ),
+                  )
+                }
+              >
+                Reset
+              </button>
+            </div>
+            <div className="parameters">
+              {!definition && (
+                <p className="muted">
+                  Your sliders and toggles will appear here. Bring a definition
+                  to begin.
+                </p>
+              )}
+              {definition?.controls.map((c) => (
+                <div className="parameter" key={c.name}>
+                  <label htmlFor={c.name}>{c.label}</label>
+                  {c.kind === "number" ? (
+                    <>
+                      <input
+                        aria-label={c.label + " value"}
+                        type="number"
+                        min={c.min}
+                        max={c.max}
+                        step={c.step}
+                        value={values[c.name]}
+                        disabled={!!busy}
+                        onChange={(e) => {
+                          if (Number.isFinite(e.target.valueAsNumber))
+                            setValues({
+                              ...values,
+                              [c.name]: Math.max(
+                                c.min,
+                                Math.min(c.max, e.target.valueAsNumber),
+                              ),
+                            });
+                        }}
+                      />
+                      <input
+                        id={c.name}
+                        type="range"
+                        min={c.min}
+                        max={c.max}
+                        step={c.step}
+                        value={values[c.name]}
+                        disabled={!!busy}
+                        onChange={(e) =>
+                          setValues({ ...values, [c.name]: +e.target.value })
+                        }
+                      />
+                      <div className="range-ends">
+                        <span>{c.min}</span>
+                        <span>{c.max}</span>
+                      </div>
+                    </>
+                  ) : c.kind === "boolean" ? (
                     <input
                       id={c.name}
-                      type="range"
-                      min={c.min}
-                      max={c.max}
-                      step={c.step}
+                      type="checkbox"
+                      checked={values[c.name]}
+                      disabled={!!busy}
+                      onChange={(e) =>
+                        setValues({ ...values, [c.name]: e.target.checked })
+                      }
+                    />
+                  ) : (
+                    <input
+                      id={c.name}
                       value={values[c.name]}
                       disabled={!!busy}
                       onChange={(e) =>
-                        setValues({ ...values, [c.name]: +e.target.value })
+                        setValues({ ...values, [c.name]: e.target.value })
                       }
                     />
-                    <div className="range-ends">
-                      <span>{c.min}</span>
-                      <span>{c.max}</span>
-                    </div>
-                  </>
-                ) : c.kind === "boolean" ? (
-                  <input
-                    id={c.name}
-                    type="checkbox"
-                    checked={values[c.name]}
-                    disabled={!!busy}
-                    onChange={(e) =>
-                      setValues({ ...values, [c.name]: e.target.checked })
-                    }
-                  />
-                ) : (
-                  <input
-                    id={c.name}
-                    value={values[c.name]}
-                    disabled={!!busy}
-                    onChange={(e) =>
-                      setValues({ ...values, [c.name]: e.target.value })
-                    }
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-          <button
-            className="button primary solve"
-            disabled={!definition || !!busy || !status?.online}
-            onClick={run}
-          >
-            {busy ||
-              (usage?.kind === "guest" && usage.remaining <= 0
-                ? "Sign in to keep exploring"
-                : "Update geometry")}
-            <span>↗</span>
-          </button>
-          <p className="fine">
-            {usage?.kind === "guest"
-              ? "One geometry update uses one free run."
-              : usage
-                ? `${usage.dailyJobs} / ${usage.limit} jobs today · UTC reset`
-                : "Preparing your workspace…"}
-          </p>
-        </aside>
-        <DefinitionView
-          definition={definition}
-          objects={objects}
-          values={values}
-          onValueChange={(name, value) =>
-            setValues((previous) => ({ ...previous, [name]: value }))
-          }
-          busy={busy}
-          duration={duration}
-        />
+                  )}
+                </div>
+              ))}
+            </div>
+            <button
+              className="button primary solve"
+              disabled={!definition || !!busy || !status?.online}
+              onClick={run}
+            >
+              {busy ||
+                (usage?.kind === "guest" && usage.remaining <= 0
+                  ? "Sign in to keep exploring"
+                  : "Update geometry")}
+              <span>↗</span>
+            </button>
+            <p className="fine">
+              {usage?.kind === "guest"
+                ? "One geometry update uses one free run."
+                : usage
+                  ? `${usage.dailyJobs} / ${usage.limit} jobs today · UTC reset`
+                  : "Preparing your workspace…"}
+            </p>
+          </aside>
+          <DefinitionView
+            definition={definition}
+            objects={objects}
+            values={values}
+            onValueChange={(name, value) =>
+              setValues((previous) => ({ ...previous, [name]: value }))
+            }
+            busy={busy}
+            duration={duration}
+          />
+        </div>
       </div>
+      {designerOpened && (
+        <div hidden={mode !== "design"}>
+          <AppDesigner
+            key={definition?.id || "blank"}
+            definition={definition}
+            objects={objects}
+            dataOutputs={dataOutputs}
+            values={values}
+            onValueChange={(name, value) =>
+              setValues((previous) => ({ ...previous, [name]: value }))
+            }
+            onRun={run}
+            busy={busy}
+            canRun={!!definition && !!status?.online}
+            member={usage?.kind === "member"}
+            accountKey={usage?.kind === "member" ? usage.email : ""}
+            onSignIn={() => setShowAuth(true)}
+          />
+        </div>
+      )}
       {error && (
         <div role="alert" className="notice error">
           {error}

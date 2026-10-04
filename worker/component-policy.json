@@ -1,5 +1,10 @@
 [
   {
+    "name": "Panel",
+    "id": "59e0b89a-e487-49f8-bab8-b5bab16be14c",
+    "source": "Grasshopper.Kernel.Special.GH_Panel; bridge rejects Stream and StreamPath"
+  },
+  {
     "name": "Number Slider",
     "id": "57da07bd-ecab-415d-9d86-af36d7073abc",
     "source": "Grasshopper.Kernel.Special.GH_NumberSlider"

@@ -6,6 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compute, makeValues } from "./compute.js";
 import { previewGeometry } from "./geometry.js";
+import { previewData } from "./data-outputs.js";
 import { get, put, download, upload } from "./storage.js";
 const root = path.dirname(fileURLToPath(import.meta.url)),
   run = promisify(execFile);
@@ -98,6 +99,7 @@ export async function execute(job) {
   const preview = await previewGeometry(result.values || []);
   const body = {
     ...preview,
+    dataOutputs: previewData(result.values || []),
     duration: Math.round(performance.now() - start),
     errors: result.errors || [],
     warnings: [...(result.warnings || []), ...preview.warnings],

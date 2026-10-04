@@ -23,6 +23,9 @@ try
         var n = ((string?)item.Attribute("name") ?? "").ToLowerInvariant();
         if ((n.Contains("script") && n != "description") || n.Contains("assembly") || n.Contains("cluster") || n.Contains("expression"))
             throw new Exception("Embedded scripts, assemblies, clusters and expressions are not supported by the public service.");
+        if ((n == "stream" && !item.Value.Equals("false", StringComparison.OrdinalIgnoreCase)) ||
+            (n == "streampath" && !string.IsNullOrWhiteSpace(item.Value)))
+            throw new Exception("Panel file streaming is not supported. Disable Stream Contents and clear Stream Destination before uploading.");
     }
     // Preserve only the definition structure consumed by the reviewed components.
     foreach (var chunk in definition.Element("chunks")!.Elements("chunk").ToArray())
@@ -66,10 +69,17 @@ try
         {
             var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id[..8]}";
             if (!groupedInputs.ContainsKey(id)) AddGroup(inputName, id);
-            controls.Add(new { name = inputName, instanceId = id, label, kind = "boolean", value = Value(c, "Value") == "true" });
+            controls.Add(new { name = inputName, instanceId = id, label, kind = "boolean", value = Value(c, "ToggleValue").Equals("true", StringComparison.OrdinalIgnoreCase) });
+        }
+        else if (name == "Panel" && Number(c, "SourceCount", 0) == 0 && !c.Descendants("item").Any(x => (string?)x.Attribute("name") == "Source"))
+        {
+            var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id[..8]}";
+            if (!groupedInputs.ContainsKey(id)) AddGroup(inputName, id);
+            var content = Value(c, "UserText");
+            controls.Add(new { name = inputName, instanceId = id, label, kind = "text", value = content[..Math.Min(content.Length, 10000)] });
         }
         else if (!explicitOutputs && Value(c, "Hidden") != "true" && Guid.TryParse(id, out _) &&
-                 !new[] { "Group", "Panel", "Scribble", "Value List", "Number Slider", "Relay", "Timer", "Button", "Data Dam", "Boolean Toggle" }.Contains(name))
+                 !new[] { "Group", "Scribble", "Value List", "Number Slider", "Relay", "Timer", "Button", "Data Dam", "Boolean Toggle" }.Contains(name))
         {
             var outputName = $"RH_OUT:{label}_{id[..8]}";
             AddGroup(outputName, id);
@@ -83,7 +93,7 @@ try
     if (!prepared.Deserialize_Xml(xml.ToString())) throw new Exception("Could not prepare definition for Compute.");
     var libraries = Chunk(definition, "GHALibraries")?.Descendants("item").Where(x => (string?)x.Attribute("name") == "Name").Select(x => x.Value).Distinct().ToArray() ?? [];
     if (libraries.Length > 0) warnings.Add("Required libraries: " + string.Join(", ", libraries) + ". They must be installed on the Compute server.");
-    if (controls.Count == 0) warnings.Add("No top-level sliders or toggles found. Sliders inside clusters are not exposed automatically.");
+    if (controls.Count == 0) warnings.Add("No top-level sliders, toggles or unwired text Panels found.");
     Console.Write(JsonSerializer.Serialize(new { algo = Convert.ToBase64String(prepared.Serialize_Binary()), controls, outputs, libraries, warnings, graph }));
 
     void AddGroup(string name, string id)
