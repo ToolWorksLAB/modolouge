@@ -39,6 +39,14 @@ The owner has been sent a fresh code through the live manager sign-in page. Ente
 
 Historical deployment checks are in `VERIFICATION.md`; they do not establish verification of this Supabase release. Cost figures remain estimates, and stopping EC2 retains storage and other possible charges.
 
+## Email-code account creation repair
+
+- A successful Supabase OTP verification was followed by HTTP 500 in the app. Runtime logs reported PostgreSQL `42501`. Reproducing the account-link RPC as `service_role` confirmed `permission denied for table users` in its `auth.users` lookup.
+- Migration `20261004185922_account_link_verified_identity_read.sql` was applied to the live company database. It grants the server role SELECT on only `id`, `email`, `email_confirmed_at`, and `is_anonymous`. The function stays `SECURITY INVOKER`; browser roles still cannot call it, and the server does not receive SELECT on password data.
+- `tests/account-link.integration.mjs` exercises the real Supabase API with disposable identities: unverified accounts are rejected, verified accounts are created, guest linking succeeds, retries are idempotent, and anonymous/authenticated browser callers cannot link accounts or read private data. All checks passed and every fixture was removed. Run explicitly with `MODOLOUGE_AUTH_TEST=1` and the three Supabase environment variables.
+- Security advisors reported no database permission findings. The separate Auth leaked-password-protection warning remains; this app's sign-in UI uses email codes. [Supabase password-security guidance](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+- Codes consumed by the failed post-verification step cannot be reused. A fresh code is required to retry; production browser completion is being verified with the owner.
+
 ## Onboarding design revision
 
 - Replaced the single form card with a graphite/cream split layout, a deformable wireframe study, three-stage progress, email-code verification, personal introduction, first-experiment choices, and a personalized welcome.
