@@ -805,6 +805,8 @@
 .ad-viewport .viewport-tools {
   bottom: 35px;
   left: 12px;
+  transform: none;
+  max-width: calc(100% - 24px);
   gap: 5px;
   flex-wrap: wrap;
 }
