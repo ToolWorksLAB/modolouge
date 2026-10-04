@@ -3,6 +3,14 @@
 ## Passed
 
 - Production Next.js builds for both repositories using Node 24.
+- Both repositories are public after a full Git-history credential scan. GitHub `main` automatically deploys production in the company Vercel Hobby team, without changing the plan or using the client workspace.
+- Live sites: https://modolouge.vercel.app and https://modolouge-manager.vercel.app.
+- Production Vercel OIDC exchange and AWS reads succeeded on both sites. The app role includes DynamoDB `ConditionCheckItem` for transactional service-state checks.
+- Real Cognito hosted login, PKCE callback and encrypted session worked in the production browser with a temporary test account.
+- Production browser example, `.ghx` upload and binary `.gh` upload all completed through private S3, SQS, Linux Compute and the viewport. Three sliders appeared; changing radius 12 to 20 changed the returned mesh X extent from 24 to 40.
+- Seven production browser test jobs completed and recorded usage and approximate country/city. No browser errors were observed during the successful flow.
+- An authenticated ordinary user was refused manager access. Anonymous dashboard requests return 401.
+- Temporary deployment test account, 21 DynamoDB records and 12 S3 objects were removed; seven test jobs were deducted from the global daily allowance.
 - 14 workspace tests: encrypted session rejection, expiry, blocked users, admin restriction, CSRF, cross-user result isolation, service-offline handling, filename/ID validation, numeric bounds and slider parity.
 - 6 manager authentication tests.
 - Desktop and mobile browser rendering of the two signed-out landing pages; no browser errors observed.
@@ -15,10 +23,8 @@
 
 ## Still pending
 
-- Vercel Git integration and live production URLs: Vercel returned HTTP 409 `repo_owned_by_org` for each private ToolWorksLAB repository on the connected company's Hobby plan. Owner requested no upgrade while investigating. No client workspace was used.
-- Production Vercel OIDC token exchange and runtime environment configuration.
-- Live Cognito browser sign-up/verification/callback on the final production URLs.
-- Authenticated viewport and manager browser verification against deployed APIs.
+- Owner email verification and authenticated manager dashboard inspection. The owner must register and verify the configured administrator address. The initial signup contained a domain typo; the correct registration was not yet completed at report time.
+- Actual email delivery to the owner's correctly spelled address. The temporary test identity used a suppressed invitation, so it does not establish inbox delivery.
 - Live manager shutdown/restart cycle. Permission simulation passed; no EC2 stop/start was performed during this deployment work.
 
 ## Limits
