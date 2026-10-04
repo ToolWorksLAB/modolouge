@@ -9,7 +9,7 @@ ToolWorksLab's public Grasshopper workspace. A Next.js frontend on Vercel submit
 - Administrator: `info@toolworkslab.com`; separate `ToolWorksLAB/modolouge-manager` repository.
 - AWS region `eu-north-1`; Linux instance `i-0c6e3386ff6d66b5b` only. Existing Windows instances are outside these controls.
 
-Vercel Git linkage is currently pending: the company Hobby plan rejected private organization repositories with `repo_owned_by_org`. The owner requested no upgrade while investigating. No Vercel production deployment has been created. See [verification status](VERIFICATION.md).
+The public repository is connected to the company Vercel Hobby workspace. Pushes to `main` deploy production at [modolouge.vercel.app](https://modolouge.vercel.app). Administration is at [modolouge-manager.vercel.app](https://modolouge-manager.vercel.app). See [verification status](VERIFICATION.md).
 
 ## Develop
 
