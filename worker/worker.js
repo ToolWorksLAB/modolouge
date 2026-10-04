@@ -7,6 +7,7 @@ import {
 } from "@aws-sdk/client-sqs";
 import { get, put, update, transact, table, sqs, queue } from "./storage.js";
 import { compute } from "./compute.js";
+import { flushTelemetry } from "./telemetry.js";
 let stopping = false,
   lastTick = Date.now(),
   beatBusy = false;
@@ -45,6 +46,7 @@ async function heartbeat() {
       },
       { ExpressionAttributeNames: { "#ttl": "ttl" } },
     );
+    await flushTelemetry();
   } catch (e) {
     console.error("heartbeat", e.name);
   } finally {
@@ -55,6 +57,9 @@ const interval = setInterval(heartbeat, 30000);
 await heartbeat();
 function execute(job) {
   return new Promise((resolve) => {
+    const childEnv = { ...process.env };
+    delete childEnv.SUPABASE_SECRET_KEY;
+    delete childEnv.IP_HASH_SECRET;
     const child = spawn(
       process.execPath,
       [
@@ -62,7 +67,7 @@ function execute(job) {
         JSON.stringify(job),
         job.owner + "/" + job.id,
       ],
-      { stdio: ["ignore", "pipe", "pipe"] },
+      { stdio: ["ignore", "pipe", "pipe"], env: childEnv },
     );
     let out = "",
       err = "";
@@ -135,6 +140,23 @@ async function finish(job, result, seconds) {
       },
     },
     { Put: { TableName: table, Item: event } },
+    ...(job.backend === "supabase"
+      ? [
+          {
+            Put: {
+              TableName: table,
+              Item: {
+                pk: "SUPABASE_OUTBOX",
+                sk: job.id,
+                id: job.id,
+                status,
+                seconds,
+                finishedAt: now,
+              },
+            },
+          },
+        ]
+      : []),
     {
       Update: {
         TableName: table,
@@ -151,6 +173,7 @@ async function finish(job, result, seconds) {
       },
     },
   ]);
+  await flushTelemetry().catch((e) => console.error("telemetry", e.name));
   try {
     await update(
       "USERS",

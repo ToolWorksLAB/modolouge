@@ -1,6 +1,16 @@
 import test, { mock } from "node:test";
 import assert from "node:assert/strict";
 let stored;
+mock.module("../lib/activity.js", {
+  namedExports: {
+    owns: async (u, id) => u.sk === id,
+    reserveUsage: async () => {},
+    refundUsage: async () => {},
+    activity: async () => {},
+    connection: () => ({ hash: "test" }),
+    rateLimit: async () => true,
+  },
+});
 mock.module("../lib/aws.js", {
   namedExports: {
     get: async () => stored,
@@ -28,8 +38,9 @@ mock.module("../lib/auth.js", {
       Object.assign(new Error(message), { status }),
   },
 });
-const { readJob, submit, cleanFilename, validId, serviceReady } =
-  await import("../lib/jobs.js");
+const { readJob, submit, cleanFilename, validId, serviceReady } = await import(
+  "../lib/jobs.js"
+);
 const id = "11111111-1111-4111-8111-111111111111";
 test("a user cannot obtain another user’s result URL", async () => {
   stored = { id, owner: "other", status: "done", resultKey: "private/result" };

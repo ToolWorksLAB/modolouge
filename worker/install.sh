@@ -26,6 +26,7 @@ User=modolouge-worker
 Group=modolouge-worker
 WorkingDirectory=/opt/modolouge-worker
 EnvironmentFile=/etc/rhino-compute/environment
+EnvironmentFile=-/etc/modolouge-backend.env
 Environment=COMPUTE_URL=http://127.0.0.1:5000
 Environment=COMPUTE_TIMEOUT_MS=90000
 ExecStart=/usr/local/bin/node /opt/modolouge-worker/worker.js

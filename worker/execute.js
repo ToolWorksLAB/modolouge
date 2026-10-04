@@ -21,7 +21,11 @@ export async function execute(job) {
       ttl: Math.floor(Date.now() / 1000) + 86400,
     };
   }
-  if (!def || def.owner !== job.owner || def.ttl < Date.now() / 1000)
+  if (
+    !def ||
+    def.owner !== (job.definitionOwner || job.owner) ||
+    def.ttl < Date.now() / 1000
+  )
     throw new Error("Definition expired or unavailable. Upload it again.");
   if (job.type === "prepare" || job.type === "example") {
     const bytes =

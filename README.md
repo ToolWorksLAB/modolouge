@@ -13,11 +13,11 @@ The public repository is connected to the company Vercel Hobby workspace. Pushes
 
 ## Develop
 
-Node 24: `npm ci`, `npm run dev`. Production build: `npm run build`. Authentication needs HTTPS and the exact registered Cognito callback. Do not add a production auth bypass for local development.
+Node 24: `npm ci`, `npm run dev`. Production build: `npm run build`. Production authentication uses Supabase email codes and HTTPS. Localhost cookies are supported for development. Do not add a production auth bypass for local development.
 
-Required server environment: `APP_URL`, `SESSION_SECRET` (random 32+ bytes), `COGNITO_POOL_ID`, `COGNITO_CLIENT_ID`, `COGNITO_DOMAIN`, `AWS_ROLE_ARN`, `AWS_REGION`, `DATA_TABLE`, `FILE_BUCKET`, `JOB_QUEUE_URL`. Never expose these through `NEXT_PUBLIC_` or commit `.env` files.
+Required server environment: `APP_URL`, `SESSION_SECRET` (random 32+ bytes), `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `IP_HASH_SECRET`, `AWS_ROLE_ARN`, `AWS_REGION`, `DATA_TABLE`, `FILE_BUCKET`, `JOB_QUEUE_URL`. Never expose these through `NEXT_PUBLIC_` or commit `.env` files.
 
-Production AWS access uses Vercel OIDC, restricted to the company team, this project, and `production`. No static AWS access keys are used. Preview deployments have no production role. Cookies are encrypted, HTTP-only, Secure and SameSite=Lax; OAuth uses PKCE, state and nonce, and validates Cognito token issuer/audience/signature and verified email. Every mutation checks Origin and server-side account state.
+Production AWS access uses Vercel OIDC, restricted to the company team, this project, and `production`. No static AWS access keys are used. Preview deployments have no production role. Cookies are encrypted, HTTP-only, Secure and SameSite=Lax; Supabase validates email codes; every authenticated API call validates the current Supabase user and verified email. Refresh tokens stay inside encrypted server cookies. Every mutation checks Origin and server-side account state.
 
 ## Worker
 
@@ -33,7 +33,7 @@ The manager uses a separate OIDC role with start/stop permissions restricted to 
 
 Rhino.Compute Linux is McNeel WIP software with plugin and production-readiness limitations; see the [official guide](https://developer.rhino3d.com/guides/compute/compute-linux-getting-started/).
 
-Cost attribution uses measured processing seconds at configured EC2 + IPv4 + Rhino rates. Shared runtime is metered uptime minus recorded job processing. The Rhino billable core count is an explicit assumption; verify it against billing. Estimates exclude taxes, data transfer, storage requests, Cognito, Vercel and other resources. This is not a billing invoice.
+Cost attribution uses measured processing seconds at configured EC2 + IPv4 + Rhino rates. Shared runtime is metered uptime minus recorded job processing. The Rhino billable core count is an explicit assumption; verify it against billing. Estimates exclude taxes, data transfer, storage requests, Supabase, Vercel and other resources. This is not a billing invoice.
 
 ## Design
 
@@ -42,3 +42,15 @@ Derived from ToolWorksLab's own `TWLWeb` website: graphite `#0A0D0F`, cream `#FF
 ## Operations
 
 Inspect `systemctl status modolouge-worker rhino-compute` and sanitized journald logs. Never print `/etc/rhino-compute/environment`. The worker uses the instance profile for S3/DynamoDB/SQS; Rhino's service is denied access to instance metadata. Start/stop and account blocking are audited in DynamoDB. Cloud provider billing remains the source of truth.
+
+## Supabase and guest onboarding
+
+Supabase project `nkifgvjtfwsojchttdvk` belongs to `toolworkslab` (`qymmqoaxeukktwjcsyet`), on Free in eu-north-1. Migrations are in `supabase/migrations`. Accounts, onboarding profiles, visitor activity, IP addresses, trial quotas and compute usage are in Postgres. DynamoDB remains the compute dispatch/state store; S3 stores private definitions/results and SQS dispatches Linux work. Cognito is no longer the sign-in provider. Historical Cognito usage remains visible in the manager. Existing users verify their email again in the new flow.
+
+The public first screen is the working viewport/drop zone. Guests receive five geometry solves, with at most five preparations and five file uploads. PostgreSQL row locking and network quota enforce the allowance across parallel requests and cookie resets. Browser and network allowances expire after 30 days; shared networks can share the trial allowance. Failed dispatches refund quota idempotently; executed jobs consume it. Verified accounts keep the 60 jobs/day compute limit. Existing definitions can be used by a verified account after the signed guest session is linked.
+
+The account flow uses an emailed code, then optional-context onboarding (name, discipline, intention). Keep both the Supabase confirmation and magic-link templates configured with `{{ .Token }}`. Custom Hostinger SMTP is required for public email delivery. Set OTP expiry to 600 seconds. Account administration always checks the current verified Auth email `info@toolworkslab.com`, never editable user metadata. All application tables enable RLS and deny browser roles; mutations and private activity use the server key only.
+
+Visitor activity includes trial creation, verification requests, signup conversion, onboarding, uploads, queued jobs, outcomes and measured duration. Raw IPs are removed after 30 days, activity after 90 days, and usage after 13 months by a Supabase cron job independent of EC2 uptime. The manager refreshes every 15 seconds and shows the latest 100 activity records and 1,000 people. IP locations are approximate. SQL quota and access checks should be tested when changing these rules.
+
+The worker reads `/etc/modolouge-backend.env` through its systemd environment configuration. Store SUPABASE_URL and SUPABASE_SECRET_KEY there as root-only mode 0600 before starting a fresh installation. The secret is removed from the child computation environment. DynamoDB SUPABASE_OUTBOX is written atomically with the job outcome; heartbeat retries deliver it to Supabase before deleting the outbox row. This avoids losing metering if Supabase is temporarily unavailable. Never log or commit the environment file.
