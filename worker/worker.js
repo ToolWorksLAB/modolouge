@@ -1,22 +1,257 @@
-import {spawn} from 'node:child_process';
-import {fileURLToPath} from 'node:url';
-import {ReceiveMessageCommand,DeleteMessageCommand} from '@aws-sdk/client-sqs';
-import {get,put,update,transact,table,sqs,queue} from './storage.js';
-import {compute} from './compute.js';
-let stopping=false,lastTick=Date.now(),beatBusy=false;process.on('SIGTERM',()=>{stopping=true;});
-async function heartbeat(){if(beatBusy)return;beatBusy=true;try{const s=await get('SERVICE');const version=await compute('/version');const now=Date.now(),seconds=Math.min(60,Math.max(0,(now-lastTick)/1000));lastTick=now;await update('SERVICE','STATE','SET heartbeat=:now, version=:v, acceptingJobs=:yes',{':now':now,':v':version,':yes':s?.desired==='running',':desired':s?.desired||'stopped'},{ConditionExpression:'desired=:desired'});await update('RUNTIME#'+new Date().toISOString().slice(0,7),'STATE','ADD seconds :s SET lastSeen=:at, #ttl=:ttl',{':s':seconds,':at':new Date().toISOString(),':ttl':Math.floor(now/1000)+34214400},{ExpressionAttributeNames:{'#ttl':'ttl'}});}catch(e){console.error('heartbeat',e.name);}finally{beatBusy=false;}}
-const interval=setInterval(heartbeat,30000);await heartbeat();
-function execute(job){return new Promise(resolve=>{const child=spawn(process.execPath,[fileURLToPath(new URL('./execute.js',import.meta.url)),JSON.stringify(job),job.owner+'/'+job.id],{stdio:['ignore','pipe','pipe']});let out='',err='';child.stdout.on('data',x=>{out+=x;if(out.length>100000)child.kill('SIGKILL');});child.stderr.on('data',x=>{err=(err+x).slice(-1000);});const timer=setTimeout(()=>child.kill('SIGKILL'),180000);child.on('error',()=>resolve({error:'Worker process could not start.'}));child.on('close',()=>{clearTimeout(timer);try{resolve(JSON.parse(out));}catch{resolve({error:'Computation exceeded its time or memory limit. Reduce definition complexity.'});}});});}
-async function finish(job,result,seconds){const now=new Date().toISOString(),month=now.slice(0,7),ttl=Math.floor(Date.now()/1000)+7776000,status=result.error?'failed':'done';const event={pk:'EVENTS#'+month,sk:now+'#'+job.id,id:job.id,email:job.email,owner:job.owner,type:job.type,status,seconds,location:job.location,createdAt:now,ttl};
- await transact([{Update:{TableName:table,Key:{pk:job.pk,sk:'STATE'},UpdateExpression:'SET #status=:s, resultKey=:r, #error=:e, finishedAt=:at',ConditionExpression:'#status=:running',ExpressionAttributeNames:{'#status':'status','#error':'error'},ExpressionAttributeValues:{':s':status,':r':result.key||null,':e':result.error||null,':at':now,':running':'running'}}},{Put:{TableName:table,Item:event}},{Update:{TableName:table,Key:{pk:'USAGE#'+month,sk:job.owner},UpdateExpression:'ADD jobs :one, seconds :seconds, failed :failed SET #ttl=:ttl',ExpressionAttributeNames:{'#ttl':'ttl'},ExpressionAttributeValues:{':one':1,':seconds':seconds,':failed':result.error?1:0,':ttl':Math.floor(Date.now()/1000)+34214400}}}]);
- try{await update('USERS',job.owner,'SET activeUntil=:zero',{':zero':0,':id':job.id},{ConditionExpression:'activeJob=:id'});}catch(e){if(e.name!=='ConditionalCheckFailedException')throw e;}
+import { spawn } from "node:child_process";
+import { writeFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import {
+  ReceiveMessageCommand,
+  DeleteMessageCommand,
+} from "@aws-sdk/client-sqs";
+import { get, put, update, transact, table, sqs, queue } from "./storage.js";
+import { compute } from "./compute.js";
+let stopping = false,
+  lastTick = Date.now(),
+  beatBusy = false;
+process.on("SIGTERM", () => {
+  stopping = true;
+});
+async function heartbeat() {
+  if (beatBusy) return;
+  beatBusy = true;
+  try {
+    const s = await get("SERVICE");
+    const version = await compute("/version");
+    const now = Date.now(),
+      seconds = Math.min(60, Math.max(0, (now - lastTick) / 1000));
+    lastTick = now;
+    await update(
+      "SERVICE",
+      "STATE",
+      "SET heartbeat=:now, version=:v, acceptingJobs=:yes",
+      {
+        ":now": now,
+        ":v": version,
+        ":yes": s?.desired === "running",
+        ":desired": s?.desired || "stopped",
+      },
+      { ConditionExpression: "desired=:desired" },
+    );
+    await update(
+      "RUNTIME#" + new Date().toISOString().slice(0, 7),
+      "STATE",
+      "ADD seconds :s SET lastSeen=:at, #ttl=:ttl",
+      {
+        ":s": seconds,
+        ":at": new Date().toISOString(),
+        ":ttl": Math.floor(now / 1000) + 34214400,
+      },
+      { ExpressionAttributeNames: { "#ttl": "ttl" } },
+    );
+  } catch (e) {
+    console.error("heartbeat", e.name);
+  } finally {
+    beatBusy = false;
+  }
 }
-while(!stopping){try{const service=await get('SERVICE');if(service?.desired!=='running'){await new Promise(r=>setTimeout(r,5000));continue;}
- const r=await sqs.send(new ReceiveMessageCommand({QueueUrl:queue,MaxNumberOfMessages:1,WaitTimeSeconds:20,VisibilityTimeout:240}));for(const message of r.Messages||[]){const id=JSON.parse(message.Body).id;const job=await get('JOB#'+id);if(job&&['queued','running'].includes(job.status)){
-  try{await update(job.pk,'STATE','SET #status=:s, startedAt=:at',{':s':'running',':at':new Date().toISOString(),':queued':'queued'},{ConditionExpression:'#status=:queued',ExpressionAttributeNames:{'#status':'status'}});}catch(e){if(e.name==='ConditionalCheckFailedException'){await sqs.send(new DeleteMessageCommand({QueueUrl:queue,ReceiptHandle:message.ReceiptHandle}));continue;}throw e;}
-  const start=performance.now(),current=await get('SERVICE'),user=await get('USERS',job.owner);
-  const result=Date.now()-job.createdMs>240000?{error:'Job expired while waiting. Please retry.'}:current?.desired!=='running'?{error:'Compute was shut down.'}:user?.blocked?{error:'Account access has been disabled.'}:await execute(job);
-  await finish(job,result,(performance.now()-start)/1000);
- }await sqs.send(new DeleteMessageCommand({QueueUrl:queue,ReceiptHandle:message.ReceiptHandle}));}
- }catch(e){console.error('worker',e.name);await new Promise(r=>setTimeout(r,3000));}}
+const interval = setInterval(heartbeat, 30000);
+await heartbeat();
+function execute(job) {
+  return new Promise((resolve) => {
+    const child = spawn(
+      process.execPath,
+      [
+        fileURLToPath(new URL("./execute.js", import.meta.url)),
+        JSON.stringify(job),
+        job.owner + "/" + job.id,
+      ],
+      { stdio: ["ignore", "pipe", "pipe"] },
+    );
+    let out = "",
+      err = "";
+    child.stdout.on("data", (x) => {
+      out += x;
+      if (out.length > 100000) child.kill("SIGKILL");
+    });
+    child.stderr.on("data", (x) => {
+      err = (err + x).slice(-1000);
+    });
+    const timer = setTimeout(() => child.kill("SIGKILL"), 180000);
+    child.on("error", () =>
+      resolve({ error: "Worker process could not start." }),
+    );
+    child.on("close", async () => {
+      clearTimeout(timer);
+      let result;
+      try {
+        result = JSON.parse(out);
+      } catch {
+        result = {
+          error:
+            "Computation exceeded its time or memory limit. Reduce definition complexity.",
+        };
+      }
+      if (result.error && /time|memory/i.test(result.error)) {
+        await writeFile("/var/lib/modolouge/restart-compute", "timeout").catch(
+          () => {},
+        );
+        await new Promise((r) => setTimeout(r, 10000));
+      }
+      resolve(result);
+    });
+  });
+}
+async function finish(job, result, seconds) {
+  const now = new Date().toISOString(),
+    month = now.slice(0, 7),
+    ttl = Math.floor(Date.now() / 1000) + 7776000,
+    status = result.error ? "failed" : "done";
+  const event = {
+    pk: "EVENTS#" + month,
+    sk: now + "#" + job.id,
+    id: job.id,
+    email: job.email,
+    owner: job.owner,
+    type: job.type,
+    status,
+    seconds,
+    location: job.location,
+    createdAt: now,
+    ttl,
+  };
+  await transact([
+    {
+      Update: {
+        TableName: table,
+        Key: { pk: job.pk, sk: "STATE" },
+        UpdateExpression:
+          "SET #status=:s, resultKey=:r, #error=:e, finishedAt=:at",
+        ConditionExpression: "#status=:running",
+        ExpressionAttributeNames: { "#status": "status", "#error": "error" },
+        ExpressionAttributeValues: {
+          ":s": status,
+          ":r": result.key || null,
+          ":e": result.error || null,
+          ":at": now,
+          ":running": "running",
+        },
+      },
+    },
+    { Put: { TableName: table, Item: event } },
+    {
+      Update: {
+        TableName: table,
+        Key: { pk: "USAGE#" + month, sk: job.owner },
+        UpdateExpression:
+          "ADD jobs :one, seconds :seconds, failed :failed SET #ttl=:ttl",
+        ExpressionAttributeNames: { "#ttl": "ttl" },
+        ExpressionAttributeValues: {
+          ":one": 1,
+          ":seconds": seconds,
+          ":failed": result.error ? 1 : 0,
+          ":ttl": Math.floor(Date.now() / 1000) + 34214400,
+        },
+      },
+    },
+  ]);
+  try {
+    await update(
+      "USERS",
+      job.owner,
+      "SET activeUntil=:zero",
+      { ":zero": 0, ":id": job.id },
+      { ConditionExpression: "activeJob=:id" },
+    );
+  } catch (e) {
+    if (e.name !== "ConditionalCheckFailedException") throw e;
+  }
+}
+while (!stopping) {
+  try {
+    const service = await get("SERVICE");
+    if (service?.desired !== "running") {
+      await new Promise((r) => setTimeout(r, 5000));
+      continue;
+    }
+    const r = await sqs.send(
+      new ReceiveMessageCommand({
+        QueueUrl: queue,
+        MaxNumberOfMessages: 1,
+        WaitTimeSeconds: 20,
+        VisibilityTimeout: 240,
+      }),
+    );
+    for (const message of r.Messages || []) {
+      const id = JSON.parse(message.Body).id;
+      const job = await get("JOB#" + id);
+      if (job && ["queued", "running"].includes(job.status)) {
+        if (job.status === "running") {
+          await finish(
+            job,
+            {
+              error:
+                "The worker was interrupted. Please run the definition again.",
+            },
+            Math.min(
+              180,
+              Math.max(0, (Date.now() - Date.parse(job.startedAt)) / 1000),
+            ),
+          );
+          await sqs.send(
+            new DeleteMessageCommand({
+              QueueUrl: queue,
+              ReceiptHandle: message.ReceiptHandle,
+            }),
+          );
+          continue;
+        }
+        try {
+          await update(
+            job.pk,
+            "STATE",
+            "SET #status=:s, startedAt=:at",
+            {
+              ":s": "running",
+              ":at": new Date().toISOString(),
+              ":queued": "queued",
+            },
+            {
+              ConditionExpression: "#status=:queued",
+              ExpressionAttributeNames: { "#status": "status" },
+            },
+          );
+        } catch (e) {
+          if (e.name === "ConditionalCheckFailedException") {
+            await sqs.send(
+              new DeleteMessageCommand({
+                QueueUrl: queue,
+                ReceiptHandle: message.ReceiptHandle,
+              }),
+            );
+            continue;
+          }
+          throw e;
+        }
+        const start = performance.now(),
+          current = await get("SERVICE"),
+          user = await get("USERS", job.owner);
+        const result =
+          Date.now() - job.createdMs > 240000
+            ? { error: "Job expired while waiting. Please retry." }
+            : current?.desired !== "running"
+              ? { error: "Compute was shut down." }
+              : user?.blocked
+                ? { error: "Account access has been disabled." }
+                : await execute(job);
+        await finish(job, result, (performance.now() - start) / 1000);
+      }
+      await sqs.send(
+        new DeleteMessageCommand({
+          QueueUrl: queue,
+          ReceiptHandle: message.ReceiptHandle,
+        }),
+      );
+    }
+  } catch (e) {
+    console.error("worker", e.name);
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+}
 clearInterval(interval);

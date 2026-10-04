@@ -9,6 +9,7 @@ if ! /usr/local/bin/node --version >/dev/null 2>&1; then
   tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1
 fi
 id modolouge-worker >/dev/null 2>&1 || useradd --system --home /var/lib/modolouge --create-home --shell /usr/sbin/nologin modolouge-worker
+chmod 700 /var/lib/modolouge
 cd /opt/modolouge-worker
 npm install --omit=dev --no-audit --no-fund
 /usr/share/dotnet/dotnet publish tools/GhBridge/GhBridge.csproj -c Release -o tools/GhBridge/publish
@@ -40,6 +41,23 @@ NoNewPrivileges=true
 [Install]
 WantedBy=multi-user.target
 EOF
+cat >/etc/systemd/system/modolouge-recovery.path <<'EOF'
+[Unit]
+Description=Watch for Modolouge timed-out solves
+[Path]
+PathExists=/var/lib/modolouge/restart-compute
+Unit=modolouge-recovery.service
+[Install]
+WantedBy=multi-user.target
+EOF
+cat >/etc/systemd/system/modolouge-recovery.service <<'EOF'
+[Unit]
+Description=Restart Rhino after a timed-out Modolouge solve
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/rm -f /var/lib/modolouge/restart-compute
+ExecStart=/usr/bin/systemctl restart rhino-compute
+EOF
 mkdir -p /etc/systemd/system/rhino-compute.service.d
 cat >/etc/systemd/system/rhino-compute.service.d/modolouge-limits.conf <<'EOF'
 [Service]
@@ -54,4 +72,5 @@ EOF
 systemctl daemon-reload
 systemctl restart rhino-compute
 systemctl enable --now modolouge-worker
+systemctl enable --now modolouge-recovery.path
 systemctl is-active rhino-compute modolouge-worker

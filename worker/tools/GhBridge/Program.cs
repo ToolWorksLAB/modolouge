@@ -5,9 +5,7 @@ using System.Text.Json;
 
 try
 {
-    var archive = new GH_Archive();
-    if (!archive.ReadFromFile(args[0])) throw new Exception("Could not read Grasshopper archive.");
-    var xml = XDocument.Parse(archive.Serialize_Xml());
+    var xml = ArchiveReader.Read(args[0]);
     if (args.Length > 1 && args[1] == "--xml") { Console.Write(xml); return; }
     var definition = xml.Descendants("chunk").First(x => (string?)x.Attribute("name") == "Definition");
     var objects = Chunk(definition, "DefinitionObjects") ?? throw new Exception("No definition objects found.");
@@ -23,7 +21,7 @@ try
     foreach (var item in xml.Descendants())
     {
         var n = ((string?)item.Attribute("name") ?? "").ToLowerInvariant();
-        if (n.Contains("script") || n.Contains("assembly") || n.Contains("cluster") || n.Contains("expression"))
+        if ((n.Contains("script") && n != "description") || n.Contains("assembly") || n.Contains("cluster") || n.Contains("expression"))
             throw new Exception("Embedded scripts, assemblies, clusters and expressions are not supported by the public service.");
     }
     // Preserve only the definition structure consumed by the reviewed components.

@@ -9,6 +9,8 @@ ToolWorksLab's public Grasshopper workspace. A Next.js frontend on Vercel submit
 - Administrator: `info@toolworkslab.com`; separate `ToolWorksLAB/modolouge-manager` repository.
 - AWS region `eu-north-1`; Linux instance `i-0c6e3386ff6d66b5b` only. Existing Windows instances are outside these controls.
 
+Vercel Git linkage is currently pending: the company Hobby plan rejected private organization repositories with `repo_owned_by_org`. The owner requested no upgrade while investigating. No Vercel production deployment has been created. See [verification status](VERIFICATION.md).
+
 ## Develop
 
 Node 24: `npm ci`, `npm run dev`. Production build: `npm run build`. Authentication needs HTTPS and the exact registered Cognito callback. Do not add a production auth bypass for local development.
@@ -28,6 +30,8 @@ Public compatibility is deliberately limited to `worker/component-policy.json`. 
 ## Manager and costs
 
 The manager uses a separate OIDC role with start/stop permissions restricted to the Linux instance. It remains online when compute stops. Stopping prevents new jobs and stops EC2; it does not delete storage or other AWS resources.
+
+Rhino.Compute Linux is McNeel WIP software with plugin and production-readiness limitations; see the [official guide](https://developer.rhino3d.com/guides/compute/compute-linux-getting-started/).
 
 Cost attribution uses measured processing seconds at configured EC2 + IPv4 + Rhino rates. Shared runtime is metered uptime minus recorded job processing. The Rhino billable core count is an explicit assumption; verify it against billing. Estimates exclude taxes, data transfer, storage requests, Cognito, Vercel and other resources. This is not a billing invoice.
 
