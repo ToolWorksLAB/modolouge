@@ -4,7 +4,7 @@
 
 - Production Next.js builds for both repositories using Node 24.
 - Both repositories are public after a full Git-history credential scan. GitHub `main` automatically deploys production in the company Vercel Hobby team, without changing the plan or using the client workspace.
-- Live sites: https://modolouge.vercel.app and https://modolouge-manager.vercel.app.
+- Canonical sites: https://modolouge.toolworkslab.com and https://admin.toolworkslab.com. Hostinger CNAME records and Vercel ownership verification are configured for both domains. Production `APP_URL`, Cognito callback/logout allowlists, S3 CORS and cross-app links are updated for the new addresses; old Vercel addresses redirect to the canonical hosts.
 - Production Vercel OIDC exchange and AWS reads succeeded on both sites. The app role includes DynamoDB `ConditionCheckItem` for transactional service-state checks.
 - Real Cognito hosted login, PKCE callback and encrypted session worked in the production browser with a temporary test account.
 - Production browser example, `.ghx` upload and binary `.gh` upload all completed through private S3, SQS, Linux Compute and the viewport. Three sliders appeared; changing radius 12 to 20 changed the returned mesh X extent from 24 to 40.
