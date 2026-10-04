@@ -20,16 +20,22 @@
 - Local signup UI inspected. Local compute was unavailable because the preview has no AWS credentials; this is not evidence of a complete production compute flow.
 - All temporary SQL test rows and the two zero-usage local preview guest rows were removed.
 
-## Release pending
+## Production release
 
-The new app and manager code has not been deployed to production. Existing production pages still use the earlier authentication implementation.
+Both company projects are deployed from their existing GitHub main branches:
 
-1. Owner enters the `info@toolworkslab.com` Hostinger mailbox password in the prepared Supabase SMTP form and saves it.
-2. Apply `supabase/templates/email-code.html` to both Confirm signup and Magic link templates, with subject `Your Modolouge sign-in code`. Custom SMTP is required before template changes on this Free project.
-3. Verify delivery to the owner's actual inbox without bypassing email ownership.
-4. Deploy both reviewed repository changes through their existing main-branch production integrations.
-5. Test guest upload/slider/geometry, the sixth-run gate, verified signup with workspace preservation, onboarding, and manager visibility end to end.
-6. Owner signs into the manager; authenticated dashboard and live shutdown/restart inspection remain pending. Earlier IAM simulation proved access only to the designated Linux instance, but a real stop/start cycle has not been performed.
+- Workspace: commit `e611621`, deployment `dpl_6paPT8gFqWgrhiGb1BSLaEMnhrwc`, READY at https://modolouge.toolworkslab.com.
+- Manager: commit `6eca4dd`, deployment `dpl_74CA9yGgMJYhLToBBPYC1wxXxqAE`, READY at https://admin.toolworkslab.com.
+- Removed the Workspace/Manager switch from both sites. Each has independent navigation and host-only sign-in cookies.
+- Hostinger SMTP saved in Supabase with SSL port 465 and the existing company mailbox. Both email templates use `supabase/templates/email-code.html` and the subject `Your Modolouge sign-in code`. Templates were reloaded and their previews verified. The owner confirmed receipt of the successful test email.
+- Live browser upload of `parametric-sphere.ghx` completed with three exposed controls and a rendered mesh. Five solves completed after numeric and slider changes. Supabase recorded one preparation and five successful solves, including durations and the guest connection metadata.
+- After five runs, the live UI opened the branded signup journey and retained the model. A fresh HTTP guest session on the same network reported zero remaining runs; a new upload returned HTTP 402 `TRIAL_EXHAUSTED`.
+- Foreign-origin trial requests returned 403, unauthenticated manager data returned 401, and the development-only onboarding preview returned 404 in production.
+- Five additional empty local-preview guest fixtures were removed. Production trial activity is retained as real service usage.
+
+## Remaining owner-dependent checks
+
+The owner has been sent a fresh code through the live manager sign-in page. Entering that code directly in the browser is still pending. Authenticated manager rendering, a live shutdown/restart cycle, and verified guest-to-member conversion with persisted onboarding have not yet been established by production browser tests. Earlier unit tests cover account authorization and guest-file ownership, and IAM simulation restricts start/stop access to the designated Linux instance.
 
 Historical deployment checks are in `VERIFICATION.md`; they do not establish verification of this Supabase release. Cost figures remain estimates, and stopping EC2 retains storage and other possible charges.
 
@@ -39,4 +45,4 @@ Historical deployment checks are in `VERIFICATION.md`; they do not establish ver
 - The same visual system serves manager sign-in. Returning accounts go straight back to the workspace; completing onboarding adds a relevant first-step prompt. Closing the overlay after verification updates the account state, while the current geometry remains mounted.
 - Desktop browser preview exercised every screen, code entry, profile selection, starter selection, the final handoff, and the interactive sculpture. Production builds and all 24 existing tests pass after the revision. A browser viewport override did not take effect, so the phone breakpoint remains visually unverified.
 - `/design/onboarding` is a development-only interactive design review: it sends no email and creates no account. The production build returns HTTP 404 for this route. The actual `/signin` page uses the live authenticated API flow.
-- The local development console reports React's development-only `eval`/CSP warning. Production CSP was not weakened. Email delivery and live publication still have the prerequisites listed above.
+- The local development console reports React's development-only `eval`/CSP warning. Production CSP was not weakened. Email delivery and live publication are now verified as described above.
