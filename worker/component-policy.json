@@ -1,0 +1,147 @@
+[
+  {
+    "name": "Number Slider",
+    "id": "57da07bd-ecab-415d-9d86-af36d7073abc",
+    "source": "Grasshopper.Kernel.Special.GH_NumberSlider"
+  },
+  {
+    "name": "Group",
+    "id": "c552a431-af5b-46a9-a8a4-0fcbc27ef596",
+    "source": "Grasshopper.Kernel.Special.GH_Group"
+  },
+  {
+    "name": "VariableAddition",
+    "id": "a0d62394-a118-422d-abb3-6af115c75b25",
+    "source": "MathComponents.OperatorComponents.Component_VariableAddition"
+  },
+  {
+    "name": "VariableSubtraction",
+    "id": "9c007a04-d0d9-48e4-9da3-9ba142bc4d46",
+    "source": "MathComponents.OperatorComponents.Component_VariableSubtraction"
+  },
+  {
+    "name": "VariableMultiplication",
+    "id": "ce46b74e-00c9-43c4-805a-193b69ea4a11",
+    "source": "MathComponents.OperatorComponents.Component_VariableMultiplication"
+  },
+  {
+    "name": "Operator_Division",
+    "id": "9c85271f-89fa-4e9f-9f4a-d75802120ccc",
+    "source": "MathComponents.OperatorComponents.Operator_Division"
+  },
+  {
+    "name": "Range",
+    "id": "9445ca40-cc73-4861-a455-146308676855",
+    "source": "MathComponents.FunctionComponents.Component_Range"
+  },
+  {
+    "name": "Series",
+    "id": "e64c5fb1-845c-4ab1-8911-5f338516ba67",
+    "source": "MathComponents.FunctionComponents.Component_Series"
+  },
+  {
+    "name": "ConstructPoint",
+    "id": "3581f42a-9592-4549-bd6b-1c0fc39d067b",
+    "source": "VectorComponents.PointComponents.Component_ConstructPoint"
+  },
+  {
+    "name": "DeconstructPoint",
+    "id": "9abae6b7-fa1d-448c-9209-4a8155345841",
+    "source": "VectorComponents.PointComponents.Component_DeconstructPoint"
+  },
+  {
+    "name": "ConstructVector",
+    "id": "56b92eab-d121-43f7-94d3-6cd8f0ddead8",
+    "source": "VectorComponents.VectorComponents.Component_ConstructVector"
+  },
+  {
+    "name": "UnitVectorX",
+    "id": "79f9fbb3-8f1d-4d9a-88a9-f7961b1012cd",
+    "source": "VectorComponents.VectorComponents.Component_UnitVectorX"
+  },
+  {
+    "name": "UnitVectorY",
+    "id": "d3d195ea-2d59-4ffa-90b1-8b7ff3369f69",
+    "source": "VectorComponents.VectorComponents.Component_UnitVectorY"
+  },
+  {
+    "name": "UnitVectorZ",
+    "id": "9103c240-a6a9-4223-9b42-dbd19bf38e2b",
+    "source": "VectorComponents.VectorComponents.Component_UnitVectorZ"
+  },
+  {
+    "name": "ConstructPlane",
+    "id": "bc3e379e-7206-4e7b-b63a-ff61f4b38a3e",
+    "source": "VectorComponents.PlaneComponents.Component_ConstructPlane"
+  },
+  {
+    "name": "MeshSphere",
+    "id": "0a391eac-5048-443c-9c1b-f592299b6dd6",
+    "source": "SurfaceComponents.MeshComponents.Component_MeshSphere"
+  },
+  {
+    "name": "MeshSphere2",
+    "id": "76f85ee4-5a88-4511-8ba7-30df07e50533",
+    "source": "SurfaceComponents.MeshComponents.Component_MeshSphere2"
+  },
+  {
+    "name": "MeshBox",
+    "id": "2696bd14-3fb5-4750-827f-86df6c31d664",
+    "source": "SurfaceComponents.MeshComponents.Component_MeshBox"
+  },
+  {
+    "name": "MeshPlane",
+    "id": "8adbf481-7589-4a40-b490-006531ea001d",
+    "source": "SurfaceComponents.MeshComponents.Component_MeshPlane"
+  },
+  {
+    "name": "Sphere",
+    "id": "dabc854d-f50e-408a-b001-d043c7de151d",
+    "source": "SurfaceComponents.PrimitiveComponents.Component_Sphere"
+  },
+  {
+    "name": "CenterBox",
+    "id": "28061aae-04fb-4cb5-ac45-16f3b66bc0a4",
+    "source": "SurfaceComponents.PrimitiveComponents.Component_CenterBox"
+  },
+  {
+    "name": "IntervalBox",
+    "id": "79aa7f47-397c-4d3f-9761-aaf421bb7f5f",
+    "source": "SurfaceComponents.PrimitiveComponents.Component_IntervalBox"
+  },
+  {
+    "name": "Cylinder",
+    "id": "0373008a-80ee-45be-887d-ab5a244afc29",
+    "source": "SurfaceComponents.PrimitiveComponents.Component_Cylinder"
+  },
+  {
+    "name": "Extrude",
+    "id": "962034e9-cc27-4394-afc4-5c16e3447cf9",
+    "source": "SurfaceComponents.SurfaceComponents.Component_Extrude"
+  },
+  {
+    "name": "LoftSurface",
+    "id": "a7a41d0a-2188-4f7a-82cc-1a2c4e4ec850",
+    "source": "SurfaceComponents.SurfaceComponents.Component_LoftSurface"
+  },
+  {
+    "name": "BrepJoin",
+    "id": "1addcc85-b04e-46e6-bd4a-6f6c93bf7efd",
+    "source": "SurfaceComponents.SurfaceComponents.Component_BrepJoin"
+  },
+  {
+    "name": "CapHoles",
+    "id": "f6409a9c-3d2a-4b14-9f2c-e3c3f2cb72f8",
+    "source": "SurfaceComponents.SurfaceComponents.Component_CapHoles"
+  },
+  {
+    "name": "4PointSurface",
+    "id": "c77a8b3b-c569-4d81-9b59-1c27299a1c45",
+    "source": "SurfaceComponents.SurfaceComponents.Component_4PointSurface"
+  },
+  {
+    "id": "2e78987b-9dfb-42a2-8b76-3923ac8bd91a",
+    "name": "Boolean Toggle",
+    "source": "Grasshopper.Kernel.Special.GH_BooleanToggle"
+  }
+]
