@@ -42,6 +42,7 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
     lock = useRef(false),
     alive = useRef(true),
     reconnect = useRef(false),
+    pendingWorkspaceAction = useRef(null),
     errorRef = useRef(null);
   useEffect(() => {
     alive.current = true;
@@ -94,6 +95,12 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
     setMode("design");
   };
   const openLibrary = () => {
+    if (usage?.kind !== "member") {
+      pendingWorkspaceAction.current = "library";
+      setAuthPurpose("library");
+      setShowAuth(true);
+      return;
+    }
     openDesigner();
     setLibraryRequest((n) => n + 1);
   };
@@ -464,6 +471,7 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
             purpose={authPurpose}
             demo={demo}
             onClose={() => {
+              pendingWorkspaceAction.current = null;
               setShowAuth(false);
               setAuthPurpose("");
               setAuthDismissed((n) => n + 1);
@@ -477,6 +485,11 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
                   }
                 : await api("me");
               setUsage(me);
+              if (pendingWorkspaceAction.current === "library") {
+                pendingWorkspaceAction.current = null;
+                openDesigner();
+                setLibraryRequest((n) => n + 1);
+              }
               setShowAuth(false);
               setError("");
               window.dispatchEvent(
