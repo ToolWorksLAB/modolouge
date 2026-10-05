@@ -3,12 +3,20 @@ import { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import AuthJourney from "./AuthJourney.jsx";
 import DefinitionView from "./DefinitionView.jsx";
+import WorkspaceStart from "./WorkspaceStart.jsx";
+import ModelControls from "./ModelControls.jsx";
+import {
+  changedControls,
+  serviceLabel,
+  runLabel,
+} from "../lib/workspace-flow.js";
 import { api } from "../lib/client-api.js";
 export { api } from "../lib/client-api.js";
 const AppDesigner = dynamic(() => import("./AppDesigner.jsx"), {
-  loading: () => <div className="notice">Opening application studio…</div>,
+  loading: () => <div className="notice">Opening your app…</div>,
 });
-export default function Workspace() {
+export default function Workspace({ previewFixture, previewDesignRequest }) {
+  const demo = process.env.NODE_ENV === "development" && !!previewFixture;
   const [status, setStatus] = useState(null),
     [definition, setDefinition] = useState(null),
     [values, setValues] = useState({}),
@@ -23,15 +31,33 @@ export default function Workspace() {
     [usage, setUsage] = useState(null),
     [drag, setDrag] = useState(false),
     [showAuth, setShowAuth] = useState(false),
-    [needsOnboarding, setNeedsOnboarding] = useState(false);
+    [solvedValues, setSolvedValues] = useState(null),
+    [controlQuery, setControlQuery] = useState(""),
+    [libraryRequest, setLibraryRequest] = useState(0),
+    [designerSeed, setDesignerSeed] = useState(null),
+    [authPurpose, setAuthPurpose] = useState(""),
+    [authDismissed, setAuthDismissed] = useState(0);
   const input = useRef(),
     trialInit = useRef(null),
     lock = useRef(false),
-    alive = useRef(true);
+    alive = useRef(true),
+    reconnect = useRef(false),
+    errorRef = useRef(null);
   useEffect(() => {
     alive.current = true;
-    const openSignIn = () => setShowAuth(true);
+    const openSignIn = () => {
+      setAuthPurpose("");
+      setShowAuth(true);
+    };
     window.addEventListener("modolouge-signin", openSignIn);
+    if (demo) {
+      setStatus({ online: true });
+      setUsage({ kind: "guest", remaining: 5 });
+      return () => {
+        alive.current = false;
+        window.removeEventListener("modolouge-signin", openSignIn);
+      };
+    }
     const refresh = () => {
       api("status")
         .then(setStatus)
@@ -42,23 +68,41 @@ export default function Workspace() {
     };
     trialInit.current ||= api("trial/start", {});
     trialInit.current
-      .then(async () => {
-        const me = await api("me");
-        setUsage(me);
-        if (me.kind === "member" && !me.onboarded) {
-          setNeedsOnboarding(true);
-          setShowAuth(true);
-        }
-      })
+      .then(() => api("me"))
+      .then(setUsage)
       .catch((e) => setError(e.message));
-    refresh();
-    const i = setInterval(refresh, 20000);
+    api("status")
+      .then(setStatus)
+      .catch(() => setStatus({ online: false }));
+    const interval = setInterval(refresh, 20000);
     return () => {
       alive.current = false;
-      clearInterval(i);
+      clearInterval(interval);
       window.removeEventListener("modolouge-signin", openSignIn);
     };
   }, []);
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
+  const changes = changedControls(definition?.controls, values, solvedValues);
+  const exhausted = usage?.kind === "guest" && usage.remaining <= 0;
+  const needsRun = !!definition && (!solvedValues || changes > 0);
+  const changeValue = (name, value) =>
+    setValues((previous) => ({ ...previous, [name]: value }));
+  const openDesigner = () => {
+    setDesignerOpened(true);
+    setMode("design");
+  };
+  const openLibrary = () => {
+    openDesigner();
+    setLibraryRequest((n) => n + 1);
+  };
+  function chooseFile(seed = null) {
+    setLibraryRequest(0);
+    reconnect.current = !!seed;
+    setDesignerSeed(seed);
+    input.current.click();
+  }
   async function job(body) {
     const { id } = await api("jobs", body);
     for (let n = 0; n < 150; n++) {
@@ -72,23 +116,25 @@ export default function Workspace() {
       }
       if (["failed", "expired"].includes(j.status))
         throw new Error(
-          j.error || "Job expired. Try again when compute is available.",
+          j.error ||
+            "The request expired. Try again when compute is available.",
         );
       setBusy(
-        j.status === "running" ? "Computing geometry…" : "Waiting for compute…",
+        j.status === "running"
+          ? "Generating the model…"
+          : "Waiting for compute…",
       );
     }
-    throw new Error("The job took too long. Please retry.");
+    throw new Error("The request took too long. Please retry.");
   }
   async function solve(def = definition, v = values) {
-    const result = await job({
-      type: "solve",
-      definitionId: def.id,
-      values: v,
-    });
+    const result = demo
+      ? previewFixture
+      : await job({ type: "solve", definitionId: def.id, values: v });
     setObjects(result.objects || []);
     setDataOutputs(result.dataOutputs || []);
     setDuration(result.duration);
+    setSolvedValues({ ...v });
     setWarnings([
       ...(def.warnings || []),
       ...(result.errors || []),
@@ -96,13 +142,14 @@ export default function Workspace() {
     ]);
   }
   async function run() {
-    if (lock.current || !definition) return;
-    if (usage?.kind === "guest" && usage.remaining <= 0) {
+    if (lock.current || !definition || !needsRun) return;
+    if (exhausted) {
+      setAuthPurpose("");
       setShowAuth(true);
       return;
     }
     lock.current = true;
-    setBusy("Sending values…");
+    setBusy("Updating the model…");
     setError("");
     try {
       await solve();
@@ -112,14 +159,16 @@ export default function Workspace() {
     } finally {
       lock.current = false;
       setBusy("");
-      api("me")
-        .then(setUsage)
-        .catch(() => {});
+      if (!demo)
+        api("me")
+          .then(setUsage)
+          .catch(() => {});
     }
   }
   async function load(file, example = false) {
     if (lock.current) return;
-    if (usage?.kind === "guest" && usage.remaining <= 0) {
+    if (exhausted) {
+      setAuthPurpose("");
       setShowAuth(true);
       return;
     }
@@ -131,11 +180,14 @@ export default function Workspace() {
       return;
     }
     lock.current = true;
-    setBusy(example ? "Preparing the example…" : "Uploading your definition…");
+    setBusy(
+      example ? "Opening the example…" : "Uploading your Grasshopper file…",
+    );
     setError("");
     try {
       let d;
-      if (example) d = await job({ type: "example" });
+      if (demo) d = previewFixture;
+      else if (example) d = await job({ type: "example" });
       else {
         const init = await api("uploads", {
           filename: file.name,
@@ -147,314 +199,203 @@ export default function Workspace() {
         );
         form.append("file", file);
         const up = await fetch(init.upload.url, { method: "POST", body: form });
-        if (!up.ok) throw new Error("Upload did not complete. Try again.");
+        if (!up.ok)
+          throw new Error(
+            "The upload didn’t complete. Choose the file again to retry.",
+          );
+        setBusy("Reading the file’s controls…");
         d = await job({ type: "prepare", definitionId: init.id });
       }
       const v = Object.fromEntries(d.controls.map((c) => [c.name, c.value]));
+      await solve(d, v);
       setDefinition(d);
       setValues(v);
-      setObjects([]);
-      setDataOutputs([]);
-      setWarnings(d.warnings || []);
-      await solve(d, v);
+      setControlQuery("");
+      setMode(reconnect.current ? "design" : "explore");
     } catch (e) {
       setError(e.message);
       if (e.code === "TRIAL_EXHAUSTED") setShowAuth(true);
     } finally {
       lock.current = false;
       setBusy("");
-      api("me")
-        .then(setUsage)
-        .catch(() => {});
+      if (!demo)
+        api("me")
+          .then(setUsage)
+          .catch(() => {});
     }
   }
+
   return (
-    <main className="workspace">
-      <div className="page-heading">
-        <div>
-          <div className="eyebrow">MOD O LO GUE / WORKSPACE</div>
-          <h1>
-            {mode === "design"
-              ? "From a definition to an experience"
-              : definition
-                ? "Form follows your input"
-                : "Drop it. Shape it. Make it yours"}
-            <span className="pink">.</span>
-          </h1>
-          <p className="workspace-intro">
-            {usage?.kind === "member"
-              ? `Welcome${usage.name ? ", " + usage.name : ""}. Your next idea starts here.`
-              : "Your Grasshopper definition, alive in the browser. Try five geometry runs — no account needed."}
-          </p>
+    <main
+      className={
+        "workspace flow-workspace " +
+        (definition || mode === "design" ? "flow-active" : "")
+      }
+    >
+      {demo && (
+        <div className="notice">
+          Workflow preview · saved test geometry · no cloud requests or emails.
         </div>
-        <span className={"status " + (status?.online ? "online" : "")}>
-          <i />
-          {status?.online
-            ? "Linux compute online"
-            : status?.acceptingJobs
-              ? "Compute starting"
-              : "Compute offline"}
-        </span>
-      </div>
-      <div hidden={mode !== "explore"}>
-        <div className="trial-strip">
-          <div>
-            <span className="eyebrow">
-              {usage?.kind === "member"
-                ? "YOUR DAILY ALLOWANCE"
-                : "A LITTLE ROOM TO EXPLORE"}
+      )}
+      <input
+        ref={input}
+        type="file"
+        accept=".gh,.ghx"
+        hidden
+        onChange={(e) => {
+          if (e.target.files[0]) load(e.target.files[0]);
+          e.target.value = "";
+        }}
+      />
+      {(definition || mode === "design") && (
+        <div className="flow-topline">
+          <div className="flow-file">
+            <span className="eyebrow">MODOLOUGE</span>
+            <h1>{definition?.filename || "Your app layout"}</h1>
+          </div>
+          <div className="flow-top-actions">
+            <button
+              className="quiet"
+              disabled={!!busy}
+              onClick={() => chooseFile()}
+            >
+              {" "}
+              {definition ? "Replace file" : "Open Grasshopper file"} ↥
+            </button>
+            <button className="quiet" disabled={!!busy} onClick={openLibrary}>
+              Saved layouts
+            </button>
+            <span className={"status " + (status?.online ? "online" : "")}>
+              <i />
+              {serviceLabel(status)}
             </span>
-            <strong>
-              {usage?.kind === "member"
-                ? `${usage.remaining} jobs left today`
-                : `${usage?.remaining ?? 5} of 5 free geometry runs left`}
-            </strong>
           </div>
-          {usage?.kind !== "member" && (
-            <>
-              <div className="trial-dots" aria-hidden="true">
-                {Array.from({ length: 5 }, (_, i) => (
-                  <i
-                    key={i}
-                    className={i < (usage?.remaining ?? 5) ? "available" : ""}
-                  />
-                ))}
-              </div>
-              <button className="text-link" onClick={() => setShowAuth(true)}>
-                Make a free account ↗
-              </button>
-            </>
-          )}
         </div>
-        <div className="workspace-steps">
-          <span className={!definition ? "active" : ""}>
-            01 <b>Drop a definition</b>
-          </span>
-          <span className={definition ? "active" : ""}>
-            02 <b>Adjust the sliders</b>
-          </span>
-          <span className={objects.length ? "active" : ""}>
-            03 <b>Explore your geometry</b>
-          </span>
-        </div>
-      </div>
-      {usage?.kind === "member" && usage.intent && !definition && (
-        <div className="workspace-welcome">
-          <div>
-            <span className="eyebrow">YOUR FIRST EXPERIMENT</span>
-            <p>
-              {usage.intent === "Play with the example"
-                ? "Start with a sphere. Change a value and see it take shape."
-                : usage.intent === "Find my bearings"
-                  ? "Drop a file, adjust its sliders, then update the geometry. Or start with our example."
-                  : "Your definition is the starting point. Drop a .gh or .ghx file below."}
-            </p>
-          </div>
-          <button
-            className="text-link"
-            disabled={!!busy || !status?.online}
-            onClick={() =>
-              usage.intent === "Bring my own definition"
-                ? input.current.click()
-                : load(null, true)
-            }
-          >
-            {usage.intent === "Bring my own definition"
-              ? "Choose a definition"
-              : "Try the example"}{" "}
-            ↗
+      )}
+      {error && (
+        <div
+          role="alert"
+          tabIndex={-1}
+          ref={errorRef}
+          className="notice error flow-error"
+        >
+          <span>{error}</span>
+          <button className="quiet" onClick={() => setError("")}>
+            Dismiss
           </button>
         </div>
       )}
-      <div className="workspace-modes" aria-label="Workspace mode">
-        <button
-          aria-pressed={mode === "explore"}
-          onClick={() => setMode("explore")}
-        >
-          Explore definition
-        </button>
-        <button
-          aria-pressed={mode === "design"}
-          onClick={() => {
-            setDesignerOpened(true);
-            setMode("design");
+      {busy && (
+        <div className="flow-progress" role="status">
+          <span className="spinner" />
+          <div>
+            <strong>{busy}</strong>
+            <span>
+              {definition
+                ? "Your current result stays here until the new one is ready."
+                : "Reading your file and generating its first model. This can take a moment."}
+            </span>
+          </div>
+        </div>
+      )}
+      {!definition && mode === "explore" ? (
+        <WorkspaceStart
+          status={status}
+          usage={usage}
+          busy={busy}
+          drag={drag}
+          onChoose={() => chooseFile()}
+          onExample={() => {
+            reconnect.current = false;
+            setDesignerSeed(null);
+            load(null, true);
           }}
-        >
-          Design an app ↗
-        </button>
-        <span>YOUR LOGIC. YOUR INTERFACE.</span>
-      </div>
-      <div hidden={mode !== "explore"}>
-        <div className="studio">
-          <aside className="control-panel">
-            <div className="panel-heading">
-              <span className="eyebrow">01 / DEFINITION</span>
-              <span>.GH / .GHX</span>
-            </div>
-            <button
-              className={"dropzone " + (drag ? "dragging" : "")}
-              disabled={!!busy || !status?.online || !usage}
-              onClick={() => input.current.click()}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDrag(true);
-              }}
-              onDragLeave={() => setDrag(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setDrag(false);
-                if (usage && status?.online && e.dataTransfer.files[0])
-                  load(e.dataTransfer.files[0]);
-              }}
-            >
-              <span className="drop-icon">↥</span>
-              <strong>Drop your definition</strong>
-              <span>or click to browse · up to 20 MB</span>
-            </button>
-            <input
-              ref={input}
-              type="file"
-              accept=".gh,.ghx"
-              hidden
-              onChange={(e) => {
-                if (e.target.files[0]) load(e.target.files[0]);
-                e.target.value = "";
-              }}
-            />
-            <button
-              className="example"
-              disabled={!!busy || !status?.online || !usage}
-              onClick={() => load(null, true)}
-            >
-              Start with a parametric sphere <span>↗</span>
-            </button>
-            {definition && (
-              <div className="file-chip">
-                <span>◈</span>
-                <div>
-                  <strong>{definition.filename}</strong>
-                  <small>{definition.controls.length} exposed controls</small>
-                </div>
-              </div>
-            )}
-            <div className="panel-heading parameters-title">
-              <span className="eyebrow">02 / PARAMETERS</span>
+          onLibrary={openLibrary}
+          onSignIn={() => setShowAuth(true)}
+          onDrag={setDrag}
+          onDrop={(file) => {
+            reconnect.current = false;
+            setDesignerSeed(null);
+            load(file);
+          }}
+        />
+      ) : (
+        <>
+          <div className="flow-navigation">
+            <div className="workspace-modes" aria-label="Workspace mode">
               <button
-                className="quiet"
-                disabled={!definition || !!busy}
-                onClick={() =>
-                  setValues(
-                    Object.fromEntries(
-                      definition.controls.map((c) => [c.name, c.value]),
-                    ),
-                  )
-                }
+                aria-pressed={mode === "explore"}
+                onClick={() => setMode("explore")}
               >
-                Reset
+                Model
+              </button>
+              <button aria-pressed={mode === "design"} onClick={openDesigner}>
+                Customize app
               </button>
             </div>
-            <div className="parameters">
-              {!definition && (
-                <p className="muted">
-                  Your sliders and toggles will appear here. Bring a definition
-                  to begin.
-                </p>
-              )}
-              {definition?.controls.map((c) => (
-                <div className="parameter" key={c.name}>
-                  <label htmlFor={c.name}>{c.label}</label>
-                  {c.kind === "number" ? (
-                    <>
-                      <input
-                        aria-label={c.label + " value"}
-                        type="number"
-                        min={c.min}
-                        max={c.max}
-                        step={c.step}
-                        value={values[c.name]}
-                        disabled={!!busy}
-                        onChange={(e) => {
-                          if (Number.isFinite(e.target.valueAsNumber))
-                            setValues({
-                              ...values,
-                              [c.name]: Math.max(
-                                c.min,
-                                Math.min(c.max, e.target.valueAsNumber),
-                              ),
-                            });
-                        }}
-                      />
-                      <input
-                        id={c.name}
-                        type="range"
-                        min={c.min}
-                        max={c.max}
-                        step={c.step}
-                        value={values[c.name]}
-                        disabled={!!busy}
-                        onChange={(e) =>
-                          setValues({ ...values, [c.name]: +e.target.value })
-                        }
-                      />
-                      <div className="range-ends">
-                        <span>{c.min}</span>
-                        <span>{c.max}</span>
-                      </div>
-                    </>
-                  ) : c.kind === "boolean" ? (
-                    <input
-                      id={c.name}
-                      type="checkbox"
-                      checked={values[c.name]}
-                      disabled={!!busy}
-                      onChange={(e) =>
-                        setValues({ ...values, [c.name]: e.target.checked })
-                      }
-                    />
-                  ) : (
-                    <input
-                      id={c.name}
-                      value={values[c.name]}
-                      disabled={!!busy}
-                      onChange={(e) =>
-                        setValues({ ...values, [c.name]: e.target.value })
-                      }
-                    />
-                  )}
+            <span className="flow-allowance">
+              {usage
+                ? usage.kind === "guest"
+                  ? `${usage.remaining} free runs left`
+                  : `${usage.remaining} jobs left today`
+                : "Checking allowance…"}
+            </span>
+          </div>
+          {definition && (
+            <div hidden={mode !== "explore"}>
+              <div className="studio flow-studio">
+                <ModelControls
+                  definition={definition}
+                  values={values}
+                  busy={busy}
+                  onChange={changeValue}
+                  query={controlQuery}
+                  onQuery={setControlQuery}
+                  onReset={() =>
+                    setValues(
+                      Object.fromEntries(
+                        definition.controls.map((c) => [c.name, c.value]),
+                      ),
+                    )
+                  }
+                  runText={runLabel({
+                    busy,
+                    exhausted,
+                    hasResult: !!solvedValues,
+                    changes,
+                  })}
+                  canRun={!busy && status?.online && (needsRun || exhausted)}
+                  onRun={() => (exhausted ? setShowAuth(true) : run())}
+                  changes={changes}
+                  hasResult={!!solvedValues}
+                />
+                <DefinitionView
+                  definition={definition}
+                  objects={objects}
+                  values={values}
+                  onValueChange={changeValue}
+                  busy={busy}
+                  duration={duration}
+                  initialMode="geometry"
+                  pendingChanges={changes}
+                />
+              </div>
+              <div className="flow-next">
+                <div>
+                  <strong>Ready to make this your own?</strong>
+                  <span>
+                    Your controls are already connected. Choose the look and
+                    what people can change.
+                  </span>
                 </div>
-              ))}
+                <button className="text-link" onClick={openDesigner}>
+                  Customize this app ↗
+                </button>
+              </div>
             </div>
-            <button
-              className="button primary solve"
-              disabled={!definition || !!busy || !status?.online}
-              onClick={run}
-            >
-              {busy ||
-                (usage?.kind === "guest" && usage.remaining <= 0
-                  ? "Sign in to keep exploring"
-                  : "Update geometry")}
-              <span>↗</span>
-            </button>
-            <p className="fine">
-              {usage?.kind === "guest"
-                ? "One geometry update uses one free run."
-                : usage
-                  ? `${usage.dailyJobs} / ${usage.limit} jobs today · UTC reset`
-                  : "Preparing your workspace…"}
-            </p>
-          </aside>
-          <DefinitionView
-            definition={definition}
-            objects={objects}
-            values={values}
-            onValueChange={(name, value) =>
-              setValues((previous) => ({ ...previous, [name]: value }))
-            }
-            busy={busy}
-            duration={duration}
-          />
-        </div>
-      </div>
+          )}
+        </>
+      )}
       {designerOpened && (
         <div hidden={mode !== "design"}>
           <AppDesigner
@@ -463,71 +404,79 @@ export default function Workspace() {
             objects={objects}
             dataOutputs={dataOutputs}
             values={values}
-            onValueChange={(name, value) =>
-              setValues((previous) => ({ ...previous, [name]: value }))
-            }
+            onValueChange={changeValue}
             onRun={run}
             busy={busy}
-            canRun={!!definition && !!status?.online}
+            canRun={needsRun && !!status?.online}
+            runHint={
+              changes
+                ? `${changes} unapplied ${changes === 1 ? "change" : "changes"}`
+                : solvedValues
+                  ? "Model is up to date"
+                  : "Generate your first model"
+            }
             member={usage?.kind === "member"}
             accountKey={usage?.kind === "member" ? usage.email : ""}
-            onSignIn={() => setShowAuth(true)}
+            initialDocument={designerSeed?.document}
+            initialCloud={designerSeed?.cloud}
+            libraryRequest={libraryRequest}
+            request={demo ? previewDesignRequest : undefined}
+            authDismissed={authDismissed}
+            onChooseDefinition={(document, cloud) =>
+              chooseFile({ document, cloud })
+            }
+            onSignIn={(purpose) => {
+              setAuthPurpose(purpose || "");
+              setShowAuth(true);
+            }}
           />
-        </div>
-      )}
-      {error && (
-        <div role="alert" className="notice error">
-          {error}
         </div>
       )}
       {warnings.length > 0 && (
         <details className="notice">
-          <summary>Definition notes ({warnings.length})</summary>
+          <summary>File notes ({[...new Set(warnings)].length})</summary>
           {[...new Set(warnings)].map((w) => (
             <p key={w}>{w}</p>
           ))}
         </details>
       )}
-      <p className="fine">
-        Reviewed built-in components only. Scripts, clusters and unreviewed
-        plugins are rejected. Files expire after 24 hours.{" "}
-        <a href="/privacy">Service details ↗</a>
-      </p>
-      <p className="fine">
-        To keep the trial fair, we record your IP address and activity,
-        including before sign-in. IP details are visible only to the
-        administrator and removed after 30 days. Trial limits apply to your
-        browser and network.
-      </p>
+      <div className="flow-service-note">
+        <p>
+          Uploads support reviewed Grasshopper components. Scripts and
+          unreviewed plugins are unavailable. Files expire after 24 hours.
+        </p>
+        <p>
+          Trial activity and IP addresses are recorded to prevent misuse; IP
+          records are removed after 30 days.{" "}
+          <a href="/privacy">Privacy & service details ↗</a>
+        </p>
+      </div>
       {showAuth && (
         <div
           className="auth-overlay"
           role="dialog"
           aria-modal="true"
-          aria-label="Create your Modolouge account"
+          aria-label="Sign in to Modolouge"
         >
           <AuthJourney
-            onboarding={needsOnboarding}
-            hasExploration={!!definition}
+            streamlined
+            hasExploration={!!definition || designerOpened}
+            purpose={authPurpose}
+            demo={demo}
             onClose={() => {
               setShowAuth(false);
-              api("me")
-                .then((me) => {
-                  setUsage(me);
-                  setNeedsOnboarding(me.kind === "member" && !me.onboarded);
-                  if (me.kind === "member")
-                    window.dispatchEvent(
-                      new CustomEvent("modolouge-auth", {
-                        detail: { email: me.email },
-                      }),
-                    );
-                })
-                .catch(() => {});
+              setAuthPurpose("");
+              setAuthDismissed((n) => n + 1);
             }}
             onComplete={async () => {
-              const me = await api("me");
+              const me = demo
+                ? {
+                    kind: "member",
+                    email: "preview@example.invalid",
+                    remaining: 60,
+                  }
+                : await api("me");
               setUsage(me);
-              setNeedsOnboarding(false);
               setShowAuth(false);
               setError("");
               window.dispatchEvent(

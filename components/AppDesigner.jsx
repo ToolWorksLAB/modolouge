@@ -19,6 +19,7 @@ import {
   validateDesign,
   boundControl,
   plotSeries,
+  arrangeDesign,
 } from "../lib/app-design.js";
 import { api } from "../lib/client-api.js";
 const Viewport = dynamic(() => import("./Viewport.jsx"), {
@@ -50,6 +51,144 @@ function history(state, action) {
     };
   return state;
 }
+function QuickCustomize({ doc, rows, definition, edit, onAdvanced }) {
+  const heading = rows.find(
+    ({ node }) => node.type === "text" && node.textStyle === "heading",
+  )?.node;
+  const grid = rows.find(({ node }) => node.type === "grid")?.node;
+  const controls = rows.filter(({ node }) =>
+    ["slider", "ruler", "toggle", "textInput", "file"].includes(node.type),
+  );
+  const layout =
+    grid?.columns === 1
+      ? "stacked"
+      : grid?.ratio === "wide-right"
+        ? "side"
+        : grid?.ratio === "equal"
+          ? "balanced"
+          : "";
+  return (
+    <aside className="ad-quick-panel" aria-label="Quick customization">
+      <div className="ad-quick-intro">
+        <span className="eyebrow">
+          {definition ? "CONNECTED TO YOUR FILE" : "YOUR INTERFACE"}
+        </span>
+        <h2>Make it yours.</h2>
+        <p className="ad-mobile-hint">
+          Use Preview above to try your app at any time.
+        </p>
+        <p>
+          {definition
+            ? "Your model and controls are ready. Change only what you need."
+            : "Arrange your interface now. Open its Grasshopper file when you want to try the controls."}
+        </p>
+      </div>
+      <section>
+        <h3>01 / The first impression</h3>
+        {heading && (
+          <Field
+            label="App heading"
+            value={heading.text}
+            disabled={isLocked(doc, heading.id)}
+            onCommit={(text) => edit((d) => patchNode(d, heading.id, { text }))}
+          />
+        )}
+        <div className="ad-theme-choices" aria-label="App appearance">
+          {["paper", "graphite"].map((theme) => (
+            <button
+              key={theme}
+              aria-pressed={doc.theme === theme}
+              onClick={() => edit({ ...doc, theme })}
+            >
+              <i className={theme} />
+              {theme === "paper" ? "Paper" : "Graphite"}
+            </button>
+          ))}
+        </div>
+      </section>
+      {grid && (
+        <section>
+          <h3>02 / The arrangement</h3>
+          <div className="ad-arrangements" aria-label="Layout arrangement">
+            {[
+              ["side", "Model focus"],
+              ["balanced", "Balanced"],
+              ["stacked", "Stacked"],
+            ].map(([id, label]) => (
+              <button
+                disabled={isLocked(doc, grid.id)}
+                key={id}
+                aria-pressed={layout === id}
+                onClick={() => edit((d) => arrangeDesign(d, id))}
+              >
+                <span
+                  className={"ad-layout-icon layout-" + id}
+                  aria-hidden="true"
+                >
+                  <i />
+                  <i />
+                </span>
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="ad-help">
+            Your elements and connections stay in place.
+          </p>
+        </section>
+      )}
+      <section>
+        <h3>03 / What people can change</h3>
+        <p className="ad-help">
+          Choose visible controls and give them familiar names.
+        </p>
+        <div className="ad-quick-inputs">
+          {controls.map(({ node: n }) => (
+            <div key={n.id} className="ad-quick-control">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={!n.hidden}
+                  disabled={isLocked(doc, n.id)}
+                  onChange={(e) =>
+                    edit((d) =>
+                      patchNode(d, n.id, { hidden: !e.target.checked }),
+                    )
+                  }
+                />
+                <span>Show {n.label}</span>
+              </label>
+              <Field
+                label={"Label for " + n.label}
+                value={n.label}
+                disabled={isLocked(doc, n.id)}
+                onCommit={(label) => edit((d) => patchNode(d, n.id, { label }))}
+              />
+              {definition && !boundControl(n, definition) && (
+                <small>
+                  Unconnected — choose an input in the layout editor.
+                </small>
+              )}
+            </div>
+          ))}
+        </div>
+        {!controls.length && (
+          <p className="ad-help">
+            Open your Grasshopper file to add its controls automatically, or use
+            the layout editor to connect an existing layout.
+          </p>
+        )}
+      </section>
+      <button className="ad-advanced-link" onClick={onAdvanced}>
+        Add elements & edit layout ↗
+      </button>
+      <p className="ad-help">
+        Sections, images, charts and precise arrangement live in the layout
+        editor.
+      </p>
+    </aside>
+  );
+}
 function download(doc) {
   const url = URL.createObjectURL(
     new Blob([JSON.stringify(validateDesign(doc), null, 2)], {
@@ -75,36 +214,59 @@ export default function AppDesigner({
   member,
   accountKey = "",
   onSignIn,
+  initialDocument,
+  initialCloud,
+  libraryRequest = 0,
+  onChooseDefinition,
+  runHint = "",
+  authDismissed = 0,
+  request = api,
 }) {
   const [state, dispatch] = useReducer(history, null, () => ({
     past: [],
-    present: initialDesign(definition),
+    present: initialDocument
+      ? validateDesign(initialDocument)
+      : initialDesign(definition),
     future: [],
   }));
   const doc = state.present;
   const [selected, setSelected] = useState(null),
-    [preview, setPreview] = useState(false),
+    [editorMode, setEditorMode] = useState("quick"),
     [device, setDevice] = useState("desktop"),
     [query, setQuery] = useState(""),
     [message, setMessage] = useState(""),
     [saved, setSaved] = useState("Preparing draft…"),
     [ready, setReady] = useState(false),
     [library, setLibrary] = useState(null),
-    [cloud, setCloud] = useState(null),
+    [cloud, setCloud] = useState(initialCloud || null),
     [saving, setSaving] = useState(false);
   const [moving, setMoving] = useState(null);
   const importRef = useRef(),
     rootRef = useRef(),
     dragRef = useRef(null),
     pointerDrag = useRef(null),
-    suppressClick = useRef(false);
+    suppressClick = useRef(false),
+    pendingAuth = useRef(null),
+    seenLibraryRequest = useRef(0),
+    previousMember = useRef(member),
+    previousDismiss = useRef(authDismissed);
+  const libraryRef = useRef(null);
+  const freshCloudDraft = useRef(!!initialDocument && !initialCloud);
+  const preview = editorMode !== "advanced";
   const localKey = "modolouge:app:" + definitionKey(definition);
   const cloudKey = localKey + ":account:" + accountKey;
+  const freshKey = localKey + ":fresh";
   function rememberCloud(value) {
     setCloud(value ? { ...value, accountKey } : null);
+    freshCloudDraft.current = !value;
     try {
-      if (value) localStorage.setItem(cloudKey, JSON.stringify(value));
-      else localStorage.removeItem(cloudKey);
+      if (value) {
+        localStorage.setItem(cloudKey, JSON.stringify(value));
+        localStorage.removeItem(freshKey);
+      } else {
+        localStorage.removeItem(cloudKey);
+        localStorage.setItem(freshKey, "1");
+      }
     } catch {}
   }
   const item = findNode(doc, selected),
@@ -113,7 +275,9 @@ export default function AppDesigner({
   useEffect(() => {
     try {
       const stored = localStorage.getItem(localKey);
-      if (stored)
+      if (!initialCloud && localStorage.getItem(freshKey))
+        freshCloudDraft.current = true;
+      if (stored && !initialDocument)
         dispatch({ type: "load", doc: validateDesign(JSON.parse(stored)) });
     } catch {
       setMessage(
@@ -122,6 +286,59 @@ export default function AppDesigner({
     }
     setReady(true);
   }, [localKey]);
+  useEffect(() => {
+    if (!libraryRequest) {
+      seenLibraryRequest.current = 0;
+      return;
+    }
+    if (libraryRequest && libraryRequest !== seenLibraryRequest.current) {
+      seenLibraryRequest.current = libraryRequest;
+      openLibrary();
+    }
+  }, [libraryRequest]);
+  useEffect(() => {
+    const signedIn = member && !previousMember.current;
+    previousMember.current = member;
+    if (!signedIn || !pendingAuth.current) return;
+    const action = pendingAuth.current;
+    pendingAuth.current = null;
+    if (action === "save") saveCloud();
+    else openLibrary();
+  }, [member, accountKey]);
+  useEffect(() => {
+    if (previousDismiss.current !== authDismissed) pendingAuth.current = null;
+    previousDismiss.current = authDismissed;
+  }, [authDismissed]);
+  useEffect(() => {
+    if (!library) return;
+    const previous = document.activeElement;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    libraryRef.current?.querySelector("button")?.focus();
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setLibrary(null);
+      }
+      if (e.key !== "Tab") return;
+      const nodes = [
+        ...libraryRef.current.querySelectorAll("button:not(:disabled)"),
+      ];
+      if (e.shiftKey && document.activeElement === nodes[0]) {
+        e.preventDefault();
+        nodes.at(-1)?.focus();
+      } else if (!e.shiftKey && document.activeElement === nodes.at(-1)) {
+        e.preventDefault();
+        nodes[0]?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = overflow;
+      document.removeEventListener("keydown", onKey);
+      previous?.focus?.();
+    };
+  }, [Boolean(library)]);
   useEffect(() => {
     if (!ready) return;
     const timer = setTimeout(() => {
@@ -265,6 +482,7 @@ export default function AppDesigner({
     }
     if (
       preview ||
+      library ||
       e.target.closest("input,textarea,select,[contenteditable=true]")
     )
       return;
@@ -320,12 +538,13 @@ export default function AppDesigner({
   }
   async function openLibrary() {
     if (!member) {
-      onSignIn?.();
+      pendingAuth.current = "library";
+      onSignIn?.("library");
       return;
     }
     setSaving(true);
     try {
-      setLibrary((await api("designs")).designs);
+      setLibrary((await request("designs")).designs);
     } catch (e) {
       setMessage(e.message);
     } finally {
@@ -334,14 +553,15 @@ export default function AppDesigner({
   }
   async function saveCloud() {
     if (!member) {
-      onSignIn?.();
+      pendingAuth.current = "save";
+      onSignIn?.("save");
       return;
     }
     setSaving(true);
     try {
-      const list = (await api("designs")).designs;
+      const list = (await request("designs")).designs;
       let reference = cloud?.accountKey === accountKey ? cloud : null;
-      if (!reference) {
+      if (!reference && !freshCloudDraft.current) {
         try {
           const cached = JSON.parse(localStorage.getItem(cloudKey));
           if (
@@ -363,7 +583,7 @@ export default function AppDesigner({
         throw new Error(
           "Your 20 account slots are full. Open a saved app to update it, or export a layout file.",
         );
-      const next = await api("designs", {
+      const next = await request("designs", {
         slot,
         revision: reference?.revision || null,
         document: doc,
@@ -381,7 +601,7 @@ export default function AppDesigner({
   async function loadCloud(slot) {
     setSaving(true);
     try {
-      const result = await api("designs?slot=" + slot);
+      const result = await request("designs?slot=" + slot);
       edit(result.document);
       rememberCloud({ slot, revision: result.revision });
       setSelected(null);
@@ -456,7 +676,11 @@ export default function AppDesigner({
   }
   return (
     <section
-      className={"app-designer " + (preview ? "ad-preview" : "")}
+      className={
+        "app-designer " +
+        (preview ? "ad-preview " : "") +
+        (editorMode === "quick" ? "ad-quick" : "")
+      }
       ref={rootRef}
       onKeyDown={keyDown}
       onPointerMove={pointerMove}
@@ -493,12 +717,19 @@ export default function AppDesigner({
           </div>
         </div>
         <div className="ad-mode" aria-label="Studio mode">
-          <button aria-pressed={!preview} onClick={() => setPreview(false)}>
-            Design
-          </button>
-          <button aria-pressed={preview} onClick={() => setPreview(true)}>
-            Run preview ↗
-          </button>
+          {[
+            ["quick", "Customize"],
+            ["advanced", "Layout editor"],
+            ["preview", "Preview"],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              aria-pressed={editorMode === id}
+              onClick={() => setEditorMode(id)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
         <div className="ad-actions">
           <button
@@ -517,7 +748,19 @@ export default function AppDesigner({
           >
             ↷
           </button>
-          <button onClick={() => download(doc)}>Export</button>
+          <details className="ad-file-menu">
+            <summary>Files</summary>
+            <div>
+              <button onClick={() => download(doc)}>Export layout</button>
+              <button onClick={() => importRef.current.click()}>
+                Import layout
+              </button>
+              <button disabled={saving} onClick={openLibrary}>
+                Saved layouts
+              </button>
+              <p>Layouts contain the interface, not the Grasshopper file.</p>
+            </div>
+          </details>
           <button disabled={saving} onClick={saveCloud} className="ad-save">
             {saving ? "Saving…" : "Save to account"}
           </button>
@@ -525,22 +768,44 @@ export default function AppDesigner({
       </div>
       {!definition && (
         <div className="ad-note">
-          Design your interface now. Open a Grasshopper file in Explore to
-          connect its controls and geometry.
+          <span>
+            {doc.definitionName
+              ? `Open ${doc.definitionName} to reconnect this layout’s controls and geometry.`
+              : "Open a Grasshopper file to connect this layout to a model."}
+          </span>
+          {onChooseDefinition && (
+            <button onClick={() => onChooseDefinition(doc, cloud)}>
+              Choose file ↥
+            </button>
+          )}
         </div>
       )}
       {definition && doc.definitionKey !== definitionKey(definition) && (
         <div className="ad-note">
           This layout was made for {doc.definitionName || "another definition"}.
-          Reopen that file in Explore, or reconnect each input in the Inspector.
+          {onChooseDefinition && (
+            <button onClick={() => onChooseDefinition(doc, cloud)}>
+              Choose matching file ↥
+            </button>
+          )}{" "}
+          Or reconnect inputs in the layout editor.
         </div>
       )}
       <div className="ad-workbench">
+        {editorMode === "quick" && (
+          <QuickCustomize
+            doc={doc}
+            rows={rows}
+            definition={definition}
+            edit={edit}
+            onAdvanced={() => setEditorMode("advanced")}
+          />
+        )}
         {!preview && (
           <aside className="ad-toolbox">
             <div className="ad-panel-title">
               <span>01 / TOOLBOX</span>
-              <span>14 + 3 native</span>
+              <span>14 elements</span>
             </div>
             <p className="ad-help">
               Drag onto the canvas.
@@ -550,26 +815,28 @@ export default function AppDesigner({
             {["Layout", "Inputs", "Outputs"].map((group) => (
               <div className="ad-tool-group" key={group}>
                 <h3>{group}</h3>
-                {CATALOG.filter((t) => t.group === group).map((t) => (
-                  <button
-                    key={t.type}
-                    className={t.native ? "ad-native" : ""}
-                    aria-disabled={!!t.native}
-                    draggable={false}
-                    onPointerDown={(e) => {
-                      if (!t.native) pointerStart(e, { type: t.type });
-                    }}
-                    onDragStart={(e) => dragStart(e, { type: t.type })}
-                    onClick={() =>
-                      t.native ? setMessage(t.hint) : add(t.type)
-                    }
-                    title={t.hint}
-                  >
-                    <span className="ad-tool-icon">{t.icon}</span>
-                    <span>{t.label}</span>
-                    {t.native && <small>Native</small>}
-                  </button>
-                ))}
+                {CATALOG.filter((t) => t.group === group && !t.native).map(
+                  (t) => (
+                    <button
+                      key={t.type}
+                      className={t.native ? "ad-native" : ""}
+                      aria-disabled={!!t.native}
+                      draggable={false}
+                      onPointerDown={(e) => {
+                        if (!t.native) pointerStart(e, { type: t.type });
+                      }}
+                      onDragStart={(e) => dragStart(e, { type: t.type })}
+                      onClick={() =>
+                        t.native ? setMessage(t.hint) : add(t.type)
+                      }
+                      title={t.hint}
+                    >
+                      <span className="ad-tool-icon">{t.icon}</span>
+                      <span>{t.label}</span>
+                      {t.native && <small>Native</small>}
+                    </button>
+                  ),
+                )}
               </div>
             ))}
             <div className="ad-tool-footer">
@@ -577,7 +844,7 @@ export default function AppDesigner({
                 Import layout ↥
               </button>
               <button disabled={saving} onClick={openLibrary}>
-                My saved apps ↗
+                Saved layouts ↗
               </button>
               <p>
                 .modolouge.json · layout only
@@ -589,7 +856,7 @@ export default function AppDesigner({
         )}
         <div className="ad-stage">
           <div className="ad-stage-bar">
-            <span>{preview ? "APP PREVIEW" : "APPLICATION CANVAS"}</span>
+            <span>{preview ? "YOUR APP" : "APPLICATION CANVAS"}</span>
             <div className="ad-devices" aria-label="Preview size">
               {[
                 ["desktop", "Wide"],
@@ -606,7 +873,9 @@ export default function AppDesigner({
               ))}
             </div>
             <span>
-              {preview ? "LIVE CONTROLS" : "SELECT / ARRANGE / CONNECT"}
+              {preview
+                ? runHint || "TRY THE CONTROLS"
+                : "SELECT / ARRANGE / CONNECT"}
             </span>
           </div>
           <div className="ad-stage-scroll">
@@ -1067,13 +1336,14 @@ export default function AppDesigner({
       {library && (
         <div
           className="ad-library"
+          ref={libraryRef}
           role="dialog"
           aria-modal="true"
-          aria-label="Saved applications"
+          aria-label="Saved layouts"
         >
           <div>
             <div className="ad-panel-title">
-              <span>YOUR SAVED APPS</span>
+              <span>YOUR SAVED LAYOUTS</span>
               <button onClick={() => setLibrary(null)}>Close ×</button>
             </div>
             <p>
@@ -1104,7 +1374,7 @@ export default function AppDesigner({
     </section>
   );
 }
-function Field({ label, value, onCommit, multiline }) {
+function Field({ label, value, onCommit, multiline, disabled = false }) {
   const Tag = multiline ? "textarea" : "input";
   return (
     <label className="ad-field">
@@ -1112,6 +1382,7 @@ function Field({ label, value, onCommit, multiline }) {
       <Tag
         key={String(value)}
         defaultValue={value}
+        disabled={disabled}
         maxLength={multiline ? 5000 : 160}
         onBlur={(e) => {
           if (e.target.value !== value) onCommit(e.target.value);
@@ -1437,9 +1708,11 @@ function ElementContent({
         <span className="ad-control-label">{n.label}</span>
         <div className="ad-placeholder-track" />
         <small>
-          {n.binding
-            ? "Input unavailable — reconnect in Inspector"
-            : "Choose a Grasshopper input in Inspector"}
+          {!definition
+            ? "Open the matching Grasshopper file to activate"
+            : n.binding
+              ? "Input unavailable — reconnect in the layout editor"
+              : "Choose a Grasshopper input in the layout editor"}
         </small>
       </div>
     );

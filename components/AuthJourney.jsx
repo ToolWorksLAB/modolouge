@@ -66,6 +66,8 @@ export default function AuthJourney({
   hasExploration = false,
   demo = false,
   initialStep = "email",
+  streamlined = !manager,
+  purpose = "",
 }) {
   // The isolated design preview creates no sessions and is excluded in production.
   const preview = process.env.NODE_ENV === "development" && demo;
@@ -186,7 +188,7 @@ export default function AuthJourney({
         const result = preview
           ? { onboarded: false }
           : await api("auth/verify-code", { code });
-        if (result.onboarded || manager) await finish();
+        if (result.onboarded || manager || streamlined) await finish();
         else setStep("profile");
       } else if (step === "profile") setStep("intent");
       else {
@@ -204,7 +206,11 @@ export default function AuthJourney({
   const title = {
     email: manager
       ? "A clear view.\nFull control."
-      : "Good ideas\nstart somewhere.",
+      : purpose === "save"
+        ? "Keep your\ncreation."
+        : purpose === "library"
+          ? "Pick up where\nyou left off."
+          : "Keep\nexploring.",
     code: "Check your\ninbox.",
     profile: "A little about\nyou.",
     intent: "Where shall\nwe begin?",
@@ -213,7 +219,11 @@ export default function AuthJourney({
   const description = {
     email: manager
       ? "Sign in with your ToolWorksLab email to manage activity, costs, and compute."
-      : "A free space for your Grasshopper ideas. Make an account, keep experimenting, and see what takes shape.",
+      : purpose === "save"
+        ? "Verify your email and we’ll save this layout to your account. Your work stays open."
+        : purpose === "library"
+          ? "Use the email you saved with. Your layouts will open after verification."
+          : "Use your email to sign in or create a free account. You’ll return straight to your work.",
     code: "Your sign-in code is on its way to",
     profile:
       "Give your space a familiar name. A little context helps us welcome you.",
@@ -269,7 +279,7 @@ export default function AuthJourney({
             </a>
           )}
         </div>
-        {!manager && (
+        {!manager && !streamlined && (
           <ol className="journey-progress" aria-label="Account setup progress">
             {["Your email", "Make it yours", "Explore"].map((label, i) => (
               <li
@@ -286,6 +296,15 @@ export default function AuthJourney({
               </li>
             ))}
           </ol>
+        )}
+        {!manager && streamlined && (
+          <div className="journey-short-progress" aria-label="Sign-in progress">
+            <span className={step === "email" ? "current" : ""}>1 · Email</span>
+            <span aria-hidden="true">→</span>
+            <span className={step === "code" ? "current" : ""}>
+              2 · Verify & return
+            </span>
+          </div>
         )}
         <div className="journey-body" key={step}>
           <div className="journey-section-note">

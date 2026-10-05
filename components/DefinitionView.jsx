@@ -1,9 +1,21 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-const Viewport = dynamic(() => import("./Viewport.jsx"), { ssr: false });
+const Viewport = dynamic(() => import("./Viewport.jsx"), {
+  ssr: false,
+  loading: () => (
+    <div className="notice" role="status">
+      Opening the model view…
+    </div>
+  ),
+});
 const GrasshopperCanvas = dynamic(() => import("./GrasshopperCanvas.jsx"), {
   ssr: false,
+  loading: () => (
+    <div className="notice" role="status">
+      Opening the Grasshopper canvas…
+    </div>
+  ),
 });
 export default function DefinitionView({
   definition,
@@ -12,9 +24,11 @@ export default function DefinitionView({
   onValueChange,
   busy,
   duration,
-  initialMode = "split",
+  initialMode = "geometry",
+  pendingChanges = 0,
 }) {
   const [mode, setMode] = useState(initialMode);
+  const [canvasOpened, setCanvasOpened] = useState(initialMode !== "geometry");
   return (
     <section className="view-panel definition-view">
       <div className="definition-toolbar">
@@ -34,7 +48,10 @@ export default function DefinitionView({
             <button
               key={value}
               aria-pressed={mode === value}
-              onClick={() => setMode(value)}
+              onClick={() => {
+                if (value !== "geometry") setCanvasOpened(true);
+                setMode(value);
+              }}
             >
               {label}
             </button>
@@ -43,23 +60,27 @@ export default function DefinitionView({
       </div>
       <div className={`definition-panes mode-${mode}`}>
         <div className="definition-canvas-pane" hidden={mode === "geometry"}>
-          <GrasshopperCanvas
-            key={definition?.id || "empty"}
-            graph={definition?.graph}
-            controls={definition?.controls}
-            values={values}
-            onValueChange={onValueChange}
-            disabled={!!busy}
-            hasDefinition={!!definition}
-          />
+          {canvasOpened && (
+            <GrasshopperCanvas
+              key={definition?.id || "empty"}
+              graph={definition?.graph}
+              controls={definition?.controls}
+              values={values}
+              onValueChange={onValueChange}
+              disabled={!!busy}
+              hasDefinition={!!definition}
+            />
+          )}
         </div>
         <div className="definition-geometry-pane" hidden={mode === "canvas"}>
           <div className="geometry-label">
-            <span>03 / GEOMETRY</span>
+            <span>MODEL</span>
             <span>
-              {duration == null
-                ? "LIVE PREVIEW"
-                : `${(duration / 1000).toFixed(2)} S / LAST SOLVE`}
+              {pendingChanges
+                ? "CHANGES NOT YET APPLIED"
+                : duration == null
+                  ? "LIVE PREVIEW"
+                  : `${(duration / 1000).toFixed(2)} S / LAST SOLVE`}
             </span>
           </div>
           <Viewport objects={objects} />

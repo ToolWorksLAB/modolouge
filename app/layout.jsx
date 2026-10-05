@@ -4,6 +4,7 @@ import "./globals.css";
 import "./onboarding.css";
 import "./canvas.css";
 import "./designer.css";
+import "./workflow.css";
 import { manager } from "../lib/config.js";
 export const metadata = {
   title: manager
