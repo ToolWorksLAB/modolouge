@@ -10,6 +10,7 @@ export default function WorkspaceStart({
   onChoose,
   onExample,
   onLibrary,
+  onApps,
   onSignIn,
   onDrag,
   onDrop,
@@ -22,11 +23,12 @@ export default function WorkspaceStart({
         <span className="eyebrow">GRASSHOPPER → SOMETHING YOU CAN USE</span>
         <h1>
           Your file.
-          <br />A working model<span className="pink">.</span>
+          <br />
+          An app of its own<span className="pink">.</span>
         </h1>
         <p className="flow-lead">
-          Open a Grasshopper file. Its controls and 3D model appear together.
-          Make it an app when you’re ready.
+          Drop a Grasshopper file. Describe your idea. Shape an AI-generated
+          interface around it, then publish an app people can use.
         </p>
         <button
           className={"flow-drop " + (drag ? "dragging" : "")}
@@ -77,9 +79,12 @@ export default function WorkspaceStart({
             : exhausted
               ? "A free account lets you keep exploring."
               : "Five free geometry runs. No account needed."}{" "}
-          Opening a file or the example uses one geometry run.
+          Geometry runs when you click Update. One free AI draft is included.
         </p>
         <div className="flow-entry-footer">
+          <button className="quiet" onClick={onApps}>
+            My apps →
+          </button>
           <button className="quiet" onClick={onLibrary}>
             Open a saved layout →
           </button>

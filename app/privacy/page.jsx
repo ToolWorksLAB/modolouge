@@ -21,9 +21,31 @@ export default function Privacy() {
       <p>
         Files and preview results are stored privately in AWS Stockholm. Upload
         and download links expire after two minutes. Definitions expire after 24
-        hours; storage lifecycle cleanup can take longer. We do not train models
-        on your files. Avoid uploading confidential client work unless you have
-        permission.
+        hours; storage lifecycle cleanup can take longer. Saved app archives,
+        drafts and published snapshots are kept privately in Supabase until
+        deletion is requested. Avoid uploading confidential client work unless
+        you have permission.
+      </p>
+      <h2>AI app drafting and publishing</h2>
+      <p>
+        When you choose AI drafting and consent, we send your brief and saved
+        node labels, groups, connections and panel text through Vercel AI
+        Gateway to OpenAI GPT-5.4 mini. The binary archive and your account
+        credentials are not sent to the model. ToolWorksLab does not use your
+        files to train models; provider processing and retention follow their
+        API terms. AI suggestions can be incomplete or wrong and need your
+        review. We record the model, token usage, request status and reported or
+        estimated cost for administration. The manager does not display your
+        brief or panel text.
+      </p>
+      <p>
+        Publishing makes your app interface, default inputs and generated
+        outputs available to anyone with its link. The archive remains private.
+        Unpublishing prevents new runs; a run already accepted may finish.
+        Published apps share the service limits and have a separate limit of 60
+        runs per day. Guests can create one AI draft per network in 30 days;
+        members can request 10 per UTC day. A shared daily AI budget can
+        temporarily pause generation.
       </p>
       <h2>Public execution policy</h2>
       <p>

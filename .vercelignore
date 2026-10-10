@@ -1,0 +1,10 @@
+.env*
+.git/
+.runtime/
+node_modules/
+.next/
+*.log
+worker/
+supabase/
+tests/*.test.mjs
+tests/GraphReader/

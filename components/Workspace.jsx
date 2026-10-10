@@ -15,6 +15,7 @@ export { api } from "../lib/client-api.js";
 const AppDesigner = dynamic(() => import("./AppDesigner.jsx"), {
   loading: () => <div className="notice">Opening your app…</div>,
 });
+const AIStudio = dynamic(() => import("./AIStudio.jsx"));
 export default function Workspace({ previewFixture, previewDesignRequest }) {
   const demo = process.env.NODE_ENV === "development" && !!previewFixture;
   const [status, setStatus] = useState(null),
@@ -37,6 +38,9 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
     [designerSeed, setDesignerSeed] = useState(null),
     [authPurpose, setAuthPurpose] = useState(""),
     [authDismissed, setAuthDismissed] = useState(0);
+  const [appBrief, setAppBrief] = useState(""),
+    [appSeed, setAppSeed] = useState(null),
+    [appLibrary, setAppLibrary] = useState(0);
   const input = useRef(),
     trialInit = useRef(null),
     lock = useRef(false),
@@ -109,6 +113,24 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
     reconnect.current = !!seed;
     setDesignerSeed(seed);
     input.current.click();
+  }
+  function openAIApp(result) {
+    setDefinition(result.definition);
+    setValues(
+      Object.fromEntries(
+        result.definition.controls.map((c) => [c.name, c.value]),
+      ),
+    );
+    setObjects([]);
+    setDataOutputs([]);
+    setSolvedValues(null);
+    setAppSeed(result);
+    setMode("ai");
+    setAppLibrary(0);
+  }
+  function openApps() {
+    setMode("ai");
+    setAppLibrary((n) => n + 1);
   }
   async function job(body) {
     const { id } = await api("jobs", body);
@@ -214,11 +236,18 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
         d = await job({ type: "prepare", definitionId: init.id });
       }
       const v = Object.fromEntries(d.controls.map((c) => [c.name, c.value]));
-      await solve(d, v);
+      if (reconnect.current) await solve(d, v);
+      else {
+        setObjects([]);
+        setDataOutputs([]);
+        setSolvedValues(null);
+      }
       setDefinition(d);
       setValues(v);
+      setAppSeed(null);
+      setAppLibrary(0);
       setControlQuery("");
-      setMode(reconnect.current ? "design" : "explore");
+      setMode(reconnect.current ? "design" : "ai");
     } catch (e) {
       setError(e.message);
       if (e.code === "TRIAL_EXHAUSTED") setShowAuth(true);
@@ -300,7 +329,7 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
             <span>
               {definition
                 ? "Your current result stays here until the new one is ready."
-                : "Reading your file and generating its first model. This can take a moment."}
+                : "Reading the graph and its editable inputs. This can take a moment."}
             </span>
           </div>
         </div>
@@ -318,6 +347,7 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
             load(null, true);
           }}
           onLibrary={openLibrary}
+          onApps={openApps}
           onSignIn={() => setShowAuth(true)}
           onDrag={setDrag}
           onDrop={(file) => {
@@ -331,13 +361,19 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
           <div className="flow-navigation">
             <div className="workspace-modes" aria-label="Workspace mode">
               <button
+                aria-pressed={mode === "ai"}
+                onClick={() => setMode("ai")}
+              >
+                Create an app
+              </button>
+              <button
                 aria-pressed={mode === "explore"}
                 onClick={() => setMode("explore")}
               >
                 Model
               </button>
               <button aria-pressed={mode === "design"} onClick={openDesigner}>
-                Customize app
+                Advanced layout
               </button>
             </div>
             <span className="flow-allowance">
@@ -402,6 +438,36 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
             </div>
           )}
         </>
+      )}
+      {(definition || mode === "ai") && (
+        <div hidden={mode !== "ai"}>
+          <AIStudio
+            key={(definition?.id || "library") + ":" + (appSeed?.revision || 0)}
+            definition={definition}
+            initialApp={appSeed}
+            brief={appBrief}
+            onBrief={setAppBrief}
+            onOpen={openAIApp}
+            librarySignal={appLibrary}
+            member={usage?.kind === "member"}
+            onSignIn={() => setShowAuth(true)}
+            onManual={openDesigner}
+            values={values}
+            onChange={changeValue}
+            objects={objects}
+            dataOutputs={dataOutputs}
+            onRun={run}
+            busy={busy}
+            canRun={needsRun && !!status?.online}
+            runHint={
+              changes
+                ? `${changes} changes ready to apply`
+                : solvedValues
+                  ? "Model is up to date"
+                  : "Generate your first result"
+            }
+          />
+        </div>
       )}
       {designerOpened && (
         <div hidden={mode !== "design"}>

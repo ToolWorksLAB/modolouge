@@ -38,9 +38,15 @@ mock.module("../lib/auth.js", {
       Object.assign(new Error(message), { status }),
   },
 });
-const { readJob, submit, cleanFilename, validId, serviceReady } = await import(
-  "../lib/jobs.js"
-);
+mock.module("../lib/ai-apps.js", {
+  namedExports: {
+    publishedDefinition: async () => {
+      throw new Error("Unexpected published app access");
+    },
+  },
+});
+const { readJob, submit, cleanFilename, validId, serviceReady } =
+  await import("../lib/jobs.js");
 const id = "11111111-1111-4111-8111-111111111111";
 test("a user cannot obtain another user’s result URL", async () => {
   stored = { id, owner: "other", status: "done", resultKey: "private/result" };
