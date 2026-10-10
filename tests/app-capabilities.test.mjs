@@ -71,6 +71,21 @@ test("runtime reconciles actual capabilities and never certifies assembly or bra
     "implemented",
   );
   assert.doesNotThrow(() => validateBlueprint(checked, definition));
+  const answered = reconcileRequirements({
+    ...checked,
+    requirements: checked.requirements.map((r) => ({ ...r, question: "" })),
+    answers: [
+      {
+        id: "assembly-documentation",
+        question: "Which material?",
+        value: "Undecided",
+      },
+    ],
+  });
+  assert.ok(
+    answered.requirements.every((r) => r.question === ""),
+    "Do not reinsert questions the agent has deferred after an answer",
+  );
   assert.equal(
     reconcileRequirements({ ...p, requirements: [] }, checked).requirements
       .length,

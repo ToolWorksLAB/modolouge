@@ -147,7 +147,7 @@ test("real SDK loop reads the graph tool, validates structured output, and recor
       "Invalid connection",
     ),
   );
-  assert.equal(repairModel.doGenerateCalls.length, 5);
+  assert.equal(repairModel.doGenerateCalls.length, 4);
   const refinementModel = new MockLanguageModelV4({
     doGenerate: [
       toolCall("read_definition", {}, "refine-read"),
@@ -178,5 +178,30 @@ test("real SDK loop reads the graph tool, validates structured output, and recor
   }).generate({ prompt: "Change the wording of this existing app only" });
   assert.equal(refinementTests, 0);
   assert.deepEqual(refined.output, plan);
-  assert.equal(refinementModel.doGenerateCalls.length, 3);
+  assert.equal(refinementModel.doGenerateCalls.length, 2);
+  const invalidPlan = structuredClone(plan);
+  invalidPlan.steps[0].controls[0].binding = "invented";
+  const correctionModel = new MockLanguageModelV4({
+    doGenerate: [
+      toolCall("read_definition", {}, "correction-read"),
+      toolCall("validate_app", invalidPlan, "invalid"),
+      toolCall("validate_app", plan, "corrected"),
+    ],
+  });
+  const corrected = await blueprintAgent(context, {
+    model: correctionModel,
+    refinement: true,
+    session: {
+      context: () => context,
+      definition: () => ({
+        controls: [{ name: "r", kind: "number" }],
+        graph: { nodes: [{ id: "sphere" }] },
+      }),
+      test: async () => {
+        throw new Error("Unnecessary Compute call");
+      },
+    },
+  }).generate({ prompt: "Refine the app, preserving the real input" });
+  assert.equal(correctionModel.doGenerateCalls.length, 3);
+  assert.deepEqual(corrected.output, plan);
 });
