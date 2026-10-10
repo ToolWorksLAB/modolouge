@@ -4,5 +4,6 @@
     <Compile Include="../../worker/tools/GhBridge/ArchivePolicy.cs" Link="ArchivePolicy.cs" />
     <Compile Include="../../worker/tools/GhBridge/GraphReader.cs" Link="GraphReader.cs" />
     <Compile Include="../../worker/tools/GhBridge/PreviewSelection.cs" Link="PreviewSelection.cs" />
+    <Compile Include="../../worker/tools/GhBridge/GraphEdits.cs" Link="GraphEdits.cs" />
   </ItemGroup>
 </Project>

@@ -73,4 +73,70 @@ test("real SDK loop reads the graph tool, validates structured output, and recor
   assert.equal(measured.input_tokens, 200);
   assert.equal(measured.output_tokens, 100);
   assert.equal(measured.reasoning_tokens, 20);
+  let tests = 0;
+  const toolCall = (name, input, id) => ({
+    content: [
+      {
+        type: "tool-call",
+        toolCallId: id,
+        toolName: name,
+        input: JSON.stringify(input),
+      },
+    ],
+    finishReason: { unified: "tool-calls" },
+    usage,
+    warnings: [],
+  });
+  const repairModel = new MockLanguageModelV4({
+    doGenerate: [
+      toolCall("read_definition", {}, "read"),
+      toolCall(
+        "test_definition",
+        { reason: "Check candidate", edits: [] },
+        "test-1",
+      ),
+      toolCall(
+        "test_definition",
+        { reason: "Correct candidate", edits: [] },
+        "test-2",
+      ),
+      toolCall("validate_app", plan, "validate"),
+      {
+        content: [{ type: "text", text: JSON.stringify(plan) }],
+        finishReason: { unified: "stop" },
+        usage,
+        warnings: [],
+      },
+    ],
+  });
+  const trace = [];
+  const repaired = await blueprintAgent(context, {
+    model: repairModel,
+    allowEdits: true,
+    session: {
+      context: () => context,
+      definition: () => ({
+        controls: [{ name: "r", kind: "number" }],
+        graph: { nodes: [{ id: "sphere" }] },
+      }),
+      test: async () =>
+        ++tests === 1
+          ? { passed: false, errors: ["Invalid connection"] }
+          : { passed: true, objects: 1 },
+    },
+    report: async (e) => trace.push(e),
+  }).generate({
+    prompt: "Repair and test the definition, then design its app",
+  });
+  assert.equal(tests, 2);
+  assert.deepEqual(repaired.output, plan);
+  assert.ok(
+    trace.some((e) => e.tool === "validate_app" && e.status === "passed"),
+  );
+  assert.ok(
+    JSON.stringify(repairModel.doGenerateCalls[2].prompt).includes(
+      "Invalid connection",
+    ),
+  );
+  assert.equal(repairModel.doGenerateCalls.length, 5);
 });

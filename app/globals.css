@@ -1045,3 +1045,60 @@ td .quiet {
     transition-duration: 0.01ms !important;
   }
 }
+.ai-agent-settings {
+  display: grid;
+  gap: 12px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line, #303638);
+}
+.ai-agent-settings small {
+  color: #9fa7a8;
+}
+.ai-agent-events {
+  list-style: none;
+  padding: 18px;
+  background: #151d19;
+  border: 1px solid #35463b;
+  border-radius: 16px;
+}
+.ai-agent-events li {
+  display: flex;
+  gap: 14px;
+  padding: 8px 0;
+  font-size: 13px;
+}
+.ai-agent-events li span {
+  color: #a8cf8d;
+  text-transform: uppercase;
+  min-width: 64px;
+  font-size: 11px;
+}
+.ai-conversation {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+  max-height: 420px;
+  overflow: auto;
+}
+.ai-conversation article {
+  padding: 18px 22px;
+  border: 1px solid #303638;
+  border-radius: 16px;
+}
+.ai-conversation article.user {
+  margin-left: 10%;
+  background: #16191d;
+}
+.ai-conversation article.assistant {
+  margin-right: 6%;
+  background: #111714;
+}
+.ai-conversation p {
+  white-space: pre-wrap;
+  margin: 10px 0 0;
+}
+.ai-conversation details {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #aab3af;
+}

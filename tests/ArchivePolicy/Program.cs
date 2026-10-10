@@ -58,6 +58,23 @@ if (args.Length > 0)
     try { ArchivePolicy.Validate(shelf, objects, policy); } catch (Exception e) { rejected = e.Message.Contains("Graph Mapper curve"); }
     Check(rejected, "Unreviewed Graph Mapper implementation rejected");
 }
+var sid="11111111-1111-4111-8111-111111111111";
+var cloneId="22222222-2222-4222-8222-222222222222";
+var editXml=XDocument.Parse($"<archive><chunk name='DefinitionObjects'><items><item name='ObjectCount'>1</item></items><chunks><chunk name='Object' index='0'><items><item name='GUID'>57da07bd-ecab-415d-9d86-af36d7073abc</item><item name='Name'>Number Slider</item></items><chunks><chunk name='Container'><items><item name='InstanceGuid'>{sid}</item><item name='NickName'>Size</item></items><chunks><chunk name='Slider'><items><item name='Min'>1</item><item name='Max'>20</item><item name='Value'>5</item></items></chunk></chunks></chunk></chunks></chunk></chunks></chunk></archive>");
+void Edit(XDocument doc,object[] ops) => GraphEdits.Apply(doc,JsonSerializer.SerializeToElement(ops));
+Edit(editXml,[new {op="slider",nodeId=sid,value=7}]);
+Check(editXml.Descendants("item").Single(x=>(string?)x.Attribute("name")=="Value").Value=="7","Graph edit changes the saved slider value");
+Edit(editXml,[new {op="clone",nodeId=sid,newId=cloneId,text="Other size"}]);
+var editedGraph=GraphReader.Read(editXml.Descendants("chunk").Where(x=>(string?)x.Attribute("name")=="Object"));
+Check(editedGraph.nodes.Length==2 && editedGraph.nodes.Any(n=>n.id==cloneId && n.label=="Other size"),"Clone has a new identity and label");
+Edit(editXml,[new {op="remove",nodeId=cloneId}]);
+Check(editXml.Descendants("item").Single(x=>(string?)x.Attribute("name")=="ObjectCount").Value=="1","Removing a node updates archive counts");
+var before=editXml.ToString();
+var invalid=false;
+try{Edit(new XDocument(editXml),[new {op="slider",nodeId=sid,value=100}]);}catch{invalid=true;}
+Check(invalid && editXml.ToString()==before,"An out-of-range candidate fails without changing the original");
+invalid=false;try{Edit(new XDocument(editXml),[new {op="execute",nodeId=sid}]);}catch{invalid=true;}
+Check(invalid,"Unknown edit operations rejected");
 Console.WriteLine($"ArchivePolicy: {passed} assertions passed.");
 void Check(bool success, string message) { if (!success) throw new Exception(message); passed++; Console.WriteLine("PASS " + message); }
 void Reject(XDocument xml, Action<XDocument> mutate, string message)

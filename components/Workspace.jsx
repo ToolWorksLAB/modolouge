@@ -114,16 +114,39 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
     setDesignerSeed(seed);
     input.current.click();
   }
-  function openAIApp(result) {
+  async function openAIApp(result) {
+    let preview = null;
+    if (result.resultUrl) {
+      try {
+        const response = await fetch(result.resultUrl);
+        if (response.ok) {
+          const data = await response.json();
+          preview = data.geometry || data;
+        }
+      } catch {
+        /* The saved app can still be opened and run again. */
+      }
+    }
     setDefinition(result.definition);
     setValues(
       Object.fromEntries(
         result.definition.controls.map((c) => [c.name, c.value]),
       ),
     );
-    setObjects([]);
-    setDataOutputs([]);
-    setSolvedValues(null);
+    setObjects(preview?.objects || []);
+    setDataOutputs(preview?.dataOutputs || []);
+    setDuration(preview?.duration ?? null);
+    setWarnings([
+      ...(result.definition.warnings || []),
+      ...(preview?.warnings || []),
+    ]);
+    setSolvedValues(
+      preview
+        ? Object.fromEntries(
+            result.definition.controls.map((c) => [c.name, c.value]),
+          )
+        : null,
+    );
     setAppSeed(result);
     setMode("ai");
     setAppLibrary(0);

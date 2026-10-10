@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import AIAppRunner from "./AIAppRunner.jsx";
-import { api } from "../lib/client-api.js";
+import { api, agentRequest } from "../lib/client-api.js";
 
 export default function AIStudio({
   definition,
@@ -26,6 +26,9 @@ export default function AIStudio({
     [publishConfirm, setPublishConfirm] = useState(false),
     [library, setLibrary] = useState(null),
     [copied, setCopied] = useState(false);
+  const [allowEdits, setAllowEdits] = useState(false),
+    [events, setEvents] = useState([]),
+    [versions, setVersions] = useState(null);
   const dirty =
     !!plan && JSON.stringify(plan) !== JSON.stringify(app?.blueprint);
   const locked = !!pending || !!runner.busy;
@@ -52,17 +55,26 @@ export default function AIStudio({
   }, [librarySignal]);
   async function generate() {
     await action("Reading the graph and shaping your app…", async () => {
-      const result = await request("apps/generate", {
+      setEvents([]);
+      const body = {
         definitionId: definition.id,
         appId: app?.id,
         revision: app?.revision || 0,
         prompt,
         consent,
-      });
+        allowEdits: member && allowEdits,
+      };
+      const result =
+        request === api
+          ? await agentRequest(body, (event) =>
+              setEvents((previous) => [...previous, event].slice(-20)),
+            )
+          : await request("apps/generate", body);
       setApp(result);
       setPlan(result.blueprint);
       setReview(false);
       setPrompt("");
+      onOpen?.(result);
     });
   }
   async function save() {
@@ -138,6 +150,98 @@ export default function AIStudio({
             </small>
           </div>
         </div>
+      )}
+      <div className="ai-agent-settings">
+        <span className="eyebrow">GPT-6.1 SOL / DESIGN · TEST · REFINE</span>
+        <label className="ai-consent">
+          <input
+            type="checkbox"
+            checked={allowEdits}
+            disabled={locked || !member}
+            onChange={(e) => setAllowEdits(e.target.checked)}
+          />
+          Allow the agent to edit and test a copy of the Grasshopper definition
+        </label>
+        <small>
+          {member
+            ? "Up to two Compute tests per turn. Successful changes are versioned; you can restore an earlier draft."
+            : "Verify your email to enable definition editing. UI drafting can still test the current model."}
+        </small>
+      </div>
+      {events.length > 0 && (
+        <ol
+          className="ai-agent-events"
+          aria-label="Agent activity"
+          aria-live="polite"
+        >
+          {events.map((event, i) => (
+            <li key={i}>
+              <span>{event.status}</span>
+              {event.message}
+            </li>
+          ))}
+        </ol>
+      )}
+      {!!app?.conversation?.length && (
+        <section className="ai-conversation" aria-label="Design conversation">
+          {app.conversation.slice(-6).map((message, i) => (
+            <article key={i} className={message.role}>
+              <span className="eyebrow">
+                {message.role === "user"
+                  ? "YOU"
+                  : "MODOLOUGE / " +
+                    (message.model?.replace("openai/", "") || "AI")}
+              </span>
+              <p>{message.text}</p>
+              {message.events?.length > 0 && (
+                <details>
+                  <summary>What was checked</summary>
+                  <ul>
+                    {message.events.map((event, j) => (
+                      <li key={j}>
+                        {event.status}: {event.message}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            </article>
+          ))}
+        </section>
+      )}
+      {versions !== null && (
+        <section className="ai-library">
+          <div className="panel-heading">
+            <h3>Earlier versions</h3>
+            <button className="quiet" onClick={() => setVersions(null)}>
+              Close history
+            </button>
+          </div>
+          <p>
+            Restoring creates another draft. Your published app stays unchanged.
+          </p>
+          {versions.map((v) => (
+            <button
+              className="quiet"
+              key={v.revision}
+              disabled={locked}
+              onClick={() =>
+                action("Restoring version…", async () => {
+                  const result = await request("apps/restore", {
+                    id: app.id,
+                    revision: app.revision,
+                    targetRevision: v.revision,
+                  });
+                  onOpen?.(result);
+                  setVersions(null);
+                })
+              }
+            >
+              Restore version {v.revision} ↶
+            </button>
+          ))}
+          {!versions.length && <p>No earlier versions yet.</p>}
+        </section>
       )}
       {library !== null && (
         <section className="ai-library">
@@ -270,6 +374,17 @@ export default function AIStudio({
               </strong>
             </div>
             <div>
+              <button
+                className="quiet"
+                disabled={locked}
+                onClick={() =>
+                  action("Opening version history…", async () =>
+                    setVersions(await request(`apps/${app.id}/versions`)),
+                  )
+                }
+              >
+                Version history
+              </button>
               <button className="quiet" onClick={() => setReview(!review)}>
                 {review ? "Hide editor" : "Edit steps & style"}
               </button>
@@ -575,8 +690,10 @@ export default function AIStudio({
               <span className="eyebrow">KEEP THE CONVERSATION GOING</span>
               <h3>What would make this better?</h3>
               <p>
-                Ask for clearer language, a different order or fewer steps. Your
-                published version stays unchanged.
+                Describe the change you want. The agent can revise the
+                interface, edit the enabled Grasshopper operations, test the
+                model and use errors to improve its next attempt. Your published
+                version stays unchanged.
               </p>
             </div>
             <div>
@@ -587,7 +704,7 @@ export default function AIStudio({
                 value={prompt}
                 disabled={locked}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Make the first step simpler. Put the detailed pattern controls together."
+                placeholder="Add another shelf, make the default width larger, and simplify the controls for a client."
               />
               <label className="ai-consent">
                 <input

@@ -15,6 +15,13 @@ try
     var policyFile = Path.Combine(AppContext.BaseDirectory, "component-policy.json");
     var policy = JsonDocument.Parse(File.ReadAllText(policyFile)).RootElement.EnumerateArray().Select(x => x.GetProperty("id").GetString()!).ToHashSet(StringComparer.OrdinalIgnoreCase);
     ArchivePolicy.Validate(xml, originalObjects, policy);
+    if (args.Length == 3 && args[1] == "--patch")
+    {
+        var edits = JsonDocument.Parse(File.ReadAllText(args[2]));
+        GraphEdits.Apply(xml, edits.RootElement);
+        originalObjects = objectList.Elements("chunk").ToArray();
+        ArchivePolicy.Validate(xml, originalObjects, policy);
+    }
     // Preserve only the definition structure consumed by the reviewed components.
     foreach (var chunk in definition.Element("chunks")!.Elements("chunk").ToArray())
         if (!new[] { "DefinitionObjects", "DocumentHeader", "DefinitionProperties" }.Contains((string?)chunk.Attribute("name"))) chunk.Remove();
