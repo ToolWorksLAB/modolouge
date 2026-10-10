@@ -115,6 +115,11 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
     input.current.click();
   }
   async function openAIApp(result) {
+    if (result.geometryUnchanged && result.id === appSeed?.id && definition) {
+      setAppSeed({ ...result, definition });
+      setMode("ai");
+      return;
+    }
     let preview = null;
     if (result.resultUrl) {
       try {
@@ -186,7 +191,7 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
     setObjects(result.objects || []);
     setDataOutputs(result.dataOutputs || []);
     setDuration(result.duration);
-    setSolvedValues({ ...v });
+    setSolvedValues(result.errors?.length ? null : { ...v });
     setWarnings([
       ...(def.warnings || []),
       ...(result.errors || []),
@@ -479,6 +484,7 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
             onChange={changeValue}
             objects={objects}
             dataOutputs={dataOutputs}
+            solvedValues={solvedValues}
             onRun={run}
             busy={busy}
             canRun={needsRun && !!status?.online}

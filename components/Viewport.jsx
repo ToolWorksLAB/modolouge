@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-export default function Viewport({ objects = [] }) {
+export default function Viewport({ objects = [], captureRef }) {
   const host = useRef(),
     api = useRef(),
     [wire, setWire] = useState(false),
@@ -79,6 +79,11 @@ export default function Viewport({ objects = [] }) {
       r.render(scene, camera);
     });
     api.current = { r, scene, camera, model, fit };
+    if (captureRef)
+      captureRef.current = () => {
+        r.render(scene, camera);
+        return r.domElement.toDataURL("image/png");
+      };
     return () => {
       resize.disconnect();
       r.setAnimationLoop(null);
@@ -90,6 +95,7 @@ export default function Viewport({ objects = [] }) {
       r.dispose();
       r.domElement.remove();
       api.current = null;
+      if (captureRef) captureRef.current = null;
     };
   }, []);
   useEffect(() => {

@@ -3,6 +3,11 @@ import assert from "node:assert/strict";
 import { MockLanguageModelV4 } from "ai/test";
 import { blueprintAgent } from "../lib/ai-agent.js";
 import { usageFromSteps } from "../lib/ai-blueprint.js";
+import {
+  emptyBrand,
+  emptySpecification,
+  emptyWorkflow,
+} from "../lib/app-capabilities.js";
 test("real SDK loop reads the graph tool, validates structured output, and records both calls", async () => {
   const plan = {
     title: "Study",
@@ -15,6 +20,10 @@ test("real SDK loop reads the graph tool, validates structured output, and recor
     reasoning: "A sphere with one input",
     questions: [],
     warnings: [],
+    workflow: emptyWorkflow(),
+    brand: emptyBrand(),
+    specification: emptySpecification(),
+    requirements: [],
     steps: [
       {
         id: "shape",
@@ -139,4 +148,35 @@ test("real SDK loop reads the graph tool, validates structured output, and recor
     ),
   );
   assert.equal(repairModel.doGenerateCalls.length, 5);
+  const refinementModel = new MockLanguageModelV4({
+    doGenerate: [
+      toolCall("read_definition", {}, "refine-read"),
+      toolCall("validate_app", plan, "refine-validate"),
+      {
+        content: [{ type: "text", text: JSON.stringify(plan) }],
+        finishReason: { unified: "stop" },
+        usage,
+        warnings: [],
+      },
+    ],
+  });
+  let refinementTests = 0;
+  const refined = await blueprintAgent(context, {
+    model: refinementModel,
+    refinement: true,
+    session: {
+      context: () => context,
+      definition: () => ({
+        controls: [{ name: "r", kind: "number" }],
+        graph: { nodes: [{ id: "sphere" }] },
+      }),
+      test: async () => {
+        refinementTests++;
+        throw new Error("Unnecessary Compute call");
+      },
+    },
+  }).generate({ prompt: "Change the wording of this existing app only" });
+  assert.equal(refinementTests, 0);
+  assert.deepEqual(refined.output, plan);
+  assert.equal(refinementModel.doGenerateCalls.length, 3);
 });

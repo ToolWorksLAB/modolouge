@@ -44,7 +44,7 @@ export async function POST(req, { params }) {
     if (manager) throw failure("Not found.", 404);
     const user = await requireActor();
     const raw = await req.text();
-    if (raw.length > 80000) throw failure("Request too large.", 413);
+    if (raw.length > 250000) throw failure("Request too large.", 413);
     const body = JSON.parse(raw),
       action = ((await params).action || []).join("/");
     if (action === "generate" && body.stream === true) {

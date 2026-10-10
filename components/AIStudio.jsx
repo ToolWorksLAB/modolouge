@@ -1,6 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import AIAppRunner from "./AIAppRunner.jsx";
+import AppConversation from "./AppConversation.jsx";
+import AppRequirements from "./AppRequirements.jsx";
+import AppCapabilityEditor from "./AppCapabilityEditor.jsx";
 import { api, agentRequest } from "../lib/client-api.js";
 
 export default function AIStudio({
@@ -21,12 +24,14 @@ export default function AIStudio({
     [prompt, setPrompt] = useState(brief),
     [pending, setPending] = useState(""),
     [error, setError] = useState(""),
-    [consent, setConsent] = useState(false),
+    [consent, setConsent] = useState(!!initialApp?.conversation?.length),
     [review, setReview] = useState(false),
     [publishConfirm, setPublishConfirm] = useState(false),
     [library, setLibrary] = useState(null),
     [copied, setCopied] = useState(false);
-  const [allowEdits, setAllowEdits] = useState(false),
+  const [allowEdits, setAllowEdits] = useState(
+      initialApp?.editPermission || false,
+    ),
     [events, setEvents] = useState([]),
     [versions, setVersions] = useState(null);
   const dirty =
@@ -53,14 +58,16 @@ export default function AIStudio({
   useEffect(() => {
     if (librarySignal) showLibrary();
   }, [librarySignal]);
-  async function generate() {
-    await action("Reading the graph and shaping your app…", async () => {
+  async function generate(message = prompt) {
+    if (typeof message !== "string") message = prompt;
+    await action("Updating your app…", async () => {
+      const saved = dirty ? await save() : app;
       setEvents([]);
       const body = {
         definitionId: definition.id,
-        appId: app?.id,
-        revision: app?.revision || 0,
-        prompt,
+        appId: saved?.id,
+        revision: saved?.revision || 0,
+        prompt: message,
         consent,
         allowEdits: member && allowEdits,
       };
@@ -75,7 +82,7 @@ export default function AIStudio({
       setReview(false);
       setPrompt("");
       onBrief?.("");
-      onOpen?.(result);
+      onOpen?.({ ...result, editPermission: allowEdits });
     });
   }
   async function save() {
@@ -152,24 +159,27 @@ export default function AIStudio({
           </div>
         </div>
       )}
-      <div className="ai-agent-settings">
-        <span className="eyebrow">GPT-6.1 SOL / DESIGN · TEST · REFINE</span>
-        <label className="ai-consent">
-          <input
-            type="checkbox"
-            checked={allowEdits}
-            disabled={locked || !member}
-            onChange={(e) => setAllowEdits(e.target.checked)}
-          />
-          Allow the agent to edit and test a copy of the Grasshopper definition
-        </label>
-        <small>
-          {member
-            ? "Up to two Compute tests per turn. Successful changes are versioned; you can restore an earlier draft."
-            : "Verify your email to enable definition editing. UI drafting can still test the current model."}
-        </small>
-      </div>
-      {events.length > 0 && (
+      {!plan && (
+        <div className="ai-agent-settings">
+          <span className="eyebrow">GPT-6.1 SOL / DESIGN · TEST · REFINE</span>
+          <label className="ai-consent">
+            <input
+              type="checkbox"
+              checked={allowEdits}
+              disabled={locked || !member}
+              onChange={(e) => setAllowEdits(e.target.checked)}
+            />
+            Allow the agent to edit and test a copy of the Grasshopper
+            definition
+          </label>
+          <small>
+            {member
+              ? "Up to two Compute tests per turn. Successful changes are versioned; you can restore an earlier draft."
+              : "Verify your email to enable definition editing. UI drafting can still test the current model."}
+          </small>
+        </div>
+      )}
+      {!plan && events.length > 0 && (
         <ol
           className="ai-agent-events"
           aria-label="Agent activity"
@@ -182,33 +192,6 @@ export default function AIStudio({
             </li>
           ))}
         </ol>
-      )}
-      {!!app?.conversation?.length && (
-        <section className="ai-conversation" aria-label="Design conversation">
-          {app.conversation.slice(-6).map((message, i) => (
-            <article key={i} className={message.role}>
-              <span className="eyebrow">
-                {message.role === "user"
-                  ? "YOU"
-                  : "MODOLOUGE / " +
-                    (message.model?.replace("openai/", "") || "AI")}
-              </span>
-              <p>{message.text}</p>
-              {message.events?.length > 0 && (
-                <details>
-                  <summary>What was checked</summary>
-                  <ul>
-                    {message.events.map((event, j) => (
-                      <li key={j}>
-                        {event.status}: {event.message}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              )}
-            </article>
-          ))}
-        </section>
       )}
       {versions !== null && (
         <section className="ai-library">
@@ -542,7 +525,25 @@ export default function AIStudio({
                     Accent
                     <select
                       value={plan.accent}
-                      onChange={(e) => change("accent", e.target.value)}
+                      onChange={(e) => {
+                        const accent = e.target.value;
+                        setPlan((p) => ({
+                          ...p,
+                          accent,
+                          ...(p.brand
+                            ? {
+                                brand: {
+                                  ...p.brand,
+                                  primary: {
+                                    pink: "#ec188e",
+                                    green: "#6f9248",
+                                    blue: "#497fb6",
+                                  }[accent],
+                                },
+                              }
+                            : {}),
+                        }));
+                      }}
                     >
                       <option value="pink">Studio pink</option>
                       <option value="green">Grasshopper green</option>
@@ -561,6 +562,11 @@ export default function AIStudio({
                   </label>
                 </div>
               </div>
+              <AppCapabilityEditor
+                plan={plan}
+                change={change}
+                onError={setError}
+              />
               <div className="ai-step-editor">
                 {plan.steps.map((s, index) => (
                   <details key={s.id}>
@@ -680,53 +686,48 @@ export default function AIStudio({
               </div>
             </section>
           )}
-          <AIAppRunner
-            key={app.id}
-            blueprint={plan}
-            definition={definition}
-            {...runner}
-          />
-          <section className="ai-refine">
-            <div>
-              <span className="eyebrow">KEEP THE CONVERSATION GOING</span>
-              <h3>What would make this better?</h3>
-              <p>
-                Describe the change you want. The agent can revise the
-                interface, edit the enabled Grasshopper operations, test the
-                model and use errors to improve its next attempt. Your published
-                version stays unchanged.
-              </p>
-            </div>
-            <div>
-              <textarea
-                aria-label="Refine your app"
-                rows={3}
-                maxLength={4000}
-                value={prompt}
+          <div className="ai-workbench">
+            <AppConversation
+              conversation={app.conversation || []}
+              prompt={prompt}
+              onPrompt={(text) => {
+                setPrompt(text);
+                onBrief?.(text);
+              }}
+              onSend={generate}
+              pending={pending === "Updating your app…" ? pending : ""}
+              disabled={locked}
+              consent={consent}
+              onConsent={setConsent}
+              allowEdits={allowEdits}
+              onAllowEdits={setAllowEdits}
+              member={member}
+              events={events}
+              dirty={dirty}
+            />
+            <div className="ai-workbench-preview">
+              <AppRequirements
+                plan={plan}
+                onAnswers={(answers) => change("answers", answers)}
                 disabled={locked}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Add another shelf, make the default width larger, and simplify the controls for a client."
+                consent={consent}
+                onContinue={() => {
+                  const message =
+                    "Use my saved answers to refine this app. Complete the supported requirements and keep remaining needs visible.";
+                  setPrompt(message);
+                  generate(message);
+                }}
               />
-              <label className="ai-consent">
-                <input
-                  type="checkbox"
-                  checked={consent}
-                  onChange={(e) => setConsent(e.target.checked)}
-                />
-                Send this brief and the saved graph metadata to AI.
-              </label>
-              <button
-                className="button quiet"
-                disabled={locked || !prompt.trim() || !consent || dirty}
-                onClick={generate}
-              >
-                Refine the draft ↗
-              </button>
-              {dirty && (
-                <small>Save your edits before asking AI to refine them.</small>
-              )}
+              <AIAppRunner
+                key={app.id}
+                blueprint={plan}
+                revision={app.revision}
+                draftDirty={dirty}
+                definition={definition}
+                {...runner}
+              />
             </div>
-          </section>
+          </div>
         </>
       )}
     </div>

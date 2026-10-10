@@ -65,7 +65,7 @@ export default function PublishedApp({ app }) {
           setObjects(result.objects || []);
           setDataOutputs(result.dataOutputs || []);
           setWarnings([...(result.errors || []), ...(result.warnings || [])]);
-          setSolved({ ...values });
+          setSolved(result.errors?.length ? null : { ...values });
           return;
         }
         if (["failed", "expired"].includes(job.status))
@@ -108,10 +108,12 @@ export default function PublishedApp({ app }) {
       )}
       <AIAppRunner
         blueprint={app.blueprint}
+        revision={app.revision}
         definition={app.definition}
         values={values}
         onChange={(name, value) => setValues((v) => ({ ...v, [name]: value }))}
         objects={objects}
+        solvedValues={solved}
         dataOutputs={dataOutputs}
         busy={busy}
         onRun={run}

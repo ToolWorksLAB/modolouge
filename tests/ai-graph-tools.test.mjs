@@ -1,6 +1,7 @@
 import test, { mock } from "node:test";
 import assert from "node:assert/strict";
 let results = [],
+  restores = 0,
   submitted = [],
   events = [];
 const original = {
@@ -22,7 +23,10 @@ mock.module("../lib/jobs.js", {
 });
 mock.module("../lib/ai-apps.js", {
   exports: {
-    restoreDraft: async () => ({ definition: structuredClone(original) }),
+    restoreDraft: async () => {
+      restores++;
+      return { definition: structuredClone(original) };
+    },
   },
 });
 mock.module("../lib/auth.js", {
@@ -32,11 +36,12 @@ mock.module("../lib/auth.js", {
 });
 const { graphSession } = await import("../lib/ai-graph-tools.js");
 const create = async (kind = "member", allowEdits = true) => {
+  restores = 0;
   submitted = [];
   events = [];
   return graphSession(
     { kind, sk: "owner" },
-    { id: "app" },
+    { id: "app", definition_id: original.id, metadata: original },
     new Request("https://example.test"),
     {
       allowEdits,
@@ -87,6 +92,14 @@ test("guest and unchecked edit requests cannot enqueue mutations", async () => {
     assert.equal(r.passed, false);
     assert.equal(submitted.length, 0);
   }
+});
+test("presentation-only sessions neither restore archives nor enqueue Compute", async () => {
+  const session = await create();
+  assert.equal(session.definition().id, original.id);
+  assert.equal(session.attempts(), 0);
+  assert.equal(session.candidate(), null);
+  assert.equal(submitted.length, 0);
+  assert.equal(restores, 0);
 });
 test("a failed second test never allows the request to report success from an earlier candidate", async () => {
   mock.method(globalThis, "fetch", async () => Response.json(results.shift()));

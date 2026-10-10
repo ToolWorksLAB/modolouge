@@ -124,7 +124,7 @@ test("public apps omit archives, private graph, owner and AI deliberation", asyn
     archive_key: "private/file",
     filename: "secret.gh",
     revision: 1,
-    blueprint: plan,
+    blueprint: { ...plan, workflow: { review: true, pdf: true, assemblyRequested: true }, brand: { name: "Example" }, specification: {material:"User supplied"}, answers: [{value:"private answer"}], requirements:[{title:"private requirement"}] },
     controls: [],
   };
   const result = await publishedApp(slug);
@@ -132,6 +132,10 @@ test("public apps omit archives, private graph, owner and AI deliberation", asyn
   assert.equal(result.owner_id, undefined);
   assert.equal(result.blueprint.reasoning, undefined);
   assert.equal(result.blueprint.questions, undefined);
+  assert.equal(result.blueprint.answers, undefined);
+  assert.equal(result.blueprint.requirements, undefined);
+  assert.equal(result.blueprint.workflow.pdf, true);
+  assert.equal(result.blueprint.specification.material, "User supplied");
   assert.equal(result.blueprint.steps[0].evidence, undefined);
   blocked = true;
   await assert.rejects(publishedApp(slug), { status: 404 });

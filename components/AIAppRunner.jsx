@@ -1,6 +1,13 @@
 "use client";
-import { useState, useId } from "react";
+import { useState, useId, useRef, useEffect } from "react";
 import Viewport from "./Viewport.jsx";
+import ConfigurationReview from "./ConfigurationReview.jsx";
+import {
+  configurationKey,
+  confirmConfiguration,
+  canConfirmConfiguration,
+  foreground,
+} from "../lib/app-capabilities.js";
 
 export default function AIAppRunner({
   blueprint,
@@ -13,7 +20,31 @@ export default function AIAppRunner({
   busy,
   canRun,
   runHint,
+  solvedValues = null,
+  revision = 0,
+  draftDirty = false,
 }) {
+  const captureRef = useRef(null);
+  const [phase, setPhase] = useState("configure"),
+    [confirmation, setConfirmation] = useState(null),
+    [preview, setPreview] = useState(null);
+  const input = { blueprint, definition, values, revision },
+    key = configurationKey(input);
+  useEffect(() => {
+    setConfirmation(null);
+    setPhase("configure");
+    setPreview(null);
+  }, [key]);
+  const ready = canConfirmConfiguration({
+    objects,
+    values,
+    solvedValues,
+    busy,
+    invalid: draftDirty,
+  });
+  const confirmed = confirmation?.key === key ? confirmation.snapshot : null;
+  const workflow = blueprint.workflow;
+  const brand = blueprint.brand;
   const [position, setPosition] = useState(0),
     prefix = useId();
   const index = Math.min(position, blueprint.steps.length - 1),
@@ -25,13 +56,66 @@ export default function AIAppRunner({
     <section
       className={`ai-runner ai-theme-${blueprint.theme} ai-accent-${blueprint.accent} ai-layout-${blueprint.arrangement}`}
       aria-label={blueprint.title}
+      style={
+        brand
+          ? {
+              "--accent": brand.primary,
+              "--action-ink": foreground(brand.primary),
+              "--app-font":
+                brand.font === "mono"
+                  ? "monospace"
+                  : brand.font === "system"
+                    ? "system-ui, sans-serif"
+                    : "Poppins, sans-serif",
+            }
+          : undefined
+      }
     >
       <header className="ai-app-heading">
-        <span className="eyebrow">A PARAMETRIC EXPERIENCE</span>
+        {blueprint.logo && (
+          <img
+            className="app-logo-preview"
+            src={blueprint.logo}
+            alt={brand?.name || "App logo"}
+          />
+        )}
+        <span className="eyebrow">
+          {brand?.name || "A PARAMETRIC EXPERIENCE"}
+        </span>
         <h2>{blueprint.title}</h2>
         <p>{blueprint.description}</p>
       </header>
-      {blueprint.steps.length > 1 && (
+      {workflow?.review && (
+        <nav className="configuration-nav" aria-label="Configuration journey">
+          <button
+            aria-current={phase === "configure" ? "step" : undefined}
+            onClick={() => setPhase("configure")}
+          >
+            01 Configure
+          </button>
+          <button
+            aria-current={phase === "review" && !confirmed ? "step" : undefined}
+            onClick={() => {
+              setPreview(captureRef.current?.() || null);
+              setPhase("review");
+            }}
+          >
+            02 Review
+          </button>
+          {workflow.pdf && (
+            <button
+              disabled={!confirmed}
+              aria-current={
+                phase === "review" && confirmed ? "step" : undefined
+              }
+              onClick={() => setPhase("review")}
+            >
+              03 Download
+            </button>
+          )}
+        </nav>
+      )}
+      {phase === "configure" && blueprint.steps.length > 1 && (
         <nav className="ai-steps" aria-label="App steps">
           {blueprint.steps.map((s, i) => (
             <button
@@ -45,7 +129,7 @@ export default function AIAppRunner({
           ))}
         </nav>
       )}
-      <div className="ai-runner-body">
+      <div className="ai-runner-body" hidden={phase !== "configure"}>
         <div className="ai-inputs">
           <div className="ai-step-heading">
             <span className="eyebrow">
@@ -150,7 +234,7 @@ export default function AIAppRunner({
             <span className="eyebrow">LIVE MODEL</span>
             <span>Drag to orbit · scroll to zoom</span>
           </div>
-          <Viewport objects={objects} />
+          <Viewport objects={objects} captureRef={captureRef} />
           {!objects.length && !busy && (
             <div className="ai-model-empty">
               Your model starts here.
@@ -176,6 +260,41 @@ export default function AIAppRunner({
           </div>
         </div>
       </div>
+      {workflow?.review && phase === "configure" && (
+        <div className="configuration-start">
+          <p>
+            {draftDirty
+              ? "Save your app settings before confirming a configuration."
+              : "When the model is ready, review the exact values and keep a record."}
+          </p>
+          <button
+            className="button primary"
+            disabled={!!busy}
+            onClick={() => {
+              setPreview(captureRef.current?.() || null);
+              setPhase("review");
+            }}
+          >
+            Review configuration →
+          </button>
+        </div>
+      )}
+      {phase === "review" && (
+        <ConfigurationReview
+          key={key}
+          input={input}
+          ready={ready}
+          preview={preview}
+          confirmed={confirmed}
+          onConfirm={async () => {
+            if (!ready) return;
+            const snapshot = await confirmConfiguration(input, preview);
+            setConfirmation({ key, snapshot });
+          }}
+          onBack={() => setPhase("configure")}
+          pdfEnabled={workflow?.pdf}
+        />
+      )}
       {dataOutputs.length > 0 && (
         <details className="ai-results">
           <summary>Model results ({dataOutputs.length})</summary>
