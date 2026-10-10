@@ -74,6 +74,7 @@ export default function AIStudio({
       setPlan(result.blueprint);
       setReview(false);
       setPrompt("");
+      onBrief?.("");
       onOpen?.(result);
     });
   }
