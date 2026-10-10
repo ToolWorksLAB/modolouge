@@ -2,7 +2,7 @@
 
 The owner's `shelf.gh` exposed a compatibility gap on 2026-10-10: Rectangle and 17 other standard component types were missing from the public worker's allowlist. The previous error incorrectly implied that an unlisted component must be a plugin.
 
-The policy now contains 48 reviewed built-in component types. IDs and implementations were checked against the installed McNeel Rhino 8 Grasshopper assemblies. This is a bounded compatibility expansion, not support for every built-in component.
+The shelf release brought the policy to 48 reviewed built-in component types. The subsequent [mesh benchmark](mesh-benchmark.md) expanded it to 62. IDs and implementations were checked against the installed McNeel Rhino 8 Grasshopper assemblies. This is a bounded compatibility expansion, not support for every built-in component.
 
 ## Expected archive and geometry
 

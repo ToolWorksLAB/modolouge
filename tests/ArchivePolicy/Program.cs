@@ -9,12 +9,26 @@ foreach (var expression in new[] { "x.ToString()", "System.IO.File.ReadAllText(x
 
 var policy = JsonDocument.Parse(File.ReadAllText("worker/component-policy.json")).RootElement.EnumerateArray().Select(x => x.GetProperty("id").GetString()!).ToHashSet(StringComparer.OrdinalIgnoreCase);
 Check(policy.Contains("d93100b6-d50b-40b2-831a-814659dc38e3"), "Rectangle enabled");
+foreach (var id in new[] { "58cf422f-19f7-42f7-9619-fc198c51c657", "d1a28e95-cf96-4936-bf34-8bf142d731bf", "fbac3e32-f100-4292-8692-77240a42fd1a", "902289da-28dc-454b-98d4-b8f8aa234516", "2fcc2743-8339-4cdf-a046-a1f17439191d", "f44b92b0-3b5b-493a-86f4-fd7408c3daf3", "7663efbb-d9b8-4c6a-a0da-c3750a7bbe77", "ba2d8f57-0738-42b4-b5a5-fe4d853517eb", "e2c0f9db-a862-4bd9-810c-ef2610e7a56f", "288cfe66-f3dc-4c9a-bb96-ef81f47fe724", "1e936df3-0eea-4246-8549-514cb8862b7a", "1602b2cc-007c-4b79-8926-0067c6184e44", "3dfb9a77-6e05-4016-9f20-94f78607d672", "0d2ccfb3-9d41-4759-9452-da6a522c3eaa" })
+    Check(policy.Contains(id), "Reviewed mesh benchmark built-in enabled: " + id);
+Check(!policy.Contains("4098ec7a-819a-4ced-9eee-86835d7e21c9"), "Weaverbird is not silently enabled");
 var safe = XDocument.Parse("<archive><chunk name='DefinitionObjects'><chunks /></chunk><item name='InternalExpression'>-x</item><item name='Stream'>false</item></archive>");
 ArchivePolicy.Validate(safe, [], policy);
 Reject(new XDocument(new XElement(safe.Root!)), x => x.Root!.Add(new XElement("item", new XAttribute("name", "InternalExpression"), "eval(x)")), "Expression functions rejected");
 Reject(new XDocument(new XElement(safe.Root!)), x => x.Root!.Add(new XElement("item", new XAttribute("name", "ScriptSource"), "arbitrary")), "Scripts rejected");
 Reject(new XDocument(new XElement(safe.Root!)), x => x.Root!.Add(new XElement("item", new XAttribute("name", "StreamPath"), "/tmp/file")), "Panel file streaming rejected");
 Reject(new XDocument(new XElement(safe.Root!)), x => x.Root!.Add(new XElement("chunk", new XAttribute("name", "DefinitionObjects"))), "Nested definitions rejected");
+foreach (var field in new[] { "rdk_xml", "rdk_rmtl", "rdk_id" })
+    Reject(new XDocument(safe), x => x.Root!.Add(new XElement("item", new XAttribute("name", field), "untrusted")), "External or plugin render material rejected: " + field);
+var basicMaterial = new XDocument(safe);
+basicMaterial.Root!.Add(new XElement("item", new XAttribute("name", "rdk_id"), Guid.Empty.ToString()));
+ArchivePolicy.Validate(basicMaterial, [], policy);
+Check(true, "Empty render material reference remains supported");
+var unknowns = Enumerable.Range(0, 8).Select(i => XElement.Parse($"<chunk><items><item name='GUID'>{Guid.NewGuid()}</item><item name='Name'>Unknown {i}</item></items></chunk>")).ToList();
+unknowns.Add(XElement.Parse("<chunk><items><item name='GUID'>4098ec7a-819a-4ced-9eee-86835d7e21c9</item><item name='Name'>Saved custom label</item></items></chunk>"));
+var diagnostic = "";
+try { ArchivePolicy.Validate(safe, unknowns.ToArray(), policy); } catch (Exception e) { diagnostic = e.Message; }
+Check(diagnostic.StartsWith("This file uses Weaverbird") && diagnostic.Contains("Unknown 7"), "Known plugin identified by GUID even after six other unknown types");
 
 var source = Node("geometry", "919e146f-30ae-4aae-be34-4d72f555e7da", true);
 var material = Node("material", "9c53bac0-ba66-40bd-8154-ce9829b9db1a", false);

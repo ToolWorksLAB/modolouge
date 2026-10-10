@@ -8,12 +8,15 @@ public static class ArchivePolicy
     public const string Bezier = "7026a6d2-9b94-4314-b6d3-6850eff942fe";
     public static void Validate(XDocument xml, XElement[] objects, HashSet<string> policy)
     {
-        var unsupported = objects.Where(o => !policy.Contains(Value(o, "GUID")))
+        var unsupportedObjects = objects.Where(o => !policy.Contains(Value(o, "GUID"))).ToArray();
+        var weaverbird = unsupportedObjects.Any(o => Value(o, "GUID").Equals("4098ec7a-819a-4ced-9eee-86835d7e21c9", StringComparison.OrdinalIgnoreCase));
+        var unsupported = unsupportedObjects
             .Select(o => $"{Value(o, "Name")} ({Value(o, "GUID")})").Distinct().ToArray();
         if (unsupported.Length > 0)
-            throw new Exception($"Not yet supported by Modolouge: {string.Join("; ", unsupported.Take(6))}"
-                + (unsupported.Length > 6 ? $"; and {unsupported.Length - 6} more types" : "")
-                + ". This can include standard Grasshopper components that have not been enabled yet; it does not necessarily mean your file uses plugins.");
+            throw new Exception((weaverbird ? "This file uses Weaverbird's Catmull-Clark Subdivision, which is not enabled on this Linux service. Use a compatible replacement, or bypass subdivision in a separate copy if an unsmoothed mesh is acceptable. " : "")
+                + $"Not yet supported by Modolouge: {string.Join("; ", unsupported.Take(20))}"
+                + (unsupported.Length > 20 ? $"; and {unsupported.Length - 20} more types" : "")
+                + ". An unlisted component can also be a standard Grasshopper component; it does not necessarily mean your file uses plugins.");
         if (xml.Descendants("chunk").Count(x => (string?)x.Attribute("name") == "DefinitionObjects") != 1)
             throw new Exception("Nested definitions and clusters are not supported.");
         foreach (var item in xml.Descendants())
@@ -30,6 +33,9 @@ public static class ArchivePolicy
             if ((n == "stream" && !item.Value.Equals("false", StringComparison.OrdinalIgnoreCase)) ||
                 (n == "streampath" && !string.IsNullOrWhiteSpace(item.Value)))
                 throw new Exception("Panel file streaming is not supported. Disable Stream Contents and clear Stream Destination before uploading.");
+            if (item.Name == "item" && ((n is "rdk_xml" or "rdk_rmtl") && !string.IsNullOrWhiteSpace(item.Value)
+                || n == "rdk_id" && !string.IsNullOrWhiteSpace(item.Value) && item.Value != Guid.Empty.ToString()))
+                throw new Exception("Rhino render materials and external material files are not supported. Use a Colour Swatch or a basic display material for Custom Preview in a separate web copy.");
         }
         foreach (var obj in objects)
         {
@@ -40,7 +46,7 @@ public static class ArchivePolicy
             // deserialize arbitrary persisted .NET/plugin objects.
             if (id is "8ec86459-bf01-4409-baee-174d0d2b13d0" or "b6236720-8d88-4289-93c3-ac4c99f9b97b")
                 if (c.Descendants("chunk").Any(x => (string?)x.Attribute("name") == "PersistentData" && x.Element("chunks")?.Elements().Any() == true))
-                    throw new Exception("Internalized generic Data/Relay objects are not supported. Supply their data through connected components.");
+                    throw new Exception("Internalized generic Data/Relay objects are not supported. Replace them with typed parameters such as Curve, Point, Mesh or Brep and internalize the geometry there, or supply their data through connected components.");
             if (id != GraphMapper) continue;
             var local = Chunk(c, "LocalGraph");
             var graph = local == null ? null : Chunk(local, "Graph");

@@ -238,5 +238,75 @@
     "id": "537b0419-bbc2-4ff4-bf08-afe526367b2c",
     "name": "GH_CustomPreviewComponent",
     "source": "Grasshopper.Kernel.Components.GH_CustomPreviewComponent"
+  },
+  {
+    "name": "Mesh Surface",
+    "id": "58cf422f-19f7-42f7-9619-fc198c51c657",
+    "source": "SurfaceComponents.MeshComponents.Component_MeshSurfaceUV"
+  },
+  {
+    "name": "Construct Domain",
+    "id": "d1a28e95-cf96-4936-bf34-8bf142d731bf",
+    "source": "MathComponents.DomainComponents.Component_ConstructDomain"
+  },
+  {
+    "name": "Point",
+    "id": "fbac3e32-f100-4292-8692-77240a42fd1a",
+    "source": "Grasshopper.Kernel.Parameters.Param_Point"
+  },
+  {
+    "name": "Pull Point",
+    "id": "902289da-28dc-454b-98d4-b8f8aa234516",
+    "source": "VectorComponents.PointComponents.Component_PullPoint"
+  },
+  {
+    "name": "Remap Numbers",
+    "id": "2fcc2743-8339-4cdf-a046-a1f17439191d",
+    "source": "MathComponents.DomainComponents.Component_RemapNumbers"
+  },
+  {
+    "name": "Bounds",
+    "id": "f44b92b0-3b5b-493a-86f4-fd7408c3daf3",
+    "source": "MathComponents.DomainComponents.Component_NumericBounds"
+  },
+  {
+    "name": "Sine",
+    "id": "7663efbb-d9b8-4c6a-a0da-c3750a7bbe77",
+    "source": "MathComponents.FunctionComponents.FuncSin"
+  },
+  {
+    "name": "Deconstruct Mesh",
+    "id": "ba2d8f57-0738-42b4-b5a5-fe4d853517eb",
+    "source": "SurfaceComponents.MeshComponents.Component_DeconstructMesh"
+  },
+  {
+    "name": "Construct Mesh",
+    "id": "e2c0f9db-a862-4bd9-810c-ef2610e7a56f",
+    "source": "SurfaceComponents.MeshComponents.Component_Mesh"
+  },
+  {
+    "name": "Material",
+    "id": "288cfe66-f3dc-4c9a-bb96-ef81f47fe724",
+    "source": "Grasshopper.Kernel.Parameters.Param_OGLShader; basic display material only, bridge rejects RDK XML and external material references"
+  },
+  {
+    "name": "Mesh",
+    "id": "1e936df3-0eea-4246-8549-514cb8862b7a",
+    "source": "Grasshopper.Kernel.Parameters.Param_Mesh"
+  },
+  {
+    "name": "Orient Direction",
+    "id": "1602b2cc-007c-4b79-8926-0067c6184e44",
+    "source": "LinearXForms.Component_OrientDir"
+  },
+  {
+    "name": "Rotate 3D",
+    "id": "3dfb9a77-6e05-4016-9f20-94f78607d672",
+    "source": "LinearXForms.Component_Rotate3D"
+  },
+  {
+    "name": "Pi",
+    "id": "0d2ccfb3-9d41-4759-9452-da6a522c3eaa",
+    "source": "MathComponents.FunctionComponents.Component_Pi"
   }
 ]
