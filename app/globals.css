@@ -1052,13 +1052,14 @@ td .quiet {
   border-bottom: 1px solid var(--line, #303638);
 }
 .ai-agent-settings small {
-  color: #9fa7a8;
+  color: #52614f;
 }
 .ai-agent-events {
   list-style: none;
   padding: 18px;
-  background: #151d19;
-  border: 1px solid #35463b;
+  background: #e6eddf;
+  color: #253325;
+  border: 1px solid #bdcbb5;
   border-radius: 16px;
 }
 .ai-agent-events li {
@@ -1068,7 +1069,7 @@ td .quiet {
   font-size: 13px;
 }
 .ai-agent-events li span {
-  color: #a8cf8d;
+  color: #3f5b30;
   text-transform: uppercase;
   min-width: 64px;
   font-size: 11px;
@@ -1082,16 +1083,17 @@ td .quiet {
 }
 .ai-conversation article {
   padding: 18px 22px;
-  border: 1px solid #303638;
+  color: #253325;
+  border: 1px solid #c9d0c3;
   border-radius: 16px;
 }
 .ai-conversation article.user {
   margin-left: 10%;
-  background: #16191d;
+  background: #fffdf7;
 }
 .ai-conversation article.assistant {
   margin-right: 6%;
-  background: #111714;
+  background: #e8eee1;
 }
 .ai-conversation p {
   white-space: pre-wrap;
@@ -1100,5 +1102,5 @@ td .quiet {
 .ai-conversation details {
   margin-top: 12px;
   font-size: 12px;
-  color: #aab3af;
+  color: #52614f;
 }
