@@ -8,3 +8,5 @@ worker/
 supabase/
 tests/*.test.mjs
 tests/GraphReader/
+tests/ArchivePolicy/
+tests/benchmarks/

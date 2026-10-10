@@ -148,5 +148,95 @@
     "id": "2e78987b-9dfb-42a2-8b76-3923ac8bd91a",
     "name": "Boolean Toggle",
     "source": "Grasshopper.Kernel.Special.GH_BooleanToggle"
+  },
+  {
+    "id": "d93100b6-d50b-40b2-831a-814659dc38e3",
+    "name": "Component_Rectangle",
+    "source": "CurveComponents.Component_Rectangle"
+  },
+  {
+    "id": "62cc9684-6a39-422e-aefa-ed44643557b9",
+    "name": "Component_ExtendCurve",
+    "source": "CurveComponents.Component_ExtendCurve"
+  },
+  {
+    "id": "11bbd48b-bb0a-4f1b-8167-fa297590390d",
+    "name": "Component_EndPoints",
+    "source": "AnalysisComponents.Component_EndPoints"
+  },
+  {
+    "id": "fc6979e4-7e91-4508-8e05-37c680779751",
+    "name": "Component_EvaluateCurve",
+    "source": "AnalysisComponents.Component_EvaluateCurve"
+  },
+  {
+    "id": "afb96615-c59a-45c9-9cac-e27acb1c7ca0",
+    "name": "Component_ExplodeCurve",
+    "source": "AnalysisComponents.Component_ExplodeCurve"
+  },
+  {
+    "id": "e9eb1dcf-92f6-4d4d-84ae-96222d60f56b",
+    "name": "Component_Move",
+    "source": "LinearXForms.Component_Move"
+  },
+  {
+    "id": "59daf374-bc21-4a5e-8282-5504fb7ae9ae",
+    "name": "Component_ListItemVariable",
+    "source": "MathComponents.ArrayComponents.Component_ListItemVariable"
+  },
+  {
+    "id": "a3371040-e552-4bc8-b0ff-10a840258e88",
+    "name": "OperatorSign",
+    "source": "MathComponents.FunctionComponents.OperatorSign"
+  },
+  {
+    "id": "16ef3e75-e315-4899-b531-d3166b42dac9",
+    "name": "Param_Vector",
+    "source": "Grasshopper.Kernel.Parameters.Param_Vector"
+  },
+  {
+    "id": "919e146f-30ae-4aae-be34-4d72f555e7da",
+    "name": "Param_Brep",
+    "source": "Grasshopper.Kernel.Parameters.Param_Brep"
+  },
+  {
+    "id": "d5967b9f-e8ee-436b-a8ad-29fdcecf32d5",
+    "name": "Param_Curve",
+    "source": "Grasshopper.Kernel.Parameters.Param_Curve"
+  },
+  {
+    "id": "8ec86459-bf01-4409-baee-174d0d2b13d0",
+    "name": "Param_GenericObject",
+    "source": "Grasshopper.Kernel.Parameters.Param_GenericObject"
+  },
+  {
+    "id": "4f8984c4-7c7a-4d69-b0a2-183cbb330d20",
+    "name": "Param_Plane",
+    "source": "Grasshopper.Kernel.Parameters.Param_Plane"
+  },
+  {
+    "id": "deaf8653-5528-4286-807c-3de8b8dad781",
+    "name": "Param_Surface",
+    "source": "Grasshopper.Kernel.Parameters.Param_Surface"
+  },
+  {
+    "id": "9c53bac0-ba66-40bd-8154-ce9829b9db1a",
+    "name": "GH_ColourSwatch",
+    "source": "Grasshopper.Kernel.Special.GH_ColourSwatch"
+  },
+  {
+    "id": "bc984576-7aa6-491f-a91d-e444c33675a7",
+    "name": "GH_GraphMapper",
+    "source": "Grasshopper.Kernel.Special.GH_GraphMapper"
+  },
+  {
+    "id": "b6236720-8d88-4289-93c3-ac4c99f9b97b",
+    "name": "GH_Relay",
+    "source": "Grasshopper.Kernel.Special.GH_Relay"
+  },
+  {
+    "id": "537b0419-bbc2-4ff4-bf08-afe526367b2c",
+    "name": "GH_CustomPreviewComponent",
+    "source": "Grasshopper.Kernel.Components.GH_CustomPreviewComponent"
   }
 ]

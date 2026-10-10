@@ -10,5 +10,7 @@ worker/tools/GhBridge/obj/
 worker/tools/GhBridge/publish/
 tests/GraphReader/bin/
 tests/GraphReader/obj/
+tests/ArchivePolicy/bin/
+tests/ArchivePolicy/obj/
 
 supabase/.temp/

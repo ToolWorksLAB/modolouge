@@ -14,19 +14,7 @@ try
     if (originalObjects.Length > 500) throw new Exception("This service supports at most 500 components per definition.");
     var policyFile = Path.Combine(AppContext.BaseDirectory, "component-policy.json");
     var policy = JsonDocument.Parse(File.ReadAllText(policyFile)).RootElement.EnumerateArray().Select(x => x.GetProperty("id").GetString()!).ToHashSet(StringComparer.OrdinalIgnoreCase);
-    foreach (var obj in originalObjects)
-        if (!policy.Contains(Value(obj, "GUID"))) throw new Exception($"Unsupported component: {Value(obj, "Name")} ({Value(obj, "GUID")}). Public uploads accept only the reviewed built-in component list. Scripts, clusters and plugins are not supported.");
-    if (xml.Descendants("chunk").Count(x => (string?)x.Attribute("name") == "DefinitionObjects") != 1)
-        throw new Exception("Nested definitions and clusters are not supported.");
-    foreach (var item in xml.Descendants())
-    {
-        var n = ((string?)item.Attribute("name") ?? "").ToLowerInvariant();
-        if ((n.Contains("script") && n != "description") || n.Contains("assembly") || n.Contains("cluster") || n.Contains("expression"))
-            throw new Exception("Embedded scripts, assemblies, clusters and expressions are not supported by the public service.");
-        if ((n == "stream" && !item.Value.Equals("false", StringComparison.OrdinalIgnoreCase)) ||
-            (n == "streampath" && !string.IsNullOrWhiteSpace(item.Value)))
-            throw new Exception("Panel file streaming is not supported. Disable Stream Contents and clear Stream Destination before uploading.");
-    }
+    ArchivePolicy.Validate(xml, originalObjects, policy);
     // Preserve only the definition structure consumed by the reviewed components.
     foreach (var chunk in definition.Element("chunks")!.Elements("chunk").ToArray())
         if (!new[] { "DefinitionObjects", "DocumentHeader", "DefinitionProperties" }.Contains((string?)chunk.Attribute("name"))) chunk.Remove();
@@ -34,6 +22,7 @@ try
     var controls = new List<object>();
     var outputs = new List<object>();
     var warnings = new List<string>();
+    var previewSources = PreviewSelection.Sources(graph, out var hiddenPreviewFallback);
     var groupedInputs = new Dictionary<string, string>();
     var explicitOutputs = false;
     foreach (var obj in originalObjects)
@@ -78,14 +67,19 @@ try
             var content = Value(c, "UserText");
             controls.Add(new { name = inputName, instanceId = id, label, kind = "text", value = content[..Math.Min(content.Length, 10000)] });
         }
-        else if (!explicitOutputs && Value(c, "Hidden") != "true" && Guid.TryParse(id, out _) &&
-                 !new[] { "Group", "Scribble", "Value List", "Number Slider", "Relay", "Timer", "Button", "Data Dam", "Boolean Toggle" }.Contains(name))
+        else if (!explicitOutputs && Guid.TryParse(id, out _) &&
+                 (previewSources.Count > 0 ? previewSources.Contains(id) : Value(c, "Hidden") != "true") &&
+                 !new[] { "Group", "Scribble", "Value List", "Number Slider", "Relay", "Timer", "Button", "Data Dam", "Boolean Toggle", "Colour Swatch", "Graph Mapper", "Custom Preview" }.Contains(name))
         {
             var outputName = $"RH_OUT:{label}_{id[..8]}";
             AddGroup(outputName, id);
             outputs.Add(new { name = outputName, label });
         }
     }
+    if (!explicitOutputs && previewSources.Count > 0)
+        warnings.Add(hiddenPreviewFallback
+            ? "Using geometry connected to hidden Custom Preview components. Add RH_OUT groups in Grasshopper to choose different outputs."
+            : "Using the geometry connected to Custom Preview components as the app output.");
     var objectCount = objectList.Elements("chunk").Count();
     objects.Element("items")!.Elements("item").First(x => (string?)x.Attribute("name") == "ObjectCount").Value = objectCount.ToString();
     foreach (var list in xml.Descendants().Where(x => x.Name == "items" || x.Name == "chunks")) list.SetAttributeValue("count", list.Elements().Count());
