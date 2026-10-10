@@ -35,18 +35,19 @@ public static class ArchivePolicy
                 throw new Exception("Panel file streaming is not supported. Disable Stream Contents and clear Stream Destination before uploading.");
             if (item.Name == "item" && ((n is "rdk_xml" or "rdk_rmtl") && !string.IsNullOrWhiteSpace(item.Value)
                 || n == "rdk_id" && !string.IsNullOrWhiteSpace(item.Value) && item.Value != Guid.Empty.ToString()))
-                throw new Exception("Rhino render materials and external material files are not supported. Use a Colour Swatch or a basic display material for Custom Preview in a separate web copy.");
+                throw new Exception("Unsupported saved Rhino render material " + Location(item) + ". This can be stored inside an input or disconnected node. Clear that saved material, or connect a Colour Swatch directly to Custom Preview's M input; overridden preview defaults are cleared automatically.");
         }
         foreach (var obj in objects)
         {
             var id = Value(obj, "GUID").ToLowerInvariant();
             var c = Chunk(obj, "Container");
             if (c == null) continue;
-            // Generic parameters/relays may forward reviewed data, but must not
-            // deserialize arbitrary persisted .NET/plugin objects.
+            // The runtime dispatches persisted generic values by TypeName. Only
+            // the audited built-in GH_Curve archive shape is accepted here.
             if (id is "8ec86459-bf01-4409-baee-174d0d2b13d0" or "b6236720-8d88-4289-93c3-ac4c99f9b97b")
-                if (c.Descendants("chunk").Any(x => (string?)x.Attribute("name") == "PersistentData" && x.Element("chunks")?.Elements().Any() == true))
-                    throw new Exception("Internalized generic Data/Relay objects are not supported. Replace them with typed parameters such as Curve, Point, Mesh or Brep and internalize the geometry there, or supply their data through connected components.");
+                foreach (var data in c.Descendants("chunk").Where(x => (string?)x.Attribute("name") == "PersistentData" && x.Element("chunks")?.Elements().Any() == true))
+                    if (!PersistedCurves.IsAllowed(data))
+                        throw new Exception("Internalized generic Data/Relay objects " + Location(data) + " are not supported unless they contain reviewed embedded curves. Use typed geometry parameters or connected components.");
             if (id != GraphMapper) continue;
             var local = Chunk(c, "LocalGraph");
             var graph = local == null ? null : Chunk(local, "Graph");
@@ -57,6 +58,16 @@ public static class ArchivePolicy
                     if (!double.TryParse(value.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var number) || !double.IsFinite(number))
                         throw new Exception("Graph Mapper contains a non-finite coordinate.");
         }
+    }
+    static string Location(XElement item)
+    {
+        var obj = item.Ancestors("chunk").FirstOrDefault(x => (string?)x.Attribute("name") == "Object");
+        if (obj == null) return "in the archive";
+        var c = Chunk(obj, "Container");
+        var label = c == null ? Value(obj, "Name") : Value(c, "NickName");
+        if (label.Length > 80) label = label[..80];
+        var id = c == null ? "" : Value(c, "InstanceGuid");
+        return $"in '{label}' ({Value(obj, "Name")}, {id})";
     }
     static XElement? Chunk(XElement e, string name) => e.Element("chunks")?.Elements("chunk").FirstOrDefault(x => (string?)x.Attribute("name") == name);
     static string Value(XElement e, string name) => e.Element("items")?.Elements("item").FirstOrDefault(x => (string?)x.Attribute("name") == name)?.Value ?? "";

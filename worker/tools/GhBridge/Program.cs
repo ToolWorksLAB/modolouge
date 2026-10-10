@@ -14,12 +14,14 @@ try
     if (originalObjects.Length > 500) throw new Exception("This service supports at most 500 components per definition.");
     var policyFile = Path.Combine(AppContext.BaseDirectory, "component-policy.json");
     var policy = JsonDocument.Parse(File.ReadAllText(policyFile)).RootElement.EnumerateArray().Select(x => x.GetProperty("id").GetString()!).ToHashSet(StringComparer.OrdinalIgnoreCase);
+    var warnings = new List<string>(PreviewMaterials.Normalize(originalObjects));
     ArchivePolicy.Validate(xml, originalObjects, policy);
     if (args.Length == 3 && args[1] == "--patch")
     {
         var edits = JsonDocument.Parse(File.ReadAllText(args[2]));
         GraphEdits.Apply(xml, edits.RootElement);
         originalObjects = objectList.Elements("chunk").ToArray();
+        warnings.AddRange(PreviewMaterials.Normalize(originalObjects));
         ArchivePolicy.Validate(xml, originalObjects, policy);
     }
     // Preserve only the definition structure consumed by the reviewed components.
@@ -28,7 +30,6 @@ try
     var graph = GraphReader.Read(originalObjects);
     var controls = new List<object>();
     var outputs = new List<object>();
-    var warnings = new List<string>();
     var previewSources = PreviewSelection.Sources(graph, out var hiddenPreviewFallback);
     var groupedInputs = new Dictionary<string, string>();
     var explicitOutputs = false;

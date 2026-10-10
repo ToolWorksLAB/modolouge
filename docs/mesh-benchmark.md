@@ -7,8 +7,8 @@ The reviewed policy now has 62 types. Added: Mesh Surface, Construct Domain, Poi
 ## What remains incompatible in the original
 
 - Weaverbird is not enabled on this service. Removing it silently would change the model, so the original remains rejected.
-- Three generic Data parameters have internalized `GH_Curve` values. Generic persisted object deserialization remains blocked; use typed Curve parameters instead.
-- Two material parameters contain Rhino RDK material XML. Public uploads now reject nonempty RDK XML, material-file paths and document material IDs. Use a Colour Swatch or basic display material. This is not a rendering-material fidelity release.
+- Three generic Data parameters have internalized `GH_Curve` values. The later [preview-material fix](preview-materials-benchmark.md) supports the exact reviewed embedded-curve format without changing these nodes. Other generic persisted object types remain blocked.
+- Two material parameters contain Rhino RDK material XML. Active RDK data remains unsupported. The later preview-material fix removes ignored defaults only from Custom Preview's M input when its sources resolve directly to unlocked Colour Swatches. This is not a rendering-material fidelity release.
 - The original's two visible Custom Previews show internalized Mesh/Brep snapshots. Its two live, slider-driven previews are hidden. The bridge correctly honors that visibility; the web copy explicitly changes it.
 
 [McNeel's Linux guide](https://developer.rhino3d.com/guides/compute/compute-linux-getting-started/) describes restricted third-party plugin loading. [Weaverbird's author](https://www.giuliopiacentino.com/weaverbird/) describes the Catmull-Clark operation. Neither establishes that this exact plugin works on our Linux installation; no plugin was installed for this release.

@@ -47,6 +47,7 @@ var generic = XElement.Parse("<chunk><items><item name='GUID'>8ec86459-bf01-4409
 var genericRejected = false;
 try { ArchivePolicy.Validate(safe, [generic], policy); } catch (Exception e) { genericRejected = e.Message.Contains("Internalized generic"); }
 Check(genericRejected, "Internalized generic objects rejected before deserialization");
+MaterialTests.Run(policy, Check, args.Length > 1 ? args[1] : null);
 
 // The owner's original file stays private. Optionally pass its locally decoded
 // GHX to run the same policy and output-selection benchmark on the real archive.
