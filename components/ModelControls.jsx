@@ -1,5 +1,6 @@
 "use client";
 import PointFields from "./PointFields.jsx";
+import LiveCompute from "./LiveCompute.jsx";
 export default function ModelControls({
   definition,
   values,
@@ -13,6 +14,7 @@ export default function ModelControls({
   onRun,
   changes,
   hasResult,
+  liveCompute,
 }) {
   const controls = definition.controls.filter((c) =>
     c.label.toLowerCase().includes(query.toLowerCase()),
@@ -26,7 +28,9 @@ export default function ModelControls({
         </button>
       </div>
       <p className="flow-control-help">
-        Adjust a few values, then update once.
+        {liveCompute?.enabled
+          ? "Adjust your values. Geometry updates when you finish a change."
+          : "Adjust a few values, then update once."}
       </p>
       {definition.controls.length > 6 && (
         <input
@@ -57,6 +61,7 @@ export default function ModelControls({
             <label htmlFor={c.name}>{c.label}</label>
             {c.kind === "point" ? (
               <PointFields
+                liveCompute={liveCompute?.enabled}
                 control={c}
                 value={values[c.name]}
                 onChange={onChange}
@@ -118,6 +123,7 @@ export default function ModelControls({
         ))}
       </div>
       <div className="flow-run">
+        <LiveCompute live={liveCompute} />
         <p role="status" className={changes ? "flow-pending" : "fine"}>
           {changes
             ? `${changes} ${changes === 1 ? "change" : "changes"} not applied yet`

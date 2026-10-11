@@ -7,6 +7,7 @@ export default function PointFields({
   disabled,
   label,
   help = true,
+  liveCompute = false,
 }) {
   const point = validPoint(value) ? value : control.value;
   return (
@@ -43,7 +44,11 @@ export default function PointFields({
         Reset position ↶
       </button>
       {help && (
-        <small>Drag its gumball in the viewport, then update the model.</small>
+        <small>
+          {liveCompute
+            ? "Drag its gumball; geometry updates when you release it."
+            : "Drag its gumball in the viewport, then update the model."}
+        </small>
       )}
     </fieldset>
   );

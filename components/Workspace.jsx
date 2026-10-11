@@ -5,6 +5,7 @@ import AuthJourney from "./AuthJourney.jsx";
 import DefinitionView from "./DefinitionView.jsx";
 import WorkspaceStart from "./WorkspaceStart.jsx";
 import ModelControls from "./ModelControls.jsx";
+import LiveCompute, { useLiveCompute } from "./LiveCompute.jsx";
 import {
   changedControls,
   serviceLabel,
@@ -40,7 +41,8 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
     [authDismissed, setAuthDismissed] = useState(0);
   const [appBrief, setAppBrief] = useState(""),
     [appSeed, setAppSeed] = useState(null),
-    [appLibrary, setAppLibrary] = useState(0);
+    [appLibrary, setAppLibrary] = useState(0),
+    [aiBusy, setAiBusy] = useState(false);
   const input = useRef(),
     trialInit = useRef(null),
     lock = useRef(false),
@@ -92,6 +94,19 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
   const changes = changedControls(definition?.controls, values, solvedValues);
   const exhausted = usage?.kind === "guest" && usage.remaining <= 0;
   const needsRun = !!definition && (!solvedValues || changes > 0);
+  const liveCompute = useLiveCompute({
+    scope: definition ? `${definition.id}:${appSeed?.revision || 0}` : null,
+    values,
+    dirty: needsRun,
+    busy: busy || aiBusy,
+    ready:
+      !!definition &&
+      !!status?.online &&
+      !!usage &&
+      usage.remaining > 0 &&
+      !showAuth,
+    onRun: run,
+  });
   const changeValue = (name, value) =>
     setValues((previous) => ({ ...previous, [name]: value }));
   const openDesigner = () => {
@@ -197,9 +212,10 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
       ...(result.errors || []),
       ...(result.warnings || []),
     ]);
+    return !result.errors?.length;
   }
   async function run() {
-    if (lock.current || !definition || !needsRun) return;
+    if (lock.current || !definition || !needsRun) return false;
     if (exhausted) {
       setAuthPurpose("");
       setShowAuth(true);
@@ -209,10 +225,11 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
     setBusy("Updating the model…");
     setError("");
     try {
-      await solve();
+      return await solve();
     } catch (e) {
       setError(e.message);
       if (e.code === "TRIAL_EXHAUSTED") setShowAuth(true);
+      return false;
     } finally {
       lock.current = false;
       setBusy("");
@@ -279,6 +296,7 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
     } catch (e) {
       setError(e.message);
       if (e.code === "TRIAL_EXHAUSTED") setShowAuth(true);
+      return false;
     } finally {
       lock.current = false;
       setBusy("");
@@ -412,6 +430,9 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
                 : "Checking allowance…"}
             </span>
           </div>
+          {definition && mode === "design" && (
+            <LiveCompute live={liveCompute} />
+          )}
           {definition && (
             <div hidden={mode !== "explore"}>
               <div className="studio flow-studio">
@@ -439,6 +460,7 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
                   onRun={() => (exhausted ? setShowAuth(true) : run())}
                   changes={changes}
                   hasResult={!!solvedValues}
+                  liveCompute={liveCompute}
                 />
                 <DefinitionView
                   definition={definition}
@@ -447,6 +469,7 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
                   onValueChange={changeValue}
                   busy={busy}
                   duration={duration}
+                  liveCompute={liveCompute.enabled}
                   initialMode="geometry"
                   pendingChanges={changes}
                 />
@@ -475,6 +498,8 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
             initialApp={appSeed}
             brief={appBrief}
             onBrief={setAppBrief}
+            onBusyChange={setAiBusy}
+            liveCompute={liveCompute}
             onOpen={openAIApp}
             librarySignal={appLibrary}
             member={usage?.kind === "member"}
@@ -507,6 +532,7 @@ export default function Workspace({ previewFixture, previewDesignRequest }) {
             dataOutputs={dataOutputs}
             values={values}
             onValueChange={changeValue}
+            liveCompute={liveCompute.enabled}
             onRun={run}
             busy={busy}
             canRun={needsRun && !!status?.online}

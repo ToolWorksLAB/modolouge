@@ -1,6 +1,7 @@
 "use client";
 import { useState, useId, useRef, useEffect } from "react";
 import Viewport from "./Viewport.jsx";
+import LiveCompute from "./LiveCompute.jsx";
 import PointFields from "./PointFields.jsx";
 import { pointControls } from "../lib/point-controls.js";
 import ConfigurationReview from "./ConfigurationReview.jsx";
@@ -25,6 +26,7 @@ export default function AIAppRunner({
   solvedValues = null,
   revision = 0,
   draftDirty = false,
+  liveCompute,
 }) {
   const captureRef = useRef(null);
   const [phase, setPhase] = useState("configure"),
@@ -258,6 +260,7 @@ export default function AIAppRunner({
           <Viewport
             objects={objects}
             captureRef={captureRef}
+            liveCompute={liveCompute?.enabled}
             points={handles}
             onPointChange={onChange}
             disabled={!!busy}
@@ -268,6 +271,7 @@ export default function AIAppRunner({
               <small>Choose your values, then generate the geometry.</small>
             </div>
           )}
+          <LiveCompute live={liveCompute} />
           <div className="ai-model-run">
             <div>
               <strong>{busy || runHint || "Ready when you are"}</strong>

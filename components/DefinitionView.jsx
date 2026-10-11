@@ -27,6 +27,7 @@ export default function DefinitionView({
   duration,
   initialMode = "geometry",
   pendingChanges = 0,
+  liveCompute = false,
 }) {
   const [mode, setMode] = useState(initialMode);
   const [canvasOpened, setCanvasOpened] = useState(initialMode !== "geometry");
@@ -86,6 +87,7 @@ export default function DefinitionView({
           </div>
           <Viewport
             objects={objects}
+            liveCompute={liveCompute}
             points={pointControls(definition?.controls, values)}
             onPointChange={onValueChange}
             disabled={!!busy}

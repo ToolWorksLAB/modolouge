@@ -19,6 +19,7 @@ export default function AIStudio({
   member,
   onSignIn,
   onManual,
+  onBusyChange,
   request = api,
   ...runner
 }) {
@@ -40,6 +41,10 @@ export default function AIStudio({
   const dirty =
     !!plan && JSON.stringify(plan) !== JSON.stringify(app?.blueprint);
   const locked = !!pending || !!runner.busy;
+  useEffect(() => {
+    onBusyChange?.(!!pending);
+    return () => onBusyChange?.(false);
+  }, [pending, onBusyChange]);
   async function action(label, fn) {
     if (locked) return;
     setPending(label);

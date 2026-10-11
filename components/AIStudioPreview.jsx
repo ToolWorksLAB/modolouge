@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import { mergeActivity } from "../lib/agent-activity.js";
 import AIStudio from "./AIStudio.jsx";
+import { useLiveCompute } from "./LiveCompute.jsx";
 import baseFixture from "../tests/fixtures/designer-preview.json";
 import {
   emptyBrand,
@@ -119,6 +120,26 @@ export default function AIStudioPreview() {
     ],
   });
   const [start, setStart] = useState(true);
+  const [runCount, setRunCount] = useState(0),
+    [busy, setBusy] = useState("");
+  const dirty = JSON.stringify(values) !== JSON.stringify(solved);
+  async function solvePreview() {
+    setBusy("Computing preview…");
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    setObjects(fixture.objects);
+    setSolved({ ...values });
+    setRunCount((n) => n + 1);
+    setBusy("");
+    return true;
+  }
+  const liveCompute = useLiveCompute({
+    scope: "preview",
+    values,
+    dirty,
+    busy,
+    ready: !start,
+    onRun: solvePreview,
+  });
   async function request(path, b, onEvent) {
     if (path === "apps")
       return [{ ...record.current, filename: fixture.filename }];
@@ -219,7 +240,7 @@ export default function AIStudioPreview() {
     <main className="workspace flow-workspace">
       <div className="notice">
         Isolated design preview · simulated AI, storage and geometry · no cloud
-        requests.{" "}
+        requests. Simulated solves: {runCount}.{" "}
         <button className="quiet" onClick={() => setStart(!start)}>
           {start ? "Show draft" : "Show brief"}
         </button>
@@ -232,11 +253,11 @@ export default function AIStudioPreview() {
         objects={objects}
         solvedValues={solved}
         onChange={(n, v) => setValues((p) => ({ ...p, [n]: v }))}
-        onRun={() => {
-          setObjects(fixture.objects);
-          setSolved({ ...values });
-        }}
-        canRun
+        onRun={solvePreview}
+        liveCompute={liveCompute}
+        busy={busy}
+        canRun={dirty}
+        runHint={dirty ? "Changes ready to apply" : "Model is up to date"}
         member
         onSignIn={() => {}}
         onManual={() => {}}

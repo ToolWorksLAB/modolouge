@@ -29,3 +29,12 @@ The isolated `/design/ai` fixture exercises visible progress and dragging withou
 ## Release and rollback
 
 Deploy the worker bridge and compute serializer together, then the company Modolouge Vercel project. Worker staging is `/opt/modolouge-staging/live-points-20261011`; backup is `/opt/modolouge-worker-backups/live-points-20261011`. Gracefully stop the worker, restore `compute.js` and `tools/GhBridge` from that backup, and restart it to roll back. Restore the prior Vercel production deployment separately. Do not change Rhino licensing or owner archives.
+
+
+## Optional live compute
+
+The Live compute switch is available beside the run controls in Model and generated/published apps, and above Advanced layout. Manual Update remains the default. Enabling Live compute generates the first result if needed, then schedules a solve 650 ms after the latest input change and pointer release. Sliders, text/number/boolean inputs, resets and point gumballs share the existing solve endpoint. No AI call is needed. Every solve consumes the normal geometry allowance and is recorded by the existing usage system.
+
+The scheduler deduplicates unchanged values, allows one automatic request at a time, cancels pending work when switched off or unmounted, and suspends while a job/AI action is busy, the page is hidden, sign-in is open, compute is offline or the allowance is exhausted. Switching off does not cancel a job already accepted by the server. A failed solve switches live mode off; re-enabling it explicitly permits a retry. Opening a different definition or revision resets the option to off. No preference is persisted in the database or browser storage.
+
+`components/LiveCompute.jsx` owns the session switch and pointer/visibility listeners; `lib/live-compute.js` owns the request scheduler. Five scheduler tests cover batching, input release, availability, overlap prevention, failure handling and cancellation. The isolated AI preview displays a simulated solve counter to verify the UI without cloud usage.

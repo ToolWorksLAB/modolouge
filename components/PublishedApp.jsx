@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import AIAppRunner from "./AIAppRunner.jsx";
+import { useLiveCompute } from "./LiveCompute.jsx";
 import AuthJourney from "./AuthJourney.jsx";
 import { api } from "../lib/client-api.js";
 export default function PublishedApp({ app }) {
@@ -38,8 +39,16 @@ export default function PublishedApp({ app }) {
     };
   }, []);
   const dirty = JSON.stringify(values) !== JSON.stringify(solved);
+  const liveCompute = useLiveCompute({
+    scope: `${app.slug}:${app.revision}`,
+    values,
+    dirty,
+    busy,
+    ready: online && !!usage && usage.remaining > 0 && !auth,
+    onRun: run,
+  });
   async function run() {
-    if (lock.current) return;
+    if (lock.current) return false;
     if (usage?.kind === "guest" && usage.remaining <= 0) {
       setAuth(true);
       return;
@@ -66,7 +75,7 @@ export default function PublishedApp({ app }) {
           setDataOutputs(result.dataOutputs || []);
           setWarnings([...(result.errors || []), ...(result.warnings || [])]);
           setSolved(result.errors?.length ? null : { ...values });
-          return;
+          return !result.errors?.length;
         }
         if (["failed", "expired"].includes(job.status))
           throw new Error(job.error || "This run could not be completed.");
@@ -75,6 +84,7 @@ export default function PublishedApp({ app }) {
     } catch (e) {
       setError(e.message);
       if (e.code === "TRIAL_EXHAUSTED" || e.status === 401) setAuth(true);
+      return false;
     } finally {
       lock.current = false;
       if (alive.current) {
@@ -116,6 +126,7 @@ export default function PublishedApp({ app }) {
         solvedValues={solved}
         dataOutputs={dataOutputs}
         busy={busy}
+        liveCompute={liveCompute}
         onRun={run}
         canRun={dirty && online && !!usage}
         runHint={dirty ? "Ready to apply your choices" : "Model is up to date"}

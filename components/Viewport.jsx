@@ -10,6 +10,7 @@ export default function Viewport({
   points = EMPTY_POINTS,
   onPointChange,
   disabled = false,
+  liveCompute = false,
 }) {
   const latest = useRef({ points, onPointChange, disabled });
   latest.current = { points, onPointChange, disabled };
@@ -306,7 +307,11 @@ export default function Viewport({
               </button>
             ))}
           </div>
-          <small>Drag an axis or plane · Update to apply</small>
+          <small>
+            {liveCompute
+              ? "Drag an axis or plane · updates on release"
+              : "Drag an axis or plane · Update to apply"}
+          </small>
         </div>
       )}
 

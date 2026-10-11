@@ -489,3 +489,72 @@
 .ai-field .point-fields label {
   min-width: 0;
 }
+
+.live-compute {
+  padding: 16px 20px;
+  border-top: 1px solid var(--line, #cdd3ca);
+}
+.live-compute-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+.live-compute-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.live-compute-track {
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+  border-radius: 12px;
+  background: #777;
+  padding: 3px;
+  flex-shrink: 0;
+}
+.live-compute-track::after {
+  content: "";
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 150ms;
+}
+.live-compute-switch input:checked + .live-compute-track {
+  background: var(--accent, #eb168d);
+}
+.live-compute-switch input:checked + .live-compute-track::after {
+  transform: translateX(14px);
+}
+.live-compute-switch input:focus-visible + .live-compute-track {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.live-compute-switch small {
+  font-size: 10px;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+.live-compute p {
+  margin: 7px 0 0;
+  font-size: 11px;
+  line-height: 1.6;
+  opacity: 0.75;
+  max-width: 55ch;
+}
+.flow-run .live-compute {
+  padding: 0 0 14px;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-compute-track::after {
+    transition: none;
+  }
+}

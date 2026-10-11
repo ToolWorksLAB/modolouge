@@ -213,6 +213,7 @@ export default function AppDesigner({
   values,
   onValueChange,
   onRun,
+  liveCompute = false,
   busy,
   canRun,
   member,
@@ -645,6 +646,7 @@ export default function AppDesigner({
                 dataOutputs={dataOutputs}
                 values={values}
                 onValueChange={onValueChange}
+                liveCompute={liveCompute}
                 onRun={onRun}
                 busy={busy}
                 canRun={canRun}
@@ -1604,6 +1606,7 @@ function ElementContent({
   values,
   onValueChange,
   onRun,
+  liveCompute = false,
   busy,
   canRun,
 }) {
@@ -1637,6 +1640,7 @@ function ElementContent({
         <Viewport
           objects={objects}
           points={pointControls(definition?.controls, values)}
+          liveCompute={liveCompute}
           onPointChange={onValueChange}
           disabled={!preview || !!busy}
         />
@@ -1734,6 +1738,7 @@ function ElementContent({
   if (n.type === "point")
     return (
       <PointFields
+        liveCompute={liveCompute}
         control={control}
         label={n.label}
         value={value}
