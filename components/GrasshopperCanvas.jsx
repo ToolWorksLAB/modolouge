@@ -195,7 +195,10 @@ export default function GrasshopperCanvas({
       e.currentTarget.releasePointerCapture(e.pointerId);
   }
   return (
-    <div className="gh-canvas" ref={host}>
+    <div
+      className={`gh-canvas ${highlightIds.length ? "has-agent-focus" : ""}`}
+      ref={host}
+    >
       <svg
         ref={svg}
         className="gh-surface"

@@ -6,6 +6,7 @@ export default function PointFields({
   onChange,
   disabled,
   label,
+  help = true,
 }) {
   const point = validPoint(value) ? value : control.value;
   return (
@@ -41,7 +42,9 @@ export default function PointFields({
       >
         Reset position ↶
       </button>
-      <small>Drag its gumball in the viewport, then update the model.</small>
+      {help && (
+        <small>Drag its gumball in the viewport, then update the model.</small>
+      )}
     </fieldset>
   );
 }

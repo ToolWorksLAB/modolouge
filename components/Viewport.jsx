@@ -58,10 +58,17 @@ export default function Viewport({
     transform.addEventListener("objectChange", () => {
       if (!transform.object || latest.current.disabled) return;
       const p = transform.object.position;
+      if (!p.toArray().every(Number.isFinite)) return;
       p.set(
         ...p
           .toArray()
-          .map((v) => Math.max(-1e6, Math.min(1e6, Math.round(v * 1e6) / 1e6))),
+          .map((v, i) =>
+            startingPosition &&
+            transform.dragging &&
+            !transform.axis?.includes(["X", "Y", "Z"][i])
+              ? startingPosition.getComponent(i)
+              : Math.max(-1e6, Math.min(1e6, v)),
+          ),
       );
       latest.current.onPointChange?.(
         transform.object.userData.binding,

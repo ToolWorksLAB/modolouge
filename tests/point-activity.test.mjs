@@ -86,6 +86,7 @@ test("live progress replaces pending actions, retains graph evidence, and gives 
     [
       {
         op: "rename",
+        action: "Rename",
         nodeId: "a",
         label: "Attractor",
         newId: undefined,

@@ -101,6 +101,30 @@ test("presentation-only sessions neither restore archives nor enqueue Compute", 
   assert.equal(submitted.length, 0);
   assert.equal(restores, 0);
 });
+test("an owner can refresh older point bindings with an empty edit test", async () => {
+  mock.method(globalThis, "fetch", async () => Response.json(results.shift()));
+  const point = {
+    name: "attractor",
+    instanceId: "point",
+    kind: "point",
+    value: [10, 20, 30],
+  };
+  results = [
+    {
+      passed: true,
+      errors: [],
+      objects: 2,
+      definition: { ...original, id: "refreshed", controls: [point] },
+    },
+  ];
+  const session = await create("member", false);
+  await session.test({ edits: [], reason: "Refresh existing point inputs" });
+  assert.equal(submitted[0].type, "edit");
+  assert.deepEqual(submitted[0].edits, []);
+  assert.deepEqual(session.definition().controls, [point]);
+  assert.equal(session.passed(), true);
+  mock.restoreAll();
+});
 test("a failed second test never allows the request to report success from an earlier candidate", async () => {
   mock.method(globalThis, "fetch", async () => Response.json(results.shift()));
   results = [

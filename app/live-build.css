@@ -213,6 +213,19 @@
   stroke: #75a446;
   stroke-width: 2.5;
 }
+.has-agent-focus .gh-node:not(.agent-node) {
+  opacity: 0.38;
+}
+.has-agent-focus .gh-node:not(.agent-node):hover,
+.has-agent-focus .gh-node.is-selected {
+  opacity: 1;
+}
+.has-agent-focus .gh-wire:not(.agent-wire) {
+  opacity: 0.2;
+}
+.has-agent-focus .gh-node.agent-node .gh-node-body {
+  stroke-width: 4;
+}
 .is-building .gh-wire.agent-wire {
   stroke-dasharray: 7 4;
   animation: build-dash 1s linear infinite;
@@ -460,4 +473,19 @@
 }
 .definition-geometry-pane:has(.has-points) .geometry-label {
   display: none;
+}
+
+.ai-field:has(.point-fields) {
+  display: block;
+}
+.ai-field:has(.point-fields) > label {
+  display: none;
+}
+.ai-field .point-fields input[type="number"] {
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+}
+.ai-field .point-fields label {
+  min-width: 0;
 }

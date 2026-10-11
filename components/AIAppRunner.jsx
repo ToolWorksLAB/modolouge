@@ -163,6 +163,7 @@ export default function AIAppRunner({
                     <PointFields
                       control={c}
                       label={binding.label}
+                      help={false}
                       value={values[c.name]}
                       onChange={onChange}
                       disabled={!!busy}

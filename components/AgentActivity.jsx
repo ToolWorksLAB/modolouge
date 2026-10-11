@@ -23,6 +23,11 @@ export default function AgentActivity({
   const started = useRef(null),
     root = useRef(null),
     wasPending = useRef(false);
+  const timeline = useRef(null);
+  useEffect(() => {
+    if (follow && pending && timeline.current)
+      timeline.current.scrollTop = timeline.current.scrollHeight;
+  }, [events, follow, pending]);
   useEffect(() => {
     if (!pending) {
       wasPending.current = false;
@@ -144,7 +149,7 @@ export default function AgentActivity({
               focusKey={active?.at || active?.id}
             />
           </div>
-          <aside className="agent-timeline">
+          <aside className="agent-timeline" ref={timeline}>
             {actions && (
               <div className="agent-plan">
                 <span className="eyebrow">THE PLAN</span>
@@ -187,7 +192,7 @@ export default function AgentActivity({
                     <ul className="agent-changes">
                       {e.changes.map((c, j) => (
                         <li key={j}>
-                          {c.op} <b>{c.label}</b>
+                          {c.action || c.op} <b>{c.label}</b>
                         </li>
                       ))}
                     </ul>
