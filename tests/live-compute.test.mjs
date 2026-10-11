@@ -146,3 +146,16 @@ test("switching off, manual runs and leaving the definition cancel pending work"
   await f.tick();
   assert.equal(f.calls, 0);
 });
+
+test("a manual solve does not prevent a later automatic return to earlier values", async () => {
+  const f = fixture();
+  f.update();
+  await f.tick();
+  f.update({ dirty: false });
+  f.update({ signature: "b", dirty: true });
+  f.update({ busy: true });
+  f.update({ busy: false, dirty: false });
+  f.update({ signature: "a", dirty: true });
+  await f.tick();
+  assert.equal(f.calls, 2);
+});
