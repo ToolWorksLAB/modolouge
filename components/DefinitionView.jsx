@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { pointControls } from "../lib/point-controls.js";
 const Viewport = dynamic(() => import("./Viewport.jsx"), {
   ssr: false,
   loading: () => (
@@ -83,7 +84,12 @@ export default function DefinitionView({
                   : `${(duration / 1000).toFixed(2)} S / LAST SOLVE`}
             </span>
           </div>
-          <Viewport objects={objects} />
+          <Viewport
+            objects={objects}
+            points={pointControls(definition?.controls, values)}
+            onPointChange={onValueChange}
+            disabled={!!busy}
+          />
         </div>
       </div>
       {busy && (

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { activityMessage } from "../lib/agent-activity.js";
 
 export default function AppConversation({
   conversation = [],
@@ -49,9 +50,12 @@ export default function AppConversation({
                   <summary>What was checked</summary>
                   <ul>
                     {message.events
-                      .filter((e) => e.status !== "running")
+                      .filter(
+                        (e) =>
+                          e.status !== "running" && e.tool !== "model_step",
+                      )
                       .map((e, j) => (
-                        <li key={j}>{e.message}</li>
+                        <li key={j}>{activityMessage(e)}</li>
                       ))}
                   </ul>
                 </details>
@@ -72,7 +76,13 @@ export default function AppConversation({
             </article>
             <article className="assistant" role="status">
               <span className="spinner" />
-              <p>{events.at(-1)?.message || "Working on your request…"}</p>
+              <p>
+                {activityMessage(
+                  events.findLast((e) => e.status === "running") ||
+                    events.at(-1) || { message: "Working on your request…" },
+                )}
+              </p>
+              <small>Follow the live canvas beside this conversation.</small>
             </article>
           </>
         )}

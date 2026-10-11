@@ -63,6 +63,16 @@ export function makeValues(controls, supplied = {}) {
           Math.max(2 * Math.ceil((control.min - offset) / 2) + offset, value),
         );
       }
+    } else if (control.kind === "point") {
+      if (
+        !Array.isArray(value) ||
+        value.length !== 3 ||
+        value.some(
+          (v) =>
+            typeof v !== "number" || !Number.isFinite(v) || Math.abs(v) > 1e6,
+        )
+      )
+        throw new Error(`Invalid point for ${control.label}`);
     } else if (control.kind === "boolean" && typeof value !== "boolean")
       throw new Error(`Invalid toggle for ${control.label}`);
     else if (control.kind === "text") value = String(value).slice(0, 10000);
@@ -72,12 +82,18 @@ export function makeValues(controls, supplied = {}) {
         "{0}": [
           {
             type:
-              control.kind === "boolean"
-                ? "System.Boolean"
-                : control.kind === "text"
-                  ? "System.String"
-                  : "System.Double",
-            data: JSON.stringify(value),
+              control.kind === "point"
+                ? "Rhino.Geometry.Point3d"
+                : control.kind === "boolean"
+                  ? "System.Boolean"
+                  : control.kind === "text"
+                    ? "System.String"
+                    : "System.Double",
+            data: JSON.stringify(
+              control.kind === "point"
+                ? { X: value[0], Y: value[1], Z: value[2] }
+                : value,
+            ),
           },
         ],
       },

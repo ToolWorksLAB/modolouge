@@ -21,6 +21,8 @@ import {
   plotSeries,
   arrangeDesign,
 } from "../lib/app-design.js";
+import PointFields from "./PointFields.jsx";
+import { pointControls } from "../lib/point-controls.js";
 import { api } from "../lib/client-api.js";
 const Viewport = dynamic(() => import("./Viewport.jsx"), {
   ssr: false,
@@ -57,7 +59,9 @@ function QuickCustomize({ doc, rows, definition, edit, onAdvanced }) {
   )?.node;
   const grid = rows.find(({ node }) => node.type === "grid")?.node;
   const controls = rows.filter(({ node }) =>
-    ["slider", "ruler", "toggle", "textInput", "file"].includes(node.type),
+    ["slider", "ruler", "toggle", "textInput", "file", "point"].includes(
+      node.type,
+    ),
   );
   const layout =
     grid?.columns === 1
@@ -1035,6 +1039,7 @@ export default function AppDesigner({
                       "toggle",
                       "textInput",
                       "file",
+                      "point",
                     ].includes(node.type) && (
                       <>
                         <Select
@@ -1048,7 +1053,9 @@ export default function AppDesigner({
                                   ? c.kind === "number"
                                   : node.type === "toggle"
                                     ? c.kind === "boolean"
-                                    : c.kind === "text",
+                                    : node.type === "point"
+                                      ? c.kind === "point"
+                                      : c.kind === "text",
                               )
                               .map((c) => [c.instanceId || c.name, c.label]),
                           ]}
@@ -1627,7 +1634,12 @@ function ElementContent({
         className="ad-viewport"
         style={{ height: Math.max(n.height || 440, 180) }}
       >
-        <Viewport objects={objects} />
+        <Viewport
+          objects={objects}
+          points={pointControls(definition?.controls, values)}
+          onPointChange={onValueChange}
+          disabled={!preview || !!busy}
+        />
       </div>
     );
   if (n.type === "button")
@@ -1719,6 +1731,16 @@ function ElementContent({
   const disabled = !preview || !!busy,
     value = values[control.name] ?? control.value;
   const set = (v) => onValueChange(control.name, v);
+  if (n.type === "point")
+    return (
+      <PointFields
+        control={control}
+        label={n.label}
+        value={value}
+        disabled={disabled}
+        onChange={onValueChange}
+      />
+    );
   if (n.type === "slider" || n.type === "ruler")
     return (
       <NumberControl

@@ -4,6 +4,9 @@ import AIAppRunner from "./AIAppRunner.jsx";
 import AppConversation from "./AppConversation.jsx";
 import AppRequirements from "./AppRequirements.jsx";
 import AppCapabilityEditor from "./AppCapabilityEditor.jsx";
+import AgentActivity from "./AgentActivity.jsx";
+import { mergeActivity } from "../lib/agent-activity.js";
+import { emptyBrand } from "../lib/app-capabilities.js";
 import { api, agentRequest } from "../lib/client-api.js";
 
 export default function AIStudio({
@@ -32,7 +35,7 @@ export default function AIStudio({
   const [allowEdits, setAllowEdits] = useState(
       initialApp?.editPermission || false,
     ),
-    [events, setEvents] = useState([]),
+    [events, setEvents] = useState(initialApp?.events || []),
     [versions, setVersions] = useState(null);
   const dirty =
     !!plan && JSON.stringify(plan) !== JSON.stringify(app?.blueprint);
@@ -74,9 +77,11 @@ export default function AIStudio({
       const result =
         request === api
           ? await agentRequest(body, (event) =>
-              setEvents((previous) => [...previous, event].slice(-20)),
+              setEvents((previous) => mergeActivity(previous, event)),
             )
-          : await request("apps/generate", body);
+          : await request("apps/generate", body, (event) =>
+              setEvents((previous) => mergeActivity(previous, event)),
+            );
       setApp(result);
       setPlan(result.blueprint);
       setReview(false);
@@ -148,7 +153,7 @@ export default function AIStudio({
           {error}
         </div>
       )}
-      {pending && (
+      {pending && pending !== "Updating your app…" && (
         <div className="ai-pending" role="status">
           <span className="spinner" />
           <div>
@@ -179,19 +184,13 @@ export default function AIStudio({
           </small>
         </div>
       )}
-      {!plan && events.length > 0 && (
-        <ol
-          className="ai-agent-events"
-          aria-label="Agent activity"
-          aria-live="polite"
-        >
-          {events.map((event, i) => (
-            <li key={i}>
-              <span>{event.status}</span>
-              {event.message}
-            </li>
-          ))}
-        </ol>
+      {!plan && (pending === "Updating your app…" || events.length > 0) && (
+        <AgentActivity
+          definition={definition}
+          events={events}
+          pending={pending === "Updating your app…"}
+          error={error}
+        />
       )}
       {versions !== null && (
         <section className="ai-library">
@@ -270,7 +269,7 @@ export default function AIStudio({
         </section>
       )}
       {!plan ? (
-        <section className="ai-brief">
+        <section className="ai-brief" hidden={pending === "Updating your app…"}>
           <div>
             <span className="eyebrow">FROM DEFINITION TO EXPERIENCE</span>
             <h2>
@@ -522,6 +521,24 @@ export default function AIStudio({
                     </select>
                   </label>
                   <label>
+                    Visual character
+                    <select
+                      value={plan.brand?.style || "studio"}
+                      onChange={(e) =>
+                        change("brand", {
+                          ...emptyBrand(),
+                          ...plan.brand,
+                          style: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="studio">Studio</option>
+                      <option value="storybook">Storybook</option>
+                      <option value="blueprint">Blueprint</option>
+                      <option value="gallery">Gallery</option>
+                    </select>
+                  </label>
+                  <label>
                     Accent
                     <select
                       value={plan.accent}
@@ -706,6 +723,12 @@ export default function AIStudio({
               dirty={dirty}
             />
             <div className="ai-workbench-preview">
+              <AgentActivity
+                definition={definition}
+                events={events}
+                pending={pending === "Updating your app…"}
+                error={error}
+              />
               <AppRequirements
                 plan={plan}
                 onAnswers={(answers) => change("answers", answers)}
@@ -725,6 +748,11 @@ export default function AIStudio({
                 draftDirty={dirty}
                 definition={definition}
                 {...runner}
+                busy={
+                  pending === "Updating your app…"
+                    ? "Updating the app…"
+                    : runner.busy
+                }
               />
             </div>
           </div>

@@ -2,7 +2,18 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-export default function Viewport({ objects = [], captureRef }) {
+import { TransformControls } from "three/addons/controls/TransformControls.js";
+const EMPTY_POINTS = [];
+export default function Viewport({
+  objects = [],
+  captureRef,
+  points = EMPTY_POINTS,
+  onPointChange,
+  disabled = false,
+}) {
+  const latest = useRef({ points, onPointChange, disabled });
+  latest.current = { points, onPointChange, disabled };
+  const [selectedPoint, setSelectedPoint] = useState(null);
   const host = useRef(),
     api = useRef(),
     [wire, setWire] = useState(false),
@@ -30,6 +41,63 @@ export default function Viewport({ objects = [], captureRef }) {
     camera.position.set(35, -45, 30);
     const controls = new OrbitControls(camera, r.domElement);
     controls.enableDamping = true;
+    const handles = new THREE.Group();
+    scene.add(handles);
+    const transform = new TransformControls(camera, r.domElement);
+    transform.setMode("translate");
+    transform.setSpace("world");
+    transform.setSize(0.85);
+    scene.add(transform.getHelper());
+    let startingPosition = null;
+    transform.addEventListener("dragging-changed", (e) => {
+      controls.enabled = !e.value;
+    });
+    transform.addEventListener("mouseDown", () => {
+      startingPosition = transform.object?.position.clone();
+    });
+    transform.addEventListener("objectChange", () => {
+      if (!transform.object || latest.current.disabled) return;
+      const p = transform.object.position;
+      p.set(
+        ...p
+          .toArray()
+          .map((v) => Math.max(-1e6, Math.min(1e6, Math.round(v * 1e6) / 1e6))),
+      );
+      latest.current.onPointChange?.(
+        transform.object.userData.binding,
+        p.toArray(),
+      );
+    });
+    const escape = (e) => {
+      if (e.key !== "Escape" || !transform.dragging || !startingPosition)
+        return;
+      transform.object.position.copy(startingPosition);
+      latest.current.onPointChange?.(
+        transform.object.userData.binding,
+        startingPosition.toArray(),
+      );
+      transform.reset();
+    };
+    r.domElement.addEventListener("keydown", escape);
+    r.domElement.tabIndex = 0;
+    const ray = new THREE.Raycaster();
+    const pick = (e) => {
+      if (latest.current.disabled || transform.axis || e.button !== 0) return;
+      const box = r.domElement.getBoundingClientRect();
+      ray.setFromCamera(
+        new THREE.Vector2(
+          ((e.clientX - box.left) / box.width) * 2 - 1,
+          (-(e.clientY - box.top) / box.height) * 2 + 1,
+        ),
+        camera,
+      );
+      const hit = ray.intersectObjects(handles.children)[0];
+      if (hit) {
+        setSelectedPoint(hit.object.userData.binding);
+        r.domElement.focus();
+      }
+    };
+    r.domElement.addEventListener("pointerdown", pick);
     scene.add(model, new THREE.HemisphereLight(0xffffff, 0x7e697a, 2.5));
     const light = new THREE.DirectionalLight(0xfff9e9, 3);
     light.position.set(30, -20, 50);
@@ -39,9 +107,10 @@ export default function Viewport({ objects = [], captureRef }) {
     grid.position.z = -0.02;
     scene.add(grid);
     const fit = () => {
-      if (!model.children.length) return;
-      const box = new THREE.Box3().setFromObject(model),
-        center = box.getCenter(new THREE.Vector3()),
+      if (!model.children.length && !handles.children.length) return;
+      const box = new THREE.Box3().setFromObject(model);
+      for (const h of handles.children) box.expandByPoint(h.position);
+      const center = box.getCenter(new THREE.Vector3()),
         radius = Math.max(box.getSize(new THREE.Vector3()).length() / 2, 1),
         distance =
           radius /
@@ -76,9 +145,20 @@ export default function Viewport({ objects = [], captureRef }) {
     r.setAnimationLoop(() => {
       if (!visible) return;
       controls.update();
+      for (const h of handles.children)
+        h.scale.setScalar(camera.position.distanceTo(h.position) * 0.008);
       r.render(scene, camera);
     });
-    api.current = { r, scene, camera, model, fit };
+    api.current = {
+      r,
+      scene,
+      camera,
+      model,
+      fit,
+      handles,
+      transform,
+      controls,
+    };
     if (captureRef)
       captureRef.current = () => {
         r.render(scene, camera);
@@ -88,6 +168,10 @@ export default function Viewport({ objects = [], captureRef }) {
       resize.disconnect();
       r.setAnimationLoop(null);
       controls.dispose();
+      transform.detach();
+      transform.dispose();
+      r.domElement.removeEventListener("pointerdown", pick);
+      r.domElement.removeEventListener("keydown", escape);
       scene.traverse((x) => {
         x.geometry?.dispose();
         x.material?.dispose();
@@ -146,6 +230,44 @@ export default function Viewport({ objects = [], captureRef }) {
     }
     if (first) a.fit();
   }, [objects, wire]);
+  useEffect(() => {
+    const a = api.current;
+    if (!a) return;
+    const firstPoints = !a.handles.children.length && points.length > 0;
+    const names = new Set(points.map((p) => p.name));
+    for (const h of [...a.handles.children])
+      if (!names.has(h.userData.binding)) {
+        if (a.transform.object === h) a.transform.detach();
+        a.handles.remove(h);
+        h.geometry.dispose();
+        h.material.dispose();
+      }
+    for (const point of points) {
+      let h = a.handles.children.find((h) => h.userData.binding === point.name);
+      if (!h) {
+        h = new THREE.Mesh(
+          new THREE.SphereGeometry(1, 16, 12),
+          new THREE.MeshBasicMaterial({ color: 0xec188e, depthTest: false }),
+        );
+        h.userData.binding = point.name;
+        h.renderOrder = 1000;
+        a.handles.add(h);
+      }
+      if (!a.transform.dragging || a.transform.object !== h)
+        h.position.set(...point.position);
+    }
+    const active = points.some((p) => p.name === selectedPoint)
+      ? selectedPoint
+      : points[0]?.name;
+    const handle = a.handles.children.find(
+      (h) => h.userData.binding === active,
+    );
+    if (handle && !disabled && onPointChange) a.transform.attach(handle);
+    else a.transform.detach();
+    a.transform.enabled = !disabled;
+    a.controls.enabled = !a.transform.dragging;
+    if (firstPoints) a.fit();
+  }, [points, selectedPoint, disabled, onPointChange]);
   function capture() {
     const a = api.current;
     if (!a) return;
@@ -161,7 +283,26 @@ export default function Viewport({ objects = [], captureRef }) {
     });
   }
   return (
-    <div className="viewport-wrap">
+    <div className={`viewport-wrap ${points.length ? "has-points" : ""}`}>
+      {!!points.length && (
+        <div className="viewport-points" aria-label="Point gumballs">
+          <span className="eyebrow">MOVE A POINT</span>
+          <div>
+            {points.map((p, i) => (
+              <button
+                key={p.name}
+                disabled={disabled}
+                aria-pressed={(selectedPoint || points[0]?.name) === p.name}
+                onClick={() => setSelectedPoint(p.name)}
+              >
+                {p.label} <span>{i + 1}</span>
+              </button>
+            ))}
+          </div>
+          <small>Drag an axis or plane · Update to apply</small>
+        </div>
+      )}
+
       <div
         ref={host}
         className="viewport"

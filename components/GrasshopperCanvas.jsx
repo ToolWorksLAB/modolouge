@@ -15,6 +15,7 @@ import {
   wirePath,
   zoomCamera,
 } from "../lib/canvas-graph.js";
+import PointFields from "./PointFields.jsx";
 
 const EMPTY = [];
 function GraphMark() {
@@ -39,6 +40,10 @@ export default function GrasshopperCanvas({
   onValueChange,
   disabled = false,
   hasDefinition = false,
+  highlightIds = EMPTY,
+  activityStatus,
+  followActivity = false,
+  focusKey,
 }) {
   const host = useRef(null),
     svg = useRef(null),
@@ -58,6 +63,7 @@ export default function GrasshopperCanvas({
     [controls],
   );
   const bounds = useMemo(() => graphBounds(nodes), [nodes]);
+  const highlighted = useMemo(() => new Set(highlightIds), [highlightIds]);
   boundsRef.current = bounds;
   const fit = useCallback(
     () => setCamera(fitCamera(boundsRef.current, size.current)),
@@ -68,6 +74,12 @@ export default function GrasshopperCanvas({
     setSelected(null);
     setQuery("");
   }, [graph, fit]);
+  useEffect(() => {
+    if (!followActivity || !highlightIds.length) return;
+    const targets = nodes.filter((n) => highlighted.has(n.id));
+    if (targets.length)
+      setCamera(fitCamera(graphBounds(targets), size.current));
+  }, [focusKey, followActivity, highlighted, nodes]);
   useEffect(() => {
     let initialized = false;
     const observer = new ResizeObserver(([entry]) => {
@@ -281,7 +293,7 @@ export default function GrasshopperCanvas({
               <path
                 key={i}
                 d={wirePath(a, b)}
-                className={`gh-wire ${selected && (wire.sourceNode === selected || wire.targetNode === selected) ? "is-active" : ""}`}
+                className={`gh-wire ${selected && (wire.sourceNode === selected || wire.targetNode === selected) ? "is-active" : ""} ${highlighted.has(wire.sourceNode) || highlighted.has(wire.targetNode) ? "agent-wire" : ""}`}
                 opacity={
                   selected &&
                   wire.sourceNode !== selected &&
@@ -301,7 +313,7 @@ export default function GrasshopperCanvas({
             return (
               <g
                 key={node.id}
-                className={`gh-node gh-${node.kind} ${selectedNode ? "is-selected" : ""} ${node.locked ? "is-locked" : ""}`}
+                className={`gh-node gh-${node.kind} ${selectedNode ? "is-selected" : ""} ${node.locked ? "is-locked" : ""} ${highlighted.has(node.id) ? `agent-node agent-${activityStatus || "passed"}` : ""}`}
                 role="button"
                 tabIndex={0}
                 aria-label={`${node.label}, ${node.name}${control ? ", value " + value : ""}`}
@@ -556,7 +568,14 @@ export default function GrasshopperCanvas({
                   {String(values[activeControl.name] ?? activeControl.value)}
                 </output>
               </label>
-              {activeControl.kind === "number" ? (
+              {activeControl.kind === "point" ? (
+                <PointFields
+                  control={activeControl}
+                  value={values[activeControl.name]}
+                  onChange={onValueChange}
+                  disabled={disabled || !onValueChange}
+                />
+              ) : activeControl.kind === "number" ? (
                 <input
                   id={`${patternId}-control`}
                   aria-label={`Canvas ${activeControl.label}`}
@@ -570,7 +589,7 @@ export default function GrasshopperCanvas({
                     onValueChange(activeControl.name, +e.target.value)
                   }
                 />
-              ) : (
+              ) : activeControl.kind === "boolean" ? (
                 <input
                   id={`${patternId}-control`}
                   type="checkbox"
@@ -580,6 +599,15 @@ export default function GrasshopperCanvas({
                   disabled={disabled || !onValueChange}
                   onChange={(e) =>
                     onValueChange(activeControl.name, e.target.checked)
+                  }
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={values[activeControl.name] ?? activeControl.value}
+                  disabled={disabled || !onValueChange}
+                  onChange={(e) =>
+                    onValueChange(activeControl.name, e.target.value)
                   }
                 />
               )}

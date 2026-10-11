@@ -6,6 +6,7 @@ import "./canvas.css";
 import "./designer.css";
 import "./workflow.css";
 import "./ai-studio.css";
+import "./live-build.css";
 import { manager } from "../lib/config.js";
 export const metadata = {
   title: manager

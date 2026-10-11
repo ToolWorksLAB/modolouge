@@ -5,7 +5,7 @@ Implemented 2026-10-10. This replaces manual-first authoring with upload → bri
 ## Product contract
 
 - A file is prepared by the existing reviewed-component policy. Scripts, clusters and unreviewed plugins remain unsupported. AI cannot make them compatible.
-- The model reads saved controls, node labels, descriptions, bounded panel text, groups, ports and connections through bounded read, graph-edit, Compute-test and app-validation tools. Verified members must enable editing a copy. Edits can rename nodes, modify slider defaults/bounds, panel text and reviewed arithmetic expressions, clone existing components, rewire and remove nodes. Arbitrary new component types and plugin installation remain unsupported. It does not receive the binary archive, credentials or geometry. This is metadata interpretation, not full code comprehension.
+- The model reads saved controls, node labels, descriptions, bounded panel text, groups, ports and connections through bounded read, graph-edit, Compute-test and app-validation tools. Verified members must enable editing a copy. Edits can rename nodes, modify slider defaults/bounds, panel text and reviewed arithmetic expressions, clone existing components, rewire, remove nodes and change preview visibility. Arbitrary new component types and plugin installation remain unsupported. It does not receive the binary archive, credentials or geometry. This is metadata interpretation, not full code comprehension.
 - The output is a validated blueprint, never executable JavaScript or arbitrary HTML. All controls must bind to real exposed inputs; duplicates and invented bindings are rejected. Missing inputs remain in the final step with a warning.
 - A small definition should stay one step. Larger definitions can use up to six task-based steps. Back/Next retains values. Steps are UI organization, not independent Grasshopper solutions. Update runs the entire definition once.
 - Users can edit titles, descriptions, labels, help text, step membership, surface, accent and layout. AI refinements start from a saved revision. Concurrent edits cannot silently overwrite each other.
@@ -61,3 +61,5 @@ Future work should follow observed usage: richer read-only analysis of unsupport
 Restore prior app/manager deployments to roll back the UI. Additive tables can stay. Worker backups are at `/opt/modolouge-worker-backups/agent-20261010`; wait for active jobs before stopping the worker, restore its execute.js and GhBridge, then restart modolouge-worker. Do not remove Rhino licensing or overwrite user archives.
 
 `vercel ai-gateway setup` configures local coding agents; the app already calls the model through its server-side SDK integration.
+
+See [Live build canvas and point manipulation](live-canvas-and-points.md) for the October 11 gumball, progress and style release.

@@ -29,6 +29,7 @@ try
         if (!new[] { "DefinitionObjects", "DocumentHeader", "DefinitionProperties" }.Contains((string?)chunk.Attribute("name"))) chunk.Remove();
     var graph = GraphReader.Read(originalObjects);
     var controls = new List<object>();
+    var pointCount = 0;
     var outputs = new List<object>();
     var previewSources = PreviewSelection.Sources(graph, out var hiddenPreviewFallback);
     var groupedInputs = new Dictionary<string, string>();
@@ -53,7 +54,23 @@ try
         var label = Value(c, "NickName");
         if (string.IsNullOrWhiteSpace(label)) label = name;
         var slider = Chunk(c, "Slider");
-        if (slider != null)
+        var point = PointInputs.Read(obj);
+        if (point != null)
+        {
+            var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id[..8]}";
+            if (!groupedInputs.ContainsKey(id)) AddGroup(inputName, id);
+            pointCount++;
+            var pointLabel = label is "Pt" or "Point" ? $"Point {pointCount}" : label;
+            controls.Add(new { name = inputName, instanceId = id, label = pointLabel, kind = "point", value = point, min = -1e6, max = 1e6 });
+            // A visible point can be both an editable input and a preview output.
+            if (!explicitOutputs && (previewSources.Count > 0 ? previewSources.Contains(id) : Value(c,"Hidden") != "true"))
+            {
+                var outputName = $"RH_OUT:{label}_{id[..8]}";
+                AddGroup(outputName,id);
+                outputs.Add(new { name = outputName, label });
+            }
+        }
+        else if (slider != null)
         {
             var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id[..8]}";
             if (!groupedInputs.ContainsKey(id)) AddGroup(inputName, id);
@@ -95,7 +112,7 @@ try
     if (!prepared.Deserialize_Xml(xml.ToString())) throw new Exception("Could not prepare definition for Compute.");
     var libraries = Chunk(definition, "GHALibraries")?.Descendants("item").Where(x => (string?)x.Attribute("name") == "Name").Select(x => x.Value).Distinct().ToArray() ?? [];
     if (libraries.Length > 0) warnings.Add("Required libraries: " + string.Join(", ", libraries) + ". They must be installed on the Compute server.");
-    if (controls.Count == 0) warnings.Add("No top-level sliders, toggles or unwired text Panels found.");
+    if (controls.Count == 0) warnings.Add("No top-level sliders, toggles, single embedded points or unwired text Panels found.");
     Console.Write(JsonSerializer.Serialize(new { algo = Convert.ToBase64String(prepared.Serialize_Binary()), controls, outputs, libraries, warnings, graph }));
 
     void AddGroup(string name, string id)

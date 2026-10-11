@@ -1,4 +1,5 @@
 "use client";
+import PointFields from "./PointFields.jsx";
 export default function ModelControls({
   definition,
   values,
@@ -54,7 +55,14 @@ export default function ModelControls({
         {controls.map((c) => (
           <div className="parameter" key={c.name}>
             <label htmlFor={c.name}>{c.label}</label>
-            {c.kind === "number" ? (
+            {c.kind === "point" ? (
+              <PointFields
+                control={c}
+                value={values[c.name]}
+                onChange={onChange}
+                disabled={!!busy}
+              />
+            ) : c.kind === "number" ? (
               <>
                 <input
                   aria-label={c.label + " value"}

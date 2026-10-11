@@ -30,6 +30,10 @@ public static class GraphEdits
             {
                 case "rename":
                     Set(c, "NickName", Limited(edit, "text", 100), "gh_string", 10); break;
+                case "preview":
+                    var enabled = OptionalNumber(edit,"value");
+                    if (enabled is not 0 and not 1) throw new Exception("Preview value must be 1 (visible) or 0 (hidden).");
+                    Set(c,"Hidden", enabled == 1 ? "false" : "true", "gh_bool", 1); break;
                 case "slider":
                     var slider = Chunk(c, "Slider") ?? throw new Exception("This node is not a number slider.");
                     var min = OptionalNumber(edit, "min") ?? Number(slider, "Min");

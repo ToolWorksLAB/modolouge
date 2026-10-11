@@ -90,6 +90,13 @@ try{Edit(new XDocument(editXml),[new {op="slider",nodeId=sid,value=100}]);}catch
 Check(invalid && editXml.ToString()==before,"An out-of-range candidate fails without changing the original");
 invalid=false;try{Edit(new XDocument(editXml),[new {op="execute",nodeId=sid}]);}catch{invalid=true;}
 Check(invalid,"Unknown edit operations rejected");
+Edit(editXml,[new {op="preview",nodeId=sid,value=0}]);
+Check(GraphReader.Read(editXml.Descendants("chunk").Where(x=>(string?)x.Attribute("name")=="Object")).nodes.Single().hidden,"Preview operation hides the selected node");
+Edit(editXml,[new {op="preview",nodeId=sid,value=1}]);
+Check(!GraphReader.Read(editXml.Descendants("chunk").Where(x=>(string?)x.Attribute("name")=="Object")).nodes.Single().hidden,"Preview operation restores visibility");
+invalid=false;try{Edit(new XDocument(editXml),[new {op="preview",nodeId=sid,value=2}]);}catch{invalid=true;}
+Check(invalid,"Invalid preview flag rejected");
+PointTests.Run(Check);
 Console.WriteLine($"ArchivePolicy: {passed} assertions passed.");
 void Check(bool success, string message) { if (!success) throw new Exception(message); passed++; Console.WriteLine("PASS " + message); }
 void Reject(XDocument xml, Action<XDocument> mutate, string message)

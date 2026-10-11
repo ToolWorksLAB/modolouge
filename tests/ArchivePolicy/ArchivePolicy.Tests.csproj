@@ -7,5 +7,6 @@
     <Compile Include="../../worker/tools/GhBridge/GraphReader.cs" Link="GraphReader.cs" />
     <Compile Include="../../worker/tools/GhBridge/PreviewSelection.cs" Link="PreviewSelection.cs" />
     <Compile Include="../../worker/tools/GhBridge/GraphEdits.cs" Link="GraphEdits.cs" />
+    <Compile Include="../../worker/tools/GhBridge/PointInputs.cs" Link="PointInputs.cs" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,8 @@
 "use client";
 import { useState, useId, useRef, useEffect } from "react";
 import Viewport from "./Viewport.jsx";
+import PointFields from "./PointFields.jsx";
+import { pointControls } from "../lib/point-controls.js";
 import ConfigurationReview from "./ConfigurationReview.jsx";
 import {
   configurationKey,
@@ -52,9 +54,19 @@ export default function AIAppRunner({
   const controls = new Map(
     definition.controls.map((c) => [c.instanceId || c.name, c]),
   );
+  const labels = new Map(
+    blueprint.steps.flatMap((s) => s.controls.map((c) => [c.binding, c.label])),
+  );
+  const handles = pointControls(
+    definition.controls.map((c) => ({
+      ...c,
+      label: labels.get(c.instanceId || c.name) || c.label,
+    })),
+    values,
+  );
   return (
     <section
-      className={`ai-runner ai-theme-${blueprint.theme} ai-accent-${blueprint.accent} ai-layout-${blueprint.arrangement}`}
+      className={`ai-runner ai-theme-${blueprint.theme} ai-accent-${blueprint.accent} ai-layout-${blueprint.arrangement} ai-style-${brand?.style || "studio"}`}
       aria-label={blueprint.title}
       style={
         brand
@@ -147,7 +159,15 @@ export default function AIAppRunner({
               return (
                 <div className="ai-field" key={binding.binding}>
                   <label htmlFor={id}>{binding.label}</label>
-                  {c.kind === "number" ? (
+                  {c.kind === "point" ? (
+                    <PointFields
+                      control={c}
+                      label={binding.label}
+                      value={values[c.name]}
+                      onChange={onChange}
+                      disabled={!!busy}
+                    />
+                  ) : c.kind === "number" ? (
                     <>
                       <input
                         aria-label={binding.label + " value"}
@@ -234,7 +254,13 @@ export default function AIAppRunner({
             <span className="eyebrow">LIVE MODEL</span>
             <span>Drag to orbit · scroll to zoom</span>
           </div>
-          <Viewport objects={objects} captureRef={captureRef} />
+          <Viewport
+            objects={objects}
+            captureRef={captureRef}
+            points={handles}
+            onPointChange={onChange}
+            disabled={!!busy}
+          />
           {!objects.length && !busy && (
             <div className="ai-model-empty">
               Your model starts here.
