@@ -14,7 +14,9 @@ try
     if (originalObjects.Length > 500) throw new Exception("This service supports at most 500 components per definition.");
     var policyFile = Path.Combine(AppContext.BaseDirectory, "component-policy.json");
     var policy = JsonDocument.Parse(File.ReadAllText(policyFile)).RootElement.EnumerateArray().Select(x => x.GetProperty("id").GetString()!).ToHashSet(StringComparer.OrdinalIgnoreCase);
-    var warnings = new List<string>(PreviewMaterials.Normalize(originalObjects));
+    var warnings = new List<string>(BranchRepair.Apply(xml, objectList, policy));
+    originalObjects = objectList.Elements("chunk").ToArray();
+    warnings.AddRange(PreviewMaterials.Normalize(originalObjects));
     ArchivePolicy.Validate(xml, originalObjects, policy);
     if (args.Length == 3 && args[1] == "--patch")
     {

@@ -65,6 +65,7 @@ export async function execute(job) {
     } finally {
       await rm(temp, { recursive: true, force: true });
     }
+    parsed.warnings = [...new Set([...(original.warnings || []), ...parsed.warnings])];
     const io = await compute("/io", {
       algo: parsed.algo,
       filename: def.filename,

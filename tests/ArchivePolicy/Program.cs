@@ -2,6 +2,7 @@ using System.Xml.Linq;
 using System.Text.Json;
 
 var passed = 0;
+BranchRepairTests.Run();
 foreach (var expression in new[] { "", "-x", " x * (2 + 3.5) ", "-(x/2)", ".5+x^2", "1e-3*x", "2%3" })
     Check(ArithmeticExpression.IsAllowed(expression), "Allow arithmetic: " + expression);
 foreach (var expression in new[] { "x.ToString()", "System.IO.File.ReadAllText(x)", "sin(x)", "x;1", "x +", "(x", "x)", "xy", "xx", "1e500", "1e+x", "\"hello\"", "x[0]", new string('(', 100) + "x" + new string(')', 100), new string('1', 257) })

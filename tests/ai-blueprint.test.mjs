@@ -133,3 +133,9 @@ test("usage sums all model calls, cached and reasoning tokens without double cha
   );
   assert.equal(sol.estimate_usd, 11.62);
 });
+
+test("agent context includes bounded archive repair disclosures", () => {
+  const repaired = graphContext({ ...definition, warnings: ["Automatic geometry-only repair removed annotations.", "x".repeat(3000)] });
+  assert.equal(repaired.archiveWarnings[0], "Automatic geometry-only repair removed annotations.");
+  assert.equal(repaired.archiveWarnings[1].length, 2400);
+});
