@@ -14,6 +14,9 @@ cd /opt/modolouge-worker
 npm install --omit=dev --no-audit --no-fund
 /usr/share/dotnet/dotnet publish tools/GhBridge/GhBridge.csproj -c Release -o tools/GhBridge/publish
 cp component-policy.json tools/GhBridge/publish/component-policy.json
+/usr/share/dotnet/dotnet build tools/ModolougeGeometry/ModolougeGeometry.csproj -c Release -o tools/ModolougeGeometry/publish
+install -d -m 755 /var/lib/rhino-compute/.config/Grasshopper/Libraries
+install -m 644 tools/ModolougeGeometry/publish/ModolougeGeometry.dll /var/lib/rhino-compute/.config/Grasshopper/Libraries/ModolougeGeometry.gha
 chown -R root:root /opt/modolouge-worker
 chmod -R go-w /opt/modolouge-worker
 cat >/etc/systemd/system/modolouge-worker.service <<'EOF'

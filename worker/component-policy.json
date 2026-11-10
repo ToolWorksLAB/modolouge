@@ -308,5 +308,20 @@
     "name": "Pi",
     "id": "0d2ccfb3-9d41-4759-9452-da6a522c3eaa",
     "source": "MathComponents.FunctionComponents.Component_Pi"
+  },
+  {
+    "name": "Perlin Surface",
+    "id": "47a5c643-ec4e-4c8b-9d37-9893061980ab",
+    "source": "Reviewed ModolougeGeometry C# component; bounded inputs; no external resources"
+  },
+  {
+    "name": "Populate Surface UV",
+    "id": "69a64ded-ffad-4c66-92d5-3409bf0f3b2b",
+    "source": "Reviewed ModolougeGeometry C# component; bounded inputs; no external resources"
+  },
+  {
+    "name": "Bounds Dimensions",
+    "id": "ef4a82c4-a4bc-44ce-8328-fd58f749cc14",
+    "source": "Reviewed ModolougeGeometry C# component; bounded inputs; no external resources"
   }
 ]

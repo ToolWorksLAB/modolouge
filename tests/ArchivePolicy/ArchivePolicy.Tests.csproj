@@ -10,4 +10,4 @@
     <Compile Include="../../worker/tools/GhBridge/GraphEdits.cs" Link="GraphEdits.cs" />
     <Compile Include="../../worker/tools/GhBridge/PointInputs.cs" Link="PointInputs.cs" />
   </ItemGroup>
-</Project>
+<ItemGroup><Compile Include="../../worker/tools/GhBridge/ComponentCatalog.cs" Link="ComponentCatalog.cs" /><EmbeddedResource Include="../../worker/component-catalog.json" LogicalName="Modolouge.ComponentCatalog" /></ItemGroup></Project>

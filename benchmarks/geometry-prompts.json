@@ -1,0 +1,802 @@
+[
+  {
+    "id": "G001",
+    "category": "Primitives",
+    "prompt": "Add one sphere at the origin with an exposed radius from 1 to 10, initially 3.",
+    "acceptance": "One sphere; radius change doubles its bounding diameter.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G002",
+    "category": "Primitives",
+    "prompt": "Make a sphere centered at editable X, Y, Z coordinates.",
+    "acceptance": "Moving X translates its center without changing diameter.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G003",
+    "category": "Primitives",
+    "prompt": "Make a box with independent width, depth and height controls.",
+    "acceptance": "Three dimensions match inputs and vary independently.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G004",
+    "category": "Primitives",
+    "prompt": "Create a cylinder with adjustable radius and height.",
+    "acceptance": "Circular section diameter is twice radius; height matches control.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G005",
+    "category": "Primitives",
+    "prompt": "Make a cone with radius and height controls.",
+    "acceptance": "One apex; base radius and axial height match inputs.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G006",
+    "category": "Primitives",
+    "prompt": "Create a torus with independent major and minor radii.",
+    "acceptance": "Closed ring; increasing minor radius thickens the tube.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G007",
+    "category": "Primitives",
+    "prompt": "Make an ellipsoid with three independent semi-axes.",
+    "acceptance": "Bounds equal twice each semi-axis.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G008",
+    "category": "Primitives",
+    "prompt": "Make a capsule with straight length and end radius controls.",
+    "acceptance": "Rounded ends; total length equals straight length plus two radii.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G009",
+    "category": "Primitives",
+    "prompt": "Create a hollow pipe with inner radius, outer radius and length.",
+    "acceptance": "Through-hole remains open; inner radius stays below outer radius.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G010",
+    "category": "Primitives",
+    "prompt": "Create a rounded box with independent corner radius.",
+    "acceptance": "Outer bounds preserved; radius is clamped below half the shortest side.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G011",
+    "category": "Curves",
+    "prompt": "Draw a line between two draggable points.",
+    "acceptance": "Endpoints follow both controls; length is their Euclidean distance.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G012",
+    "category": "Curves",
+    "prompt": "Draw a circle with editable center and radius.",
+    "acceptance": "Closed planar curve; radius change preserves center.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G013",
+    "category": "Curves",
+    "prompt": "Create a regular polygon with editable side count and circumradius.",
+    "acceptance": "Integer count changes number of equal-length edges.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G014",
+    "category": "Curves",
+    "prompt": "Create a three-point arc with draggable points.",
+    "acceptance": "Arc passes through all three; collinearity reports an actionable error.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G015",
+    "category": "Curves",
+    "prompt": "Make an ellipse with independent major and minor radii.",
+    "acceptance": "Planar closed curve with correct axis lengths.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G016",
+    "category": "Curves",
+    "prompt": "Build a helix with radius, pitch and number of turns.",
+    "acceptance": "Total height equals pitch times turns.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G017",
+    "category": "Curves",
+    "prompt": "Build a planar spiral with initial radius and growth per revolution.",
+    "acceptance": "Radius grows by requested amount each revolution.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G018",
+    "category": "Curves",
+    "prompt": "Create an interpolated curve through five editable points.",
+    "acceptance": "Curve passes through each point within tolerance.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G019",
+    "category": "Curves",
+    "prompt": "Offset a closed rectangle inward by a controlled distance.",
+    "acceptance": "Inner dimensions shrink by twice the offset; invalid offsets rejected.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G020",
+    "category": "Curves",
+    "prompt": "Divide a circle into N equal arc-length intervals.",
+    "acceptance": "N unique points with uniform angular spacing; no duplicate seam point.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G021",
+    "category": "Transforms",
+    "prompt": "Translate an existing object with independent XYZ controls.",
+    "acceptance": "Topology and size unchanged; bounds shift by requested vector.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G022",
+    "category": "Transforms",
+    "prompt": "Rotate a box about a selectable axis by a degree control.",
+    "acceptance": "Zero degrees preserves geometry; 90 degrees swaps appropriate bounds.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G023",
+    "category": "Transforms",
+    "prompt": "Scale a sphere uniformly about its center.",
+    "acceptance": "Center unchanged; radius multiplied by scale.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G024",
+    "category": "Transforms",
+    "prompt": "Mirror a shape across the YZ plane.",
+    "acceptance": "X coordinates reverse sign; distances are preserved.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G025",
+    "category": "Transforms",
+    "prompt": "Orient a panel from XY onto an editable target plane.",
+    "acceptance": "Panel normal agrees with target normal.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G026",
+    "category": "Transforms",
+    "prompt": "Array a sphere in a row with count and spacing controls.",
+    "acceptance": "Exact count; adjacent centers separated by spacing.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G027",
+    "category": "Transforms",
+    "prompt": "Array cylinders on a circular ring with count and ring radius.",
+    "acceptance": "Exact count; all centers lie at ring radius.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G028",
+    "category": "Transforms",
+    "prompt": "Build a two-dimensional rectangular array with rows, columns and spacing.",
+    "acceptance": "Count equals rows times columns; independent spacing changes.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G029",
+    "category": "Transforms",
+    "prompt": "Twist a tower around its vertical axis by a total-angle control.",
+    "acceptance": "Base rotation is zero; top rotation matches requested angle.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G030",
+    "category": "Transforms",
+    "prompt": "Taper a column from a base radius to an independent top radius.",
+    "acceptance": "End sections match both radii without translation.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G031",
+    "category": "Surfaces",
+    "prompt": "Build a surface through four draggable corner points.",
+    "acceptance": "Surface corners match inputs and remain connected.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G032",
+    "category": "Surfaces",
+    "prompt": "Loft three circles with independent radii and elevations.",
+    "acceptance": "Cross-sections interpolate the circles in elevation order.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G033",
+    "category": "Surfaces",
+    "prompt": "Extrude a closed rectangle by an editable height.",
+    "acceptance": "Extrusion height tracks control; profile dimensions retained.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G034",
+    "category": "Surfaces",
+    "prompt": "Revolve a profile around a vertical axis with an angle control.",
+    "acceptance": "360 degrees closes the seam; partial angle leaves boundaries.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G035",
+    "category": "Surfaces",
+    "prompt": "Sweep a circular section along a curved rail.",
+    "acceptance": "Tube follows the rail with controlled section radius.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G036",
+    "category": "Surfaces",
+    "prompt": "Make a ruled surface between two editable lines.",
+    "acceptance": "Both lines remain boundary edges.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G037",
+    "category": "Surfaces",
+    "prompt": "Generate a sine-wave surface with amplitude, wavelength and resolution controls.",
+    "acceptance": "Zero amplitude is planar; wavelength changes periodicity.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G038",
+    "category": "Surfaces",
+    "prompt": "Generate a Perlin-noise surface with seed, amplitude, frequency and resolution inputs.",
+    "acceptance": "Same seed repeats; zero amplitude planar; changed seed changes heights.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G039",
+    "category": "Surfaces",
+    "prompt": "Create a saddle surface with curvature and width controls.",
+    "acceptance": "Opposite-sign principal curvatures near center; zero curvature planar.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G040",
+    "category": "Surfaces",
+    "prompt": "Create a dome with span and rise controls.",
+    "acceptance": "Boundary spans requested width; apex rise matches control.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G041",
+    "category": "Distribution",
+    "prompt": "Populate a planar rectangle with N random points and a seed.",
+    "acceptance": "Exact count; points inside boundary; seed reproducibility.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G042",
+    "category": "Distribution",
+    "prompt": "Populate spheres on a Perlin-noise surface; expose noise seed, amplitude, frequency, population count and sphere radius.",
+    "acceptance": "Surface feeds population; exact sphere count; centers lie on surface; seed repeatable.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G043",
+    "category": "Distribution",
+    "prompt": "Distribute spheres evenly along a curve using a count control.",
+    "acceptance": "Exact count and equal arc-length intervals.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G044",
+    "category": "Distribution",
+    "prompt": "Place oriented panels on a surface UV grid.",
+    "acceptance": "Panel normals follow sampled surface normals.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G045",
+    "category": "Distribution",
+    "prompt": "Scatter points on a surface with a minimum separation.",
+    "acceptance": "All pairwise distances exceed threshold or report infeasibility.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G046",
+    "category": "Distribution",
+    "prompt": "Create a hexagonal point grid clipped to a rectangular region.",
+    "acceptance": "Staggered rows; all points inside boundary.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G047",
+    "category": "Distribution",
+    "prompt": "Arrange circles on a Fibonacci spiral with count and scale controls.",
+    "acceptance": "Golden-angle progression; deterministic count and radii.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G048",
+    "category": "Distribution",
+    "prompt": "Vary sphere radii by distance to a draggable attractor.",
+    "acceptance": "Closer centers receive larger radii within specified bounds.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G049",
+    "category": "Distribution",
+    "prompt": "Populate cubes inside a closed box with a random seed.",
+    "acceptance": "Centers contained; count and reproducibility verified.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G050",
+    "category": "Distribution",
+    "prompt": "Place columns on a grid and vary heights using Perlin noise.",
+    "acceptance": "Column count follows grid; noise changes heights, not positions.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G051",
+    "category": "Meshes",
+    "prompt": "Create a mesh sphere with separate U and V subdivision controls.",
+    "acceptance": "Closed finite mesh; refinement increases face count.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G052",
+    "category": "Meshes",
+    "prompt": "Create a triangulated rectangular terrain from height samples.",
+    "acceptance": "Boundary dimensions preserved; all faces triangular.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G053",
+    "category": "Meshes",
+    "prompt": "Displace mesh vertices along normals by a noise amplitude.",
+    "acceptance": "Zero amplitude unchanged; connectivity preserved.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G054",
+    "category": "Meshes",
+    "prompt": "Subdivide a cube mesh twice with a smoothness control.",
+    "acceptance": "Refinement increases face count and changes shape as specified.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G055",
+    "category": "Meshes",
+    "prompt": "Reduce a mesh to a target face count while preserving its outline.",
+    "acceptance": "Face budget respected; boundary deviation measured.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G056",
+    "category": "Meshes",
+    "prompt": "Thicken an open mesh to a closed shell with thickness control.",
+    "acceptance": "Closed manifold output; measured thickness follows input.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G057",
+    "category": "Meshes",
+    "prompt": "Extract boundary edges of an open mesh.",
+    "acceptance": "Only naked edges returned; internal edges excluded.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G058",
+    "category": "Meshes",
+    "prompt": "Compute and display mesh face normals with adjustable vector length.",
+    "acceptance": "One normal per face; magnitude matches control.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G059",
+    "category": "Meshes",
+    "prompt": "Create a geodesic dome with subdivision and cut-height controls.",
+    "acceptance": "Triangular facets; vertices below cut excluded or trimmed.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G060",
+    "category": "Meshes",
+    "prompt": "Create a perforated panel mesh with hole radius and spacing controls.",
+    "acceptance": "Through-holes preserved; no inverted or non-finite faces.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G061",
+    "category": "Solids and fabrication",
+    "prompt": "Subtract a cylinder from a box to make a through-hole.",
+    "acceptance": "Closed solid; hole penetrates both faces.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G062",
+    "category": "Solids and fabrication",
+    "prompt": "Union two overlapping boxes into one solid.",
+    "acceptance": "Single closed solid; overlapping volume counted once.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G063",
+    "category": "Solids and fabrication",
+    "prompt": "Intersect a sphere and a box.",
+    "acceptance": "Output contained in both inputs; expected nonzero volume.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G064",
+    "category": "Solids and fabrication",
+    "prompt": "Fillet the vertical edges of a box with a radius control.",
+    "acceptance": "Selected edges rounded; other edges retain intended geometry.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G065",
+    "category": "Solids and fabrication",
+    "prompt": "Shell a box with an open top and wall-thickness control.",
+    "acceptance": "Top open; bottom and side thickness follow input.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G066",
+    "category": "Solids and fabrication",
+    "prompt": "Slice a solid into horizontal fabrication contours at a spacing control.",
+    "acceptance": "Section elevations are equally spaced and intersect the solid.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G067",
+    "category": "Solids and fabrication",
+    "prompt": "Create a rectangular panel with a grid of screw holes and edge margin.",
+    "acceptance": "Hole centers honor margin; no holes outside panel.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G068",
+    "category": "Solids and fabrication",
+    "prompt": "Create a tab-and-slot joint with material thickness and clearance controls.",
+    "acceptance": "Slot width equals tab thickness plus clearance.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G069",
+    "category": "Solids and fabrication",
+    "prompt": "Create a finger joint along a board edge with editable finger count.",
+    "acceptance": "Alternating fingers; complementary mating edge; count verified.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G070",
+    "category": "Solids and fabrication",
+    "prompt": "Make a waffle structure from intersecting X and Y ribs with material thickness.",
+    "acceptance": "Rib spacing and half-depth slots permit geometric assembly.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G071",
+    "category": "Shelf editing",
+    "prompt": "Using Shelf_Clean3, expose shelf width without changing shelf depth.",
+    "acceptance": "Width changes; depth remains constant; model solves.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G072",
+    "category": "Shelf editing",
+    "prompt": "Using Shelf_Clean3, expose shelf count as an integer control.",
+    "acceptance": "Increasing count creates the corresponding additional shelf geometry.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G073",
+    "category": "Shelf editing",
+    "prompt": "Using Shelf_Clean3, change vertical shelf spacing independently.",
+    "acceptance": "Adjacent shelf elevation difference tracks spacing.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G074",
+    "category": "Shelf editing",
+    "prompt": "Add one sphere beside Shelf_Clean3 without replacing the shelf.",
+    "acceptance": "Shelf remains visible; exactly one added sphere appears.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G075",
+    "category": "Shelf editing",
+    "prompt": "Replace the displayed shelf with one radius-controlled sphere.",
+    "acceptance": "Only the requested sphere is displayed; source upload preserved.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G076",
+    "category": "Shelf editing",
+    "prompt": "Add cylindrical feet to each corner of Shelf_Clean3.",
+    "acceptance": "Four feet stay at footprint corners after width/depth changes.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G077",
+    "category": "Shelf editing",
+    "prompt": "Add a back panel that follows shelf width and height.",
+    "acceptance": "Panel bounds update with overall shelf dimensions.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G078",
+    "category": "Shelf editing",
+    "prompt": "Add a center divider that follows shelf height and depth.",
+    "acceptance": "Divider centered in X and remains fitted after edits.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G079",
+    "category": "Shelf editing",
+    "prompt": "Add an adjustable overhang to the top shelf only.",
+    "acceptance": "Top footprint grows; other shelves retain their footprints.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G080",
+    "category": "Shelf editing",
+    "prompt": "Switch Shelf_Clean3 between five and six shelves and preserve the app controls.",
+    "acceptance": "Geometry count changes; all intended bindings remain valid.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G081",
+    "category": "Dimensions and analysis",
+    "prompt": "Add overall width, height and depth dimensions around Shelf_Clean3.",
+    "acceptance": "Three readable annotations track geometric bounds after every edit.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G082",
+    "category": "Dimensions and analysis",
+    "prompt": "Dimension the clear gap between each adjacent pair of shelves.",
+    "acceptance": "One gap measurement per adjacent pair; values track spacing and thickness.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G083",
+    "category": "Dimensions and analysis",
+    "prompt": "Add a radius dimension to a sphere.",
+    "acceptance": "Displayed value equals radius rather than diameter; follows edits.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G084",
+    "category": "Dimensions and analysis",
+    "prompt": "Add an angle dimension between two editable lines.",
+    "acceptance": "Annotation tracks actual angle in degrees.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G085",
+    "category": "Dimensions and analysis",
+    "prompt": "Add a curve-length label to a helix.",
+    "acceptance": "Value agrees with measured length and changes with pitch.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G086",
+    "category": "Dimensions and analysis",
+    "prompt": "Display the area of a rectangular panel with explicit units.",
+    "acceptance": "Area equals width times height; squared units shown.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G087",
+    "category": "Dimensions and analysis",
+    "prompt": "Display volume and center of mass of a closed solid.",
+    "acceptance": "Known primitive analytic values match within tolerance.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G088",
+    "category": "Dimensions and analysis",
+    "prompt": "Show a bounding box around the final geometry.",
+    "acceptance": "All final vertices contained; box updates on every solve.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G089",
+    "category": "Dimensions and analysis",
+    "prompt": "Color panels by their distance from a draggable point.",
+    "acceptance": "Color order agrees with distances and updates on movement.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G090",
+    "category": "Dimensions and analysis",
+    "prompt": "Warn when a shelf exceeds a user-specified maximum span.",
+    "acceptance": "Warning threshold uses measured span; no unsupported structural certification.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G091",
+    "category": "Robustness and custom components",
+    "prompt": "Build a reusable superellipsoid component with XYZ radii and two exponent inputs.",
+    "acceptance": "Named typed inputs; bounded exponents; closed finite output.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G092",
+    "category": "Robustness and custom components",
+    "prompt": "Build a reusable gyroid component with cell size, threshold and bounding box inputs.",
+    "acceptance": "Periodic field; bounded output and controllable topology.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G093",
+    "category": "Robustness and custom components",
+    "prompt": "Build a catenary curve component from span, sag and resolution.",
+    "acceptance": "Endpoints fixed; midpoint sag matches target.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G094",
+    "category": "Robustness and custom components",
+    "prompt": "Build a paraboloid surface component with focal length and aperture inputs.",
+    "acceptance": "Sample heights satisfy the paraboloid equation.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G095",
+    "category": "Robustness and custom components",
+    "prompt": "Create a radial pavilion with bay count, roof radius and height controls.",
+    "acceptance": "Exact bay count; roof and supports stay connected.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G096",
+    "category": "Robustness and custom components",
+    "prompt": "Create a staircase with total rise, run and step count.",
+    "acceptance": "Riser equals rise/count; final elevation equals total rise.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G097",
+    "category": "Robustness and custom components",
+    "prompt": "Build a louver facade with count, pitch and sun-angle rotation controls.",
+    "acceptance": "Exact count; blade orientation tracks angle without changing pitch.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G098",
+    "category": "Robustness and custom components",
+    "prompt": "Build a Voronoi partition inside a rectangle with point count and seed.",
+    "acceptance": "Cells cover boundary without overlap; same seed repeats.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G099",
+    "category": "Robustness and custom components",
+    "prompt": "Ask for zero population count, then restore it to ten.",
+    "acceptance": "Zero is handled deliberately; restore produces ten instances without stale geometry.",
+    "status": "not_run",
+    "evidence": null
+  },
+  {
+    "id": "G100",
+    "category": "Robustness and custom components",
+    "prompt": "Ask for one million spheres on a noise surface.",
+    "acceptance": "Resource limit is explained; bounded alternative is offered, not an unbounded solve.",
+    "status": "not_run",
+    "evidence": null
+  }
+]

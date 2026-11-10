@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><RhinoRoot Condition="'$(RhinoRoot)' == ''">/usr/lib/rhino3d</RhinoRoot><RhinoCommonPath Condition="'$(RhinoCommonPath)' == ''">$(RhinoRoot)/ref/net48/RhinoCommon.dll</RhinoCommonPath><GhIoPath Condition="'$(GhIoPath)' == ''">$(RhinoRoot)/GH_IO.dll</GhIoPath><GrasshopperPath Condition="'$(GrasshopperPath)' == ''">$(RhinoRoot)/ref/net48/Grasshopper.dll</GrasshopperPath></PropertyGroup>
+  <ItemGroup><Reference Include="GH_IO"><HintPath>$(GhIoPath)</HintPath><Private>false</Private></Reference>
+    <Reference Include="RhinoCommon"><HintPath>$(RhinoCommonPath)</HintPath><Private>false</Private></Reference>
+    <Reference Include="Grasshopper"><HintPath>$(GrasshopperPath)</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

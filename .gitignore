@@ -14,3 +14,7 @@ tests/ArchivePolicy/bin/
 tests/ArchivePolicy/obj/
 
 supabase/.temp/
+
+worker/tools/ModolougeGeometry/bin/
+worker/tools/ModolougeGeometry/obj/
+worker/tools/ModolougeGeometry/publish/

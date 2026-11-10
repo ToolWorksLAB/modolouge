@@ -59,7 +59,7 @@ try
         var point = PointInputs.Read(obj);
         if (point != null)
         {
-            var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id[..8]}";
+            var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id}";
             if (!groupedInputs.ContainsKey(id)) AddGroup(inputName, id);
             pointCount++;
             var pointLabel = label is "Pt" or "Point" ? $"Point {pointCount}" : label;
@@ -67,14 +67,14 @@ try
             // A visible point can be both an editable input and a preview output.
             if (!explicitOutputs && (previewSources.Count > 0 ? previewSources.Contains(id) : Value(c,"Hidden") != "true"))
             {
-                var outputName = $"RH_OUT:{label}_{id[..8]}";
+                var outputName = $"RH_OUT:{label}_{id}";
                 AddGroup(outputName,id);
                 outputs.Add(new { name = outputName, label });
             }
         }
         else if (slider != null)
         {
-            var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id[..8]}";
+            var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id}";
             if (!groupedInputs.ContainsKey(id)) AddGroup(inputName, id);
             var interval = (int)Number(slider, "Interval", 0);
             var digits = (int)Number(slider, "Digits", 3);
@@ -83,13 +83,13 @@ try
         }
         else if (name == "Boolean Toggle")
         {
-            var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id[..8]}";
+            var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id}";
             if (!groupedInputs.ContainsKey(id)) AddGroup(inputName, id);
             controls.Add(new { name = inputName, instanceId = id, label, kind = "boolean", value = Value(c, "ToggleValue").Equals("true", StringComparison.OrdinalIgnoreCase) });
         }
         else if (name == "Panel" && Number(c, "SourceCount", 0) == 0 && !c.Descendants("item").Any(x => (string?)x.Attribute("name") == "Source"))
         {
-            var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id[..8]}";
+            var inputName = groupedInputs.GetValueOrDefault(id) ?? $"RH_IN:{label}_{id}";
             if (!groupedInputs.ContainsKey(id)) AddGroup(inputName, id);
             var content = Value(c, "UserText");
             controls.Add(new { name = inputName, instanceId = id, label, kind = "text", value = content[..Math.Min(content.Length, 10000)] });
@@ -98,7 +98,7 @@ try
                  (previewSources.Count > 0 ? previewSources.Contains(id) : Value(c, "Hidden") != "true") &&
                  !new[] { "Group", "Scribble", "Value List", "Number Slider", "Relay", "Timer", "Button", "Data Dam", "Boolean Toggle", "Colour Swatch", "Graph Mapper", "Custom Preview" }.Contains(name))
         {
-            var outputName = $"RH_OUT:{label}_{id[..8]}";
+            var outputName = $"RH_OUT:{label}_{id}";
             AddGroup(outputName, id);
             outputs.Add(new { name = outputName, label });
         }

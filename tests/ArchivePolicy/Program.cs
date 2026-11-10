@@ -98,6 +98,7 @@ Check(!GraphReader.Read(editXml.Descendants("chunk").Where(x=>(string?)x.Attribu
 invalid=false;try{Edit(new XDocument(editXml),[new {op="preview",nodeId=sid,value=2}]);}catch{invalid=true;}
 Check(invalid,"Invalid preview flag rejected");
 PointTests.Run(Check);
+ComponentCatalogTests.Run(Check);
 Console.WriteLine($"ArchivePolicy: {passed} assertions passed.");
 void Check(bool success, string message) { if (!success) throw new Exception(message); passed++; Console.WriteLine("PASS " + message); }
 void Reject(XDocument xml, Action<XDocument> mutate, string message)

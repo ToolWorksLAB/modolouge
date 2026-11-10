@@ -1,5 +1,6 @@
 import rhino3dm from "rhino3dm";
 import { compute } from "./compute.js";
+import { primitivePreview } from "./primitive-preview.js";
 const rhino = await rhino3dm();
 
 export async function previewGeometry(values = []) {
@@ -22,7 +23,9 @@ export async function previewGeometry(values = []) {
           const data =
             typeof item.data === "string" ? JSON.parse(item.data) : item.data;
           const type = item.type || "";
-          if (
+          const primitive = primitivePreview(type, data, layer);
+          if (primitive) objects.push(primitive);
+          else if (
             type === "Rhino.Geometry.Point3d" ||
             type === "Rhino.Geometry.Vector3d"
           ) {
