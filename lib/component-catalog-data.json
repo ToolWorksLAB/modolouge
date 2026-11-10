@@ -1,0 +1,2461 @@
+[
+  {
+    "id": "59e0b89a-e487-49f8-bab8-b5bab16be14c",
+    "name": "Panel",
+    "description": "A panel for custom notes and text values",
+    "category": "Params",
+    "subcategory": "Input",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "57da07bd-ecab-415d-9d86-af36d7073abc",
+    "name": "Number Slider",
+    "description": "Numeric slider for single values",
+    "category": "Params",
+    "subcategory": "Input",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "a0d62394-a118-422d-abb3-6af115c75b25",
+    "name": "Addition",
+    "description": "Mathematical addition",
+    "category": "Maths",
+    "subcategory": "Operators",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "A",
+        "nickname": "A",
+        "description": "First item for addition",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": true
+      },
+      {
+        "index": 1,
+        "name": "B",
+        "nickname": "B",
+        "description": "Second item for addition",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": true
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Result",
+        "nickname": "R",
+        "description": "Result of addition",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "9c007a04-d0d9-48e4-9da3-9ba142bc4d46",
+    "name": "Subtraction",
+    "description": "Mathematical subtraction",
+    "category": "Maths",
+    "subcategory": "Operators",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "A",
+        "nickname": "A",
+        "description": "First operand for subtraction",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": true
+      },
+      {
+        "index": 1,
+        "name": "B",
+        "nickname": "B",
+        "description": "Second operand for subtraction",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": true
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Result",
+        "nickname": "R",
+        "description": "Result of subtraction",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "ce46b74e-00c9-43c4-805a-193b69ea4a11",
+    "name": "Multiplication",
+    "description": "Mathematical multiplication",
+    "category": "Maths",
+    "subcategory": "Operators",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "A",
+        "nickname": "A",
+        "description": "First item for multiplication",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": true
+      },
+      {
+        "index": 1,
+        "name": "B",
+        "nickname": "B",
+        "description": "Second item for multiplication",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": true
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Result",
+        "nickname": "R",
+        "description": "Result of multiplication",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "9c85271f-89fa-4e9f-9f4a-d75802120ccc",
+    "name": "Division",
+    "description": "Mathematical division",
+    "category": "Maths",
+    "subcategory": "Operators",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "A",
+        "nickname": "A",
+        "description": "Item to divide (dividend)",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "B",
+        "nickname": "B",
+        "description": "Item to divide with (divisor)",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Result",
+        "nickname": "R",
+        "description": "The result of the Division",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "9445ca40-cc73-4861-a455-146308676855",
+    "name": "Range",
+    "description": "Create a range of numbers.",
+    "category": "Sets",
+    "subcategory": "Sequence",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Domain",
+        "nickname": "D",
+        "description": "Domain of numeric range",
+        "type": "Domain",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Steps",
+        "nickname": "N",
+        "description": "Number of steps",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Range",
+        "nickname": "R",
+        "description": "Range of numbers",
+        "type": "Number",
+        "access": "list",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "e64c5fb1-845c-4ab1-8911-5f338516ba67",
+    "name": "Series",
+    "description": "Create a series of numbers.",
+    "category": "Sets",
+    "subcategory": "Sequence",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Start",
+        "nickname": "S",
+        "description": "First number in the series",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Step",
+        "nickname": "N",
+        "description": "Step size for each successive number",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Count",
+        "nickname": "C",
+        "description": "Number of values in the series",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Series",
+        "nickname": "S",
+        "description": "Series of numbers",
+        "type": "Number",
+        "access": "list",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "3581f42a-9592-4549-bd6b-1c0fc39d067b",
+    "name": "Construct Point",
+    "description": "Construct a point from {xyz} coordinates.",
+    "category": "Vector",
+    "subcategory": "Point",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "X coordinate",
+        "nickname": "X",
+        "description": "{x} coordinate",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Y coordinate",
+        "nickname": "Y",
+        "description": "{y} coordinate",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Z coordinate",
+        "nickname": "Z",
+        "description": "{z} coordinate",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Point",
+        "nickname": "Pt",
+        "description": "Point coordinate",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "9abae6b7-fa1d-448c-9209-4a8155345841",
+    "name": "Deconstruct",
+    "description": "Deconstruct a point into its component parts.",
+    "category": "Vector",
+    "subcategory": "Point",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Point",
+        "nickname": "P",
+        "description": "Input point",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "X component",
+        "nickname": "X",
+        "description": "Point {x} component",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Y component",
+        "nickname": "Y",
+        "description": "Point {y} component",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Z component",
+        "nickname": "Z",
+        "description": "Point {z} component",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "56b92eab-d121-43f7-94d3-6cd8f0ddead8",
+    "name": "Vector XYZ",
+    "description": "Create a vector from {xyz} components.",
+    "category": "Vector",
+    "subcategory": "Vector",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "X component",
+        "nickname": "X",
+        "description": "Vector {x} component",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Y component",
+        "nickname": "Y",
+        "description": "Vector {y} component",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Z component",
+        "nickname": "Z",
+        "description": "Vector {z} component",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Vector",
+        "nickname": "V",
+        "description": "Vector construct",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Length",
+        "nickname": "L",
+        "description": "Vector length",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "79f9fbb3-8f1d-4d9a-88a9-f7961b1012cd",
+    "name": "Unit X",
+    "description": "Unit vector parallel to the world {x} axis.",
+    "category": "Vector",
+    "subcategory": "Vector",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Factor",
+        "nickname": "F",
+        "description": "Unit multiplication",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Unit vector",
+        "nickname": "V",
+        "description": "World {x} vector",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "d3d195ea-2d59-4ffa-90b1-8b7ff3369f69",
+    "name": "Unit Y",
+    "description": "Unit vector parallel to the world {y} axis.",
+    "category": "Vector",
+    "subcategory": "Vector",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Factor",
+        "nickname": "F",
+        "description": "Unit multiplication",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Unit vector",
+        "nickname": "V",
+        "description": "World {y} vector",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "9103c240-a6a9-4223-9b42-dbd19bf38e2b",
+    "name": "Unit Z",
+    "description": "Unit vector parallel to the world {z} axis.",
+    "category": "Vector",
+    "subcategory": "Vector",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Factor",
+        "nickname": "F",
+        "description": "Unit multiplication",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Unit vector",
+        "nickname": "V",
+        "description": "World {z} vector",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "bc3e379e-7206-4e7b-b63a-ff61f4b38a3e",
+    "name": "Construct Plane",
+    "description": "Construct a plane from an origin point and {x}, {y} axes.",
+    "category": "Vector",
+    "subcategory": "Plane",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Origin",
+        "nickname": "O",
+        "description": "Origin of plane",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "X-Axis",
+        "nickname": "X",
+        "description": "X-Axis direction of plane",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Y-Axis",
+        "nickname": "Y",
+        "description": "Y-Axis direction of plane",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Plane",
+        "nickname": "Pl",
+        "description": "Constructed plane",
+        "type": "Plane",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "0a391eac-5048-443c-9c1b-f592299b6dd6",
+    "name": "Mesh Sphere",
+    "description": "Create a mesh sphere.",
+    "category": "Mesh",
+    "subcategory": "Primitive",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Base",
+        "nickname": "B",
+        "description": "Base plane",
+        "type": "Plane",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Radius",
+        "nickname": "R",
+        "description": "Radius of mesh sphere",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "U Count",
+        "nickname": "U",
+        "description": "Number of faces around sphere",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "V Count",
+        "nickname": "V",
+        "description": "Number of faces from pole to pole",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Mesh",
+        "nickname": "M",
+        "description": "Mesh sphere",
+        "type": "Mesh",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "76f85ee4-5a88-4511-8ba7-30df07e50533",
+    "name": "Mesh Sphere Ex",
+    "description": "Create a mesh sphere from square patches.",
+    "category": "Mesh",
+    "subcategory": "Primitive",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Base",
+        "nickname": "B",
+        "description": "Base plane",
+        "type": "Plane",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Radius",
+        "nickname": "R",
+        "description": "Radius of mesh sphere",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Count",
+        "nickname": "C",
+        "description": "Number of faces along each patch edge",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Mesh",
+        "nickname": "M",
+        "description": "Mesh sphere",
+        "type": "Mesh",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "2696bd14-3fb5-4750-827f-86df6c31d664",
+    "name": "Mesh Box",
+    "description": "Create a mesh box.",
+    "category": "Mesh",
+    "subcategory": "Primitive",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Base",
+        "nickname": "B",
+        "description": "Base box",
+        "type": "Box",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "X Count",
+        "nickname": "X",
+        "description": "Face count in {x} direction",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Y Count",
+        "nickname": "Y",
+        "description": "Face count in {y} direction",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Z Count",
+        "nickname": "Z",
+        "description": "Face count in {z} direction",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Mesh",
+        "nickname": "M",
+        "description": "The 3D mesh box",
+        "type": "Mesh",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "8adbf481-7589-4a40-b490-006531ea001d",
+    "name": "Mesh Plane",
+    "description": "Create a mesh plane.",
+    "category": "Mesh",
+    "subcategory": "Primitive",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Boundary",
+        "nickname": "B",
+        "description": "Rectangle describing boundary of plane",
+        "type": "Rectangle",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Width count",
+        "nickname": "W",
+        "description": "Number of faces along {x} direction",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Height count",
+        "nickname": "H",
+        "description": "Number of faces along {y} direction",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Mesh",
+        "nickname": "M",
+        "description": "Mesh plane",
+        "type": "Mesh",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Area",
+        "nickname": "A",
+        "description": "Area of mesh plane",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "dabc854d-f50e-408a-b001-d043c7de151d",
+    "name": "Sphere",
+    "description": "Create a spherical surface.",
+    "category": "Surface",
+    "subcategory": "Primitive",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Base",
+        "nickname": "B",
+        "description": "Base plane",
+        "type": "Plane",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Radius",
+        "nickname": "R",
+        "description": "Sphere radius",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Sphere",
+        "nickname": "S",
+        "description": "Resulting sphere",
+        "type": "Surface",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "28061aae-04fb-4cb5-ac45-16f3b66bc0a4",
+    "name": "Center Box",
+    "description": "Create a box centered on a plane.",
+    "category": "Surface",
+    "subcategory": "Primitive",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Base",
+        "nickname": "B",
+        "description": "Base plane",
+        "type": "Plane",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "X",
+        "nickname": "X",
+        "description": "Size of box in {x} direction.",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Y",
+        "nickname": "Y",
+        "description": "Size of box in {y} direction.",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Z",
+        "nickname": "Z",
+        "description": "Size of box in {z} direction.",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Box",
+        "nickname": "B",
+        "description": "Resulting box",
+        "type": "Box",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "usageNotes": "X, Y and Z are HALF extents: for full width/depth/height connect each control with an input expression x/2, or use Domain Box with explicit intervals."
+  },
+  {
+    "id": "79aa7f47-397c-4d3f-9761-aaf421bb7f5f",
+    "name": "Domain Box",
+    "description": "Create a box defined by a base plane and size domains.",
+    "category": "Surface",
+    "subcategory": "Primitive",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Base",
+        "nickname": "B",
+        "description": "Base plane",
+        "type": "Plane",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "X",
+        "nickname": "X",
+        "description": "Domain of the box in the {x} direction.",
+        "type": "Domain",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Y",
+        "nickname": "Y",
+        "description": "Domain of the box in the {y} direction.",
+        "type": "Domain",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Z",
+        "nickname": "Z",
+        "description": "Domain of the box in the {z} direction.",
+        "type": "Domain",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Box",
+        "nickname": "B",
+        "description": "Resulting box",
+        "type": "Box",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "0373008a-80ee-45be-887d-ab5a244afc29",
+    "name": "Cylinder",
+    "description": "Create a cylindrical surface.",
+    "category": "Surface",
+    "subcategory": "Primitive",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Base",
+        "nickname": "B",
+        "description": "Base plane",
+        "type": "Plane",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Radius",
+        "nickname": "R",
+        "description": "Cylinder radius",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Length",
+        "nickname": "L",
+        "description": "Cylinder height",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Cylinder",
+        "nickname": "C",
+        "description": "Resulting cylinder",
+        "type": "Surface",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "962034e9-cc27-4394-afc4-5c16e3447cf9",
+    "name": "Extrude",
+    "description": "Extrude points, curves and surfaces along a vector.",
+    "category": "Surface",
+    "subcategory": "Freeform",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Base",
+        "nickname": "B",
+        "description": "Profile surface",
+        "type": "Geometry",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Direction",
+        "nickname": "D",
+        "description": "Extrusion direction",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Extrusion",
+        "nickname": "E",
+        "description": "Extrusion result",
+        "type": "Geometry",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "a7a41d0a-2188-4f7a-82cc-1a2c4e4ec850",
+    "name": "Loft",
+    "description": "Create a lofted surface through a set of section curves.",
+    "category": "Surface",
+    "subcategory": "Freeform",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Curves",
+        "nickname": "C",
+        "description": "Section curves",
+        "type": "Curve",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Options",
+        "nickname": "O",
+        "description": "Loft options",
+        "type": "Loft Options",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Loft",
+        "nickname": "L",
+        "description": "Resulting Loft surfaces",
+        "type": "Brep",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "1addcc85-b04e-46e6-bd4a-6f6c93bf7efd",
+    "name": "Brep Join",
+    "description": "Join a number of Breps together",
+    "category": "Surface",
+    "subcategory": "Util",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Breps",
+        "nickname": "B",
+        "description": "Breps to join",
+        "type": "Brep",
+        "access": "list",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Breps",
+        "nickname": "B",
+        "description": "Joined Breps",
+        "type": "Brep",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Closed",
+        "nickname": "C",
+        "description": "Closed flag for each resulting Brep",
+        "type": "Boolean",
+        "access": "list",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "f6409a9c-3d2a-4b14-9f2c-e3c3f2cb72f8",
+    "name": "Cap Holes Ex",
+    "description": "Cap as many holes as possible in a Brep.",
+    "category": "Surface",
+    "subcategory": "Util",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Brep",
+        "nickname": "B",
+        "description": "Brep to cap",
+        "type": "Brep",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Brep",
+        "nickname": "B",
+        "description": "Capped Brep",
+        "type": "Brep",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Caps",
+        "nickname": "C",
+        "description": "Number of caps added",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Solid",
+        "nickname": "S",
+        "description": "Value indicating whether capped brep is solid",
+        "type": "Boolean",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "c77a8b3b-c569-4d81-9b59-1c27299a1c45",
+    "name": "4Point Surface",
+    "description": "Create a surface connecting three or four corner points.",
+    "category": "Surface",
+    "subcategory": "Freeform",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Corner A",
+        "nickname": "A",
+        "description": "First corner",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Corner B",
+        "nickname": "B",
+        "description": "Second corner",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Corner C",
+        "nickname": "C",
+        "description": "Third corner",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Corner D",
+        "nickname": "D",
+        "description": "Optional fourth corner",
+        "type": "Point",
+        "access": "item",
+        "optional": true
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Surface",
+        "nickname": "S",
+        "description": "Resulting surface",
+        "type": "Surface",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "2e78987b-9dfb-42a2-8b76-3923ac8bd91a",
+    "name": "Boolean Toggle",
+    "description": "Boolean (true/false) toggle",
+    "category": "Params",
+    "subcategory": "Input",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "d93100b6-d50b-40b2-831a-814659dc38e3",
+    "name": "Rectangle",
+    "description": "Create a rectangle on a plane",
+    "category": "Curve",
+    "subcategory": "Primitive",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Plane",
+        "nickname": "P",
+        "description": "Rectangle base plane",
+        "type": "Plane",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "X Size",
+        "nickname": "X",
+        "description": "Dimensions of rectangle in plane X direction.",
+        "type": "Domain",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Y Size",
+        "nickname": "Y",
+        "description": "Dimensions of rectangle in plane Y direction.",
+        "type": "Domain",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Radius",
+        "nickname": "R",
+        "description": "Rectangle corner fillet radius",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Rectangle",
+        "nickname": "R",
+        "description": "Rectangle",
+        "type": "Geometry",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Length",
+        "nickname": "L",
+        "description": "Length of rectangle curve",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "62cc9684-6a39-422e-aefa-ed44643557b9",
+    "name": "Extend Curve",
+    "description": "Extend a curve by a specified distance.",
+    "category": "Curve",
+    "subcategory": "Util",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Curve",
+        "nickname": "C",
+        "description": "Curve to extend",
+        "type": "Curve",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Type",
+        "nickname": "T",
+        "description": "Type of extension (0=Line, 1=Arc, 2=Smooth)",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Start",
+        "nickname": "L0",
+        "description": "Extension length at start of curve",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "End",
+        "nickname": "L1",
+        "description": "Extension length at end of curve",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Curve",
+        "nickname": "C",
+        "description": "Extended curve",
+        "type": "Curve",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "11bbd48b-bb0a-4f1b-8167-fa297590390d",
+    "name": "End Points",
+    "description": "Extract the end points of a curve.",
+    "category": "Curve",
+    "subcategory": "Analysis",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Curve",
+        "nickname": "C",
+        "description": "Curve to evaluate",
+        "type": "Curve",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Start",
+        "nickname": "S",
+        "description": "Curve start point",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "End",
+        "nickname": "E",
+        "description": "Curve end point",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "fc6979e4-7e91-4508-8e05-37c680779751",
+    "name": "Evaluate Curve",
+    "description": "Evaluate a curve at the specified parameter.",
+    "category": "Curve",
+    "subcategory": "Analysis",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Curve",
+        "nickname": "C",
+        "description": "Curve to evaluate",
+        "type": "Curve",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Parameter",
+        "nickname": "t",
+        "description": "Parameter on curve domain to evaluate",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Point",
+        "nickname": "P",
+        "description": "Point on the curve at {t}",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Tangent",
+        "nickname": "T",
+        "description": "Tangent vector at {t}",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Angle",
+        "nickname": "A",
+        "description": "Angle (in Radians) of incoming vs. outgoing curve at {t}",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "afb96615-c59a-45c9-9cac-e27acb1c7ca0",
+    "name": "Explode",
+    "description": "Explode a curve into smaller segments.",
+    "category": "Curve",
+    "subcategory": "Util",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Curve",
+        "nickname": "C",
+        "description": "Curve to explode",
+        "type": "Curve",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Recursive",
+        "nickname": "R",
+        "description": "Recursive decomposition until all segments are atomic",
+        "type": "Boolean",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Segments",
+        "nickname": "S",
+        "description": "Exploded segments that make up the base curve",
+        "type": "Curve",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Vertices",
+        "nickname": "V",
+        "description": "Vertices of the exploded segments",
+        "type": "Point",
+        "access": "list",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "e9eb1dcf-92f6-4d4d-84ae-96222d60f56b",
+    "name": "Move",
+    "description": "Translate (move) an object along a vector.",
+    "category": "Transform",
+    "subcategory": "Euclidean",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Geometry",
+        "nickname": "G",
+        "description": "Base geometry",
+        "type": "Geometry",
+        "access": "item",
+        "optional": true
+      },
+      {
+        "index": 1,
+        "name": "Motion",
+        "nickname": "T",
+        "description": "Translation vector",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Geometry",
+        "nickname": "G",
+        "description": "Translated geometry",
+        "type": "Geometry",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Transform",
+        "nickname": "X",
+        "description": "Transformation data",
+        "type": "Transform",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "59daf374-bc21-4a5e-8282-5504fb7ae9ae",
+    "name": "List Item",
+    "description": "Retrieve a specific item from a list.",
+    "category": "Sets",
+    "subcategory": "List",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "List",
+        "nickname": "L",
+        "description": "Base list",
+        "type": "Generic Data",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Index",
+        "nickname": "i",
+        "description": "Item index",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Wrap",
+        "nickname": "W",
+        "description": "Wrap index to list bounds",
+        "type": "Boolean",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Item",
+        "nickname": "i",
+        "description": "Item at {i'}",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "a3371040-e552-4bc8-b0ff-10a840258e88",
+    "name": "Negative",
+    "description": "Compute the negative of a value.",
+    "category": "Maths",
+    "subcategory": "Operators",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Value",
+        "nickname": "x",
+        "description": "Input value",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Result",
+        "nickname": "y",
+        "description": "Output value",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "16ef3e75-e315-4899-b531-d3166b42dac9",
+    "name": "Vector",
+    "description": "Contains a collection of three-dimensional vectors",
+    "category": "Params",
+    "subcategory": "Geometry",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "919e146f-30ae-4aae-be34-4d72f555e7da",
+    "name": "Brep",
+    "description": "Contains a collection of Breps (Boundary REPresentations)",
+    "category": "Params",
+    "subcategory": "Geometry",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "d5967b9f-e8ee-436b-a8ad-29fdcecf32d5",
+    "name": "Curve",
+    "description": "Contains a collection of generic curves",
+    "category": "Params",
+    "subcategory": "Geometry",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "8ec86459-bf01-4409-baee-174d0d2b13d0",
+    "name": "Data",
+    "description": "Contains a collection of generic data",
+    "category": "Params",
+    "subcategory": "Primitive",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "4f8984c4-7c7a-4d69-b0a2-183cbb330d20",
+    "name": "Plane",
+    "description": "Contains a collection of three-dimensional axis-systems",
+    "category": "Params",
+    "subcategory": "Geometry",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "deaf8653-5528-4286-807c-3de8b8dad781",
+    "name": "Surface",
+    "description": "Contains a collection of generic surfaces",
+    "category": "Params",
+    "subcategory": "Geometry",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "9c53bac0-ba66-40bd-8154-ce9829b9db1a",
+    "name": "Colour Swatch",
+    "description": "Colour (palette) swatch",
+    "category": "Params",
+    "subcategory": "Input",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "bc984576-7aa6-491f-a91d-e444c33675a7",
+    "name": "Graph Mapper",
+    "description": "Represents a numeric mapping function",
+    "category": "Params",
+    "subcategory": "Input",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "b6236720-8d88-4289-93c3-ac4c99f9b97b",
+    "name": "Relay",
+    "description": "A wire relay object",
+    "category": "Params",
+    "subcategory": "Util",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "537b0419-bbc2-4ff4-bf08-afe526367b2c",
+    "name": "Custom Preview",
+    "description": "Allows for customized geometry previews",
+    "category": "Display",
+    "subcategory": "Preview",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Geometry",
+        "nickname": "G",
+        "description": "Geometry to preview",
+        "type": "Geometry",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Material",
+        "nickname": "M",
+        "description": "The material override",
+        "type": "Shader",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "id": "58cf422f-19f7-42f7-9619-fc198c51c657",
+    "name": "Mesh Surface",
+    "description": "Create a Surface UV mesh",
+    "category": "Mesh",
+    "subcategory": "Util",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Surface",
+        "nickname": "S",
+        "description": "Surface geometry",
+        "type": "Surface",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "U Count",
+        "nickname": "U",
+        "description": "Number of quads in U direction",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "V Count",
+        "nickname": "V",
+        "description": "Number of quads in V direction",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Overhang",
+        "nickname": "H",
+        "description": "Allow faces to overhang trims",
+        "type": "Boolean",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 4,
+        "name": "Equalize",
+        "nickname": "Q",
+        "description": "Equalize span length",
+        "type": "Boolean",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Mesh",
+        "nickname": "M",
+        "description": "UV Mesh",
+        "type": "Mesh",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "d1a28e95-cf96-4936-bf34-8bf142d731bf",
+    "name": "Construct Domain",
+    "description": "Create a numeric domain from two numeric extremes.",
+    "category": "Maths",
+    "subcategory": "Domain",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Domain start",
+        "nickname": "A",
+        "description": "Start value of numeric domain",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Domain end",
+        "nickname": "B",
+        "description": "End value of numeric domain",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Domain",
+        "nickname": "I",
+        "description": "Numeric domain between {A} and {B}",
+        "type": "Domain",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "fbac3e32-f100-4292-8692-77240a42fd1a",
+    "name": "Point",
+    "description": "Contains a collection of three-dimensional points",
+    "category": "Params",
+    "subcategory": "Geometry",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "902289da-28dc-454b-98d4-b8f8aa234516",
+    "name": "Pull Point",
+    "description": "Pull a point to a variety of geometry.",
+    "category": "Vector",
+    "subcategory": "Point",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Point",
+        "nickname": "P",
+        "description": "Point to search from",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Geometry",
+        "nickname": "G",
+        "description": "Geometry that pulls",
+        "type": "Geometry",
+        "access": "list",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Closest Point",
+        "nickname": "P",
+        "description": "Point on [G] closest to [P]",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Distance",
+        "nickname": "D",
+        "description": "Distance between [P] and its projection onto [G]",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Index",
+        "nickname": "I",
+        "description": "Index on [G]",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "2fcc2743-8339-4cdf-a046-a1f17439191d",
+    "name": "Remap Numbers",
+    "description": "Remap numbers into a new numeric domain",
+    "category": "Maths",
+    "subcategory": "Domain",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Value",
+        "nickname": "V",
+        "description": "Value to remap",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Source",
+        "nickname": "S",
+        "description": "Source domain",
+        "type": "Domain",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Target",
+        "nickname": "T",
+        "description": "Target domain",
+        "type": "Domain",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Mapped",
+        "nickname": "R",
+        "description": "Remapped number",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Clipped",
+        "nickname": "C",
+        "description": "Remapped and clipped number",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "f44b92b0-3b5b-493a-86f4-fd7408c3daf3",
+    "name": "Bounds",
+    "description": "Create a numeric domain which encompasses a list of numbers.",
+    "category": "Maths",
+    "subcategory": "Domain",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Numbers",
+        "nickname": "N",
+        "description": "Numbers to include in Bounds",
+        "type": "Number",
+        "access": "list",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Domain",
+        "nickname": "I",
+        "description": "Numeric Domain between the lowest and highest numbers in {N}",
+        "type": "Domain",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "7663efbb-d9b8-4c6a-a0da-c3750a7bbe77",
+    "name": "Sine",
+    "description": "Compute the sine of a value",
+    "category": "Maths",
+    "subcategory": "Trig",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Value",
+        "nickname": "x",
+        "description": "Input value",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Result",
+        "nickname": "y",
+        "description": "Output value",
+        "type": "Generic Data",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "ba2d8f57-0738-42b4-b5a5-fe4d853517eb",
+    "name": "Deconstruct Mesh",
+    "description": "Deconstruct a mesh into its component parts.",
+    "category": "Mesh",
+    "subcategory": "Analysis",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Mesh",
+        "nickname": "M",
+        "description": "Base mesh",
+        "type": "Mesh",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Vertices",
+        "nickname": "V",
+        "description": "Mesh vertices",
+        "type": "Point",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Faces",
+        "nickname": "F",
+        "description": "Mesh faces",
+        "type": "Mesh face",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Colours",
+        "nickname": "C",
+        "description": "Mesh vertex colours",
+        "type": "Colour",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Normals",
+        "nickname": "N",
+        "description": "Mesh normals",
+        "type": "Vector",
+        "access": "list",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "e2c0f9db-a862-4bd9-810c-ef2610e7a56f",
+    "name": "Construct Mesh",
+    "description": "Construct a mesh from vertices, faces and optional colours.",
+    "category": "Mesh",
+    "subcategory": "Primitive",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Vertices",
+        "nickname": "V",
+        "description": "Vertices of mesh object",
+        "type": "Point",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Faces",
+        "nickname": "F",
+        "description": "Faces of mesh object",
+        "type": "Mesh face",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Colours",
+        "nickname": "C",
+        "description": "Optional vertex colours",
+        "type": "Colour",
+        "access": "list",
+        "optional": true
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Mesh",
+        "nickname": "M",
+        "description": "Constructed mesh",
+        "type": "Mesh",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "288cfe66-f3dc-4c9a-bb96-ef81f47fe724",
+    "name": "Shader",
+    "description": "Contains a collection of display materials",
+    "category": "Params",
+    "subcategory": "Primitive",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "1e936df3-0eea-4246-8549-514cb8862b7a",
+    "name": "Mesh",
+    "description": "Contains a collection of polygon meshes",
+    "category": "Params",
+    "subcategory": "Geometry",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "1602b2cc-007c-4b79-8926-0067c6184e44",
+    "name": "Orient Direction",
+    "description": "Orient an object using directional constraints only.",
+    "category": "Transform",
+    "subcategory": "Affine",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Geometry",
+        "nickname": "G",
+        "description": "Base geometry",
+        "type": "Geometry",
+        "access": "item",
+        "optional": true
+      },
+      {
+        "index": 1,
+        "name": "Point A",
+        "nickname": "pA",
+        "description": "Reference point",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Direction A",
+        "nickname": "dA",
+        "description": "Reference direction",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Point B",
+        "nickname": "pB",
+        "description": "Target point",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 4,
+        "name": "Direction B",
+        "nickname": "dB",
+        "description": "Target direction",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Geometry",
+        "nickname": "G",
+        "description": "Reoriented geometry",
+        "type": "Geometry",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Transform",
+        "nickname": "X",
+        "description": "Transformation data",
+        "type": "Transform",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "3dfb9a77-6e05-4016-9f20-94f78607d672",
+    "name": "Rotate 3D",
+    "description": "Rotate an object around a center point and an axis vector.",
+    "category": "Transform",
+    "subcategory": "Euclidean",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Geometry",
+        "nickname": "G",
+        "description": "Base geometry",
+        "type": "Geometry",
+        "access": "item",
+        "optional": true
+      },
+      {
+        "index": 1,
+        "name": "Angle",
+        "nickname": "A",
+        "description": "Rotation angle in radians",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Center",
+        "nickname": "C",
+        "description": "Center of rotation",
+        "type": "Point",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Axis",
+        "nickname": "X",
+        "description": "Axis of rotation",
+        "type": "Vector",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Geometry",
+        "nickname": "G",
+        "description": "Rotated geometry",
+        "type": "Geometry",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Transform",
+        "nickname": "X",
+        "description": "Transformation data",
+        "type": "Transform",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "0d2ccfb3-9d41-4759-9452-da6a522c3eaa",
+    "name": "Pi",
+    "description": "Returns a factor of Pi.",
+    "category": "Maths",
+    "subcategory": "Util",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Factor",
+        "nickname": "N",
+        "description": "Factor to be multiplied by Pi",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Output",
+        "nickname": "y",
+        "description": "Output value",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ]
+  },
+  {
+    "id": "47a5c643-ec4e-4c8b-9d37-9893061980ab",
+    "name": "Perlin Surface",
+    "description": "Seeded gradient Perlin noise as a smooth NURBS control-point surface. Frequency is cycles per model unit; no octave/fractal approximation.",
+    "category": "Modolouge",
+    "subcategory": "Procedural",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Width",
+        "nickname": "W",
+        "description": "Positive X extent",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Depth",
+        "nickname": "D",
+        "description": "Positive Y extent",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Amplitude",
+        "nickname": "A",
+        "description": "Height multiplier; zero gives a plane",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Frequency",
+        "nickname": "F",
+        "description": "Noise cycles per model unit, 0.001 to 10",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 4,
+        "name": "Seed",
+        "nickname": "S",
+        "description": "Repeatable seed",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 5,
+        "name": "Resolution",
+        "nickname": "R",
+        "description": "Control points per direction, 4 to 64",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Surface",
+        "nickname": "S",
+        "description": "Smooth height-field NURBS surface",
+        "type": "Surface",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "usageNotes": "Connect Surface to Populate Surface UV, Frames to Sphere Base, a radius slider to Sphere Radius. Preview both the surface and spheres if requested. Seed and resolution should use integer-valued controls."
+  },
+  {
+    "id": "69a64ded-ffad-4c66-92d5-3409bf0f3b2b",
+    "name": "Populate Surface UV",
+    "description": "Repeatable random UV samples on an untrimmed surface; not an equal-area or minimum-distance distribution.",
+    "category": "Modolouge",
+    "subcategory": "Procedural",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Surface",
+        "nickname": "S",
+        "description": "Untrimmed surface to sample",
+        "type": "Surface",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Count",
+        "nickname": "N",
+        "description": "Point count, 0 to 500",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Seed",
+        "nickname": "R",
+        "description": "Repeatable seed",
+        "type": "Integer",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Points",
+        "nickname": "P",
+        "description": "Sampled surface positions",
+        "type": "Point",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Frames",
+        "nickname": "F",
+        "description": "Local planes for orienting spheres or panels",
+        "type": "Plane",
+        "access": "list",
+        "optional": false
+      }
+    ],
+    "usageNotes": "Count is integer 0..500. Output 1 is a list of surface frames, suitable for Sphere Base. This is random UV sampling, not equal-area or minimum spacing."
+  },
+  {
+    "id": "ef4a82c4-a4bc-44ce-8328-fd58f749cc14",
+    "name": "Bounds Dimensions",
+    "description": "Live world-axis width, depth and height dimensions. Outputs ordinary curves and outlined text for web previews, plus numeric measurements. Model units are unchanged.",
+    "category": "Modolouge",
+    "subcategory": "Annotations",
+    "inputs": [
+      {
+        "index": 0,
+        "name": "Geometry",
+        "nickname": "G",
+        "description": "Final geometry to measure together",
+        "type": "Geometry",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Offset",
+        "nickname": "O",
+        "description": "Dimension offset in model units",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Text Height",
+        "nickname": "H",
+        "description": "Text height in model units",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Unit Suffix",
+        "nickname": "U",
+        "description": "Optional label only, e.g. mm; does not convert geometry units",
+        "type": "Text",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "outputs": [
+      {
+        "index": 0,
+        "name": "Dimensions",
+        "nickname": "D",
+        "description": "Extension lines, dimension lines and outlined labels",
+        "type": "Curve",
+        "access": "list",
+        "optional": false
+      },
+      {
+        "index": 1,
+        "name": "Width",
+        "nickname": "W",
+        "description": "World X extent",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 2,
+        "name": "Depth",
+        "nickname": "Y",
+        "description": "World Y extent",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      },
+      {
+        "index": 3,
+        "name": "Height",
+        "nickname": "H",
+        "description": "World Z extent",
+        "type": "Number",
+        "access": "item",
+        "optional": false
+      }
+    ],
+    "usageNotes": "Measure final geometry feeding the existing previews, combining all needed branches into Geometry input. Preview Dimensions output 0, preserving the shelf previews. Numeric outputs are measurements, not geometry. World-axis bounding dimensions; not arbitrary aligned native Rhino annotation objects."
+  }
+]
