@@ -99,6 +99,7 @@ test("real SDK loop reads the graph tool, validates structured output, and recor
   const repairModel = new MockLanguageModelV4({
     doGenerate: [
       toolCall("read_definition", {}, "read"),
+      toolCall("search_component_set", {queries:["Sphere","Populate Surface","Division"]}, "catalog"),
       toolCall(
         "test_definition",
         { reason: "Check candidate", edits: [] },
@@ -143,11 +144,13 @@ test("real SDK loop reads the graph tool, validates structured output, and recor
     trace.some((e) => e.tool === "validate_app" && e.status === "passed"),
   );
   assert.ok(
-    JSON.stringify(repairModel.doGenerateCalls[2].prompt).includes(
+    JSON.stringify(repairModel.doGenerateCalls[3].prompt).includes(
       "Invalid connection",
     ),
   );
-  assert.equal(repairModel.doGenerateCalls.length, 4);
+  assert.equal(repairModel.doGenerateCalls.length, 5);
+  assert.ok(trace.some(e=>e.tool==='search_component_set'&&e.status==='passed'));
+  assert.ok(JSON.stringify(repairModel.doGenerateCalls[2].prompt).includes('"Radius"'));
   const refinementModel = new MockLanguageModelV4({
     doGenerate: [
       toolCall("read_definition", {}, "refine-read"),

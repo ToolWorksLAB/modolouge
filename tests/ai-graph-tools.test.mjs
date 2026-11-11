@@ -50,6 +50,29 @@ const create = async (kind = "member", allowEdits = true) => {
     },
   );
 };
+
+test("unsupported expressions fail before restoration or quota-consuming submission and can be corrected", async () => {
+  mock.method(globalThis, "fetch", async () => Response.json(results.shift()));
+  results = [{passed:true,errors:[],objects:1,definition:{...original,id:'candidate'}}];
+  const session = await create();
+  const edit = {op:'expression',nodeId:'sphere',input:1,text:'Sqrt(x)+20'};
+  const rejected=await session.test({edits:[edit],reason:'Square root'});
+  assert.equal(rejected.preflight,true);
+  assert.equal(rejected.testsRemaining,2);
+  assert.equal(restores,0);
+  assert.equal(submitted.length,0);
+  assert.equal(session.attempts(),0);
+  await session.test({edits:[{...edit,text:'x^0.5+20'}],reason:'Corrected arithmetic'});
+  assert.equal(session.passed(),true);
+  assert.equal(session.attempts(),1);
+  await session.test({edits:[edit],reason:'Invalid refinement'});
+  assert.equal(session.passed(),false);
+  assert.equal(session.resultUrl(),null);
+  assert.equal(session.definition().id,'candidate');
+  assert.equal(session.attempts(),1);
+  assert.equal(submitted.length,1);
+  mock.restoreAll();
+});
 test("failed edits leave the original; a corrected candidate is adopted only after a successful test", async () => {
   mock.method(globalThis, "fetch", async () => Response.json(results.shift()));
   results = [

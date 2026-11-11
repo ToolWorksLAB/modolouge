@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { searchComponents } from '../lib/component-catalog.js';
+import { searchComponents, searchComponentSet } from '../lib/component-catalog.js';
 import { graphEditsSchema } from '../lib/graph-edits.js';
 import native from '../worker/component-catalog.json' with {type:'json'};
 import metadata from '../lib/component-catalog-data.json' with {type:'json'};
@@ -22,4 +22,15 @@ test('add operations use the bounded existing edit contract',()=>{
  assert(graphEditsSchema.safeParse([edit]).success);
  assert(!graphEditsSchema.safeParse(Array(97).fill(edit)).success);
  assert(!graphEditsSchema.safeParse([{...edit,xml:'<archive />'}]).success);
+});
+
+test('batched discovery preserves per-query matches and shares helper metadata',()=>{
+ const result=searchComponentSet(['Sphere','Populate Surface',' Sphere ','unknown-plugin']);
+ assert.equal(result.results.length,3);
+ assert(result.results[0].matches.some(c=>c.name==='Sphere'));
+ assert(result.results[1].matches.some(c=>c.name.includes('Populate')));
+ assert.equal(result.results[2].matches.length,0);
+ assert(result.results.every(r=>r.matches.length<=3));
+ assert(result.supportComponents.some(c=>c.name==='Number Slider'));
+ assert(!JSON.stringify(result).includes('"xml"'));
 });
