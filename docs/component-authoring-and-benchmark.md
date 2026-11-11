@@ -37,4 +37,14 @@ The three full agent smoke tests each constructed the requested graph and comple
 
 ## Deployment
 
+### Production queue regression, 2026-11-11
+
+The bridge and API accepted 96 edits, but `worker/execute.js` still rejected more than 24. This caused the user's 54- and 44-edit sphere drafts to fail with `Invalid graph edit job`. The worker now accepts the same 96-edit limit and reports distinct state, type and limit errors.
+
+The earlier agent smoke harness called the bridge and Compute directly; it did **not** cover the production queue or the execute.js guard. `tests/worker-edits.test.mjs` now exercises that guard, including 25, 43, 54 and 96 edits, rejection at 97, and immutable candidate storage. All 70 Node tests passed.
+
+`benchmarks/worker-job-linux.mjs` replays saved edits against private copied definitions through real SQS, the production worker, bridge and Compute. With `REGRESSION_EXTERNAL_QUEUE=1` and a unique `REGRESSION_JOB_ID`, an authorized queue producer submits the ID after the JOB record exists; the worker role does not need SendMessage permission. The 44-edit replay passed with 66 preview objects and no errors. The 54-edit replay passed the repaired guard but correctly rejected its unsupported `Sqrt(x)+20` input expression; it is not counted as a successful solve.
+
+`benchmarks/satellite-sweep-linux.mjs` checked the successful candidate against real Compute: one main sphere, one surface and 64 satellites remained present at main radii 10, 23, 50 and 90. Satellite radii decreased to approximately 5.3333, 3.7209, 2.2857 and 1.4545 respectively. These tests use isolated records and leave the user's saved app and source unchanged.
+
 Build `worker/tools/GhBridge` with the embedded catalog and deploy the matching policy. Build `worker/tools/ModolougeGeometry` and install its DLL as `ModolougeGeometry.gha` in the Rhino service user's Grasshopper Libraries directory; restart Compute to load it. `worker/install.sh` includes those steps. Deploy the worker before the frontend starts issuing new edit operations. Keep the source upload and the previous worker/plugin artifacts available for rollback.

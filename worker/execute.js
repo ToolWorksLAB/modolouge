@@ -29,12 +29,12 @@ export async function execute(job) {
   )
     throw new Error("Definition expired or unavailable. Upload it again.");
   if (job.type === "edit") {
-    if (
-      def.status !== "ready" ||
-      !Array.isArray(job.edits) ||
-      job.edits.length > 24
-    )
-      throw new Error("Invalid graph edit job.");
+    if (def.status !== "ready")
+      throw new Error("Definition is not ready for graph edits.");
+    if (!Array.isArray(job.edits))
+      throw new Error("Graph edits must be an array.");
+    if (job.edits.length > 96)
+      throw new Error(`Graph edit limit exceeded: received ${job.edits.length}; maximum is 96.`);
     const original = JSON.parse(
       new TextDecoder().decode(await download(def.preparedKey)),
     );
